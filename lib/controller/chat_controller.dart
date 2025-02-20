@@ -12,7 +12,7 @@ class ChatController {
       updateMessages(List.from(messages));
 
       // Simulating received message after delay
-      Future.delayed(Duration(milliseconds: 500), () {
+      Future.delayed(Duration(seconds: 3), () {
         messages.add(MessageModel(message: message, isSentByUser: false));
         updateMessages(List.from(messages));
       });

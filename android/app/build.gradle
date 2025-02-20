@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.wtsp_clone"
-    compileSdkVersion 34
+    compileSdkVersion 33
     //compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

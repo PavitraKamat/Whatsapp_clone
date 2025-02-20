@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/message_model.dart';
@@ -16,25 +17,24 @@ class IndividualPage extends StatefulWidget {
 }
 
 class _IndividualPageState extends State<IndividualPage> {
-  TextEditingController _messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   List<MessageModel> messages = [];
   bool isTyping = false;
-  ChatController _chatController = ChatController();
+  final ChatController _chatController = ChatController();
+  bool isReceiverTyping = false;
 
   @override
   void initState() {
     super.initState();
+    setState(() {
+      widget.contact.lastSeen = "Last seen at ${_getCurrentTime()}";
+    });
+
     _messageController.addListener(() {
       setState(() {
         isTyping = _messageController.text.isNotEmpty;
       });
     });
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
   }
 
   void _updateMessages(List<MessageModel> updatedMessages) {
@@ -45,10 +45,34 @@ class _IndividualPageState extends State<IndividualPage> {
 
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
+      setState(() {
+        widget.contact.lastSeen = "online"; // Show "online" when typing
+      });
+
       _chatController.sendMessage(
           _messageController.text.trim(), _updateMessages);
+
       _messageController.clear();
+
+      Future.delayed(Duration(seconds: 5), () {
+        if (mounted) {
+          setState(() {
+            widget.contact.lastSeen = "Last seen at ${_getCurrentTime()}";
+          });
+        }
+      });
     }
+  }
+
+  String _getCurrentTime() {
+    return DateFormat('hh:mm a').format(DateTime.now());
+  }
+
+  @override
+  void dispose() {
+    widget.contact.lastSeen = "Last seen at ${_getCurrentTime()}";
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override

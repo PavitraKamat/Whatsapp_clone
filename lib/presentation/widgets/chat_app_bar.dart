@@ -55,7 +55,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               contact.name,
               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
             ),
-            Text("last seen today at 5:59 PM", style: TextStyle(fontSize: 13)),
+            Text(contact.lastSeen, style: TextStyle(fontSize: 13)),
           ],
         ),
       ),

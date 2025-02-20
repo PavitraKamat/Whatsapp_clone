@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/profile_image_helper.dart';
@@ -132,16 +133,17 @@ class _ContactsScreenState extends State<ContactsScreen> {
                         onTap: () {
                           // Convert Contact into ContactModel
                           ContactModel selectedContact = ContactModel(
-                            name: contact.displayName ?? "Unknown",
-                            phone: contact.phones!.isNotEmpty
-                                ? contact.phones!.first.value ?? "No Number"
-                                : "No Number",
-                            image: getProfileImage(contact.phones!.isNotEmpty
-                                ? contact.phones!.first.value ??
-                                    contact.displayName ??
-                                    "Unknown"
-                                : contact.displayName ?? "Unknown"),
-                          );
+                              name: contact.displayName ?? "Unknown",
+                              phone: contact.phones!.isNotEmpty
+                                  ? contact.phones!.first.value ?? "No Number"
+                                  : "No Number",
+                              image: getProfileImage(contact.phones!.isNotEmpty
+                                  ? contact.phones!.first.value ??
+                                      contact.displayName ??
+                                      "Unknown"
+                                  : contact.displayName ?? "Unknown"),
+                              lastSeen:
+                                  "Last seen at ${DateFormat('hh:mm a').format(DateTime.now())}");
 
                           // Navigate to IndividualPage with the selected contact
                           Navigator.push(
