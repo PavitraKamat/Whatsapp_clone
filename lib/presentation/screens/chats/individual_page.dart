@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
+import 'package:wtsp_clone/data/models/message_model.dart';
+import 'package:wtsp_clone/presentation/widgets/chat_app_bar.dart';
+import 'package:wtsp_clone/presentation/widgets/input_field.dart';
+import 'package:wtsp_clone/presentation/widgets/message_bubble.dart';
 
 class IndividualPage extends StatefulWidget {
   final ContactModel contact;
@@ -12,8 +17,9 @@ class IndividualPage extends StatefulWidget {
 
 class _IndividualPageState extends State<IndividualPage> {
   TextEditingController _messageController = TextEditingController();
-  List<String> messages = [];
+  List<MessageModel> messages = [];
   bool isTyping = false;
+  ChatController _chatController = ChatController();
 
   @override
   void initState() {
@@ -25,176 +31,59 @@ class _IndividualPageState extends State<IndividualPage> {
     });
   }
 
-  void sendMessage() {
-    if (_messageController.text.isNotEmpty) {
-      String userMessage = _messageController.text;
-
-      setState(() {
-        messages.add(userMessage);
-        _messageController.clear();
-      });
-      print("User sent: $userMessage");
-      Future.delayed(Duration(microseconds: 300), () {
-        String responseMessage = "$userMessage";
-        setState(() {
-          messages.add(responseMessage);
-        });
-        print("Received response: $responseMessage");
-      });
-    }
-  }
-
   @override
   void dispose() {
     _messageController.dispose();
     super.dispose();
   }
 
+  void _updateMessages(List<MessageModel> updatedMessages) {
+    setState(() {
+      messages = updatedMessages;
+    });
+  }
+
+  void _sendMessage() {
+    if (_messageController.text.trim().isNotEmpty) {
+      _chatController.sendMessage(
+          _messageController.text.trim(), _updateMessages);
+      _messageController.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Image.asset(
-        "assets/images/whatsapp_background.png",
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        fit: BoxFit.cover,
-      ),
-      Scaffold(
-        resizeToAvoidBottomInset: true,
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          titleSpacing: 0,
-          leadingWidth: 80,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.arrow_back, size: 24, color: Colors.black),
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.blueGrey,
-                  backgroundImage: widget.contact.image.isNotEmpty
-                      ? AssetImage(widget.contact.image)
-                      : AssetImage("assets/images/profile.jpg"),
-                ),
-              ],
-            ),
-          ),
-          title: InkWell(
-            child: Container(
-              margin: EdgeInsets.all(5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.contact.name,
-                    style:
-                        TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "last seen today at 5:59 PM",
-                    style: TextStyle(fontSize: 13),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
-            IconButton(onPressed: () {}, icon: Icon(Icons.call)),
-            PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert),
-              onSelected: (value) => print(value),
-              itemBuilder: (BuildContext context) => [
-                PopupMenuItem(child: Text("Search"), value: "Search"),
-                PopupMenuItem(child: Text("Add to List"), value: "Add to List"),
-                PopupMenuItem(
-                    child: Text("Media, Links, and Docs"), value: "Media"),
-              ],
-            ),
-          ],
-          backgroundColor: Colors.teal,
+    return Stack(
+      children: [
+        Image.asset(
+          "assets/images/whatsapp_background.png",
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          fit: BoxFit.cover,
         ),
-        body: Stack(
-          children: [
-            ListView(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: TextFormField(
-                            controller: _messageController,
-                            textAlignVertical: TextAlignVertical.center,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            decoration: InputDecoration(
-                              hintText: "Type a message",
-                              border: InputBorder.none,
-                              prefixIcon: IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.emoji_emotions),
-                                color: const Color.fromARGB(255, 53, 52, 52),
-                              ),
-                              suffixIcon: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.attach_file)),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(Icons.camera_alt)),
-                                ],
-                              ),
-                              contentPadding:
-                                  EdgeInsets.symmetric(vertical: 10),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 5, bottom: 2),
-                      child: CircleAvatar(
-                        radius: 25,
-                        backgroundColor: Colors.teal,
-                        child: IconButton(
-                          icon: Icon(
-                            isTyping ? Icons.send : Icons.mic,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            if (isTyping) {
-                              sendMessage();
-                            } else {
-                              print("Recording voice message");
-                            }
-                          },
-                        ),
-                      ),
-                    )
-                  ],
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: ChatAppBar(contact: widget.contact),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    return MessageBubble(message: messages[index]);
+                  },
                 ),
               ),
-            )
-          ],
+              MessageInputField(
+                controller: _messageController,
+                onSend: _sendMessage,
+                isTyping: isTyping,
+              ),
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }

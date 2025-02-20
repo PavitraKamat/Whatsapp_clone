@@ -3,7 +3,7 @@
 class ContactModel {
   final String name;
   final String phone;
-  final String image;
+  String image;
 
   ContactModel({required this.name, required this.phone, required this.image});
 
@@ -11,7 +11,7 @@ class ContactModel {
     return ContactModel(
       name: json['name'],
       phone: json['phone'],
-      image: json['image'] ?? "assets/images/default_avatar.png",
+      image: json['image'] ?? "",
     );
   }
 }

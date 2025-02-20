@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/presentation/screens/calls/call_screen.dart';
-import 'package:wtsp_clone/presentation/screens/chats/chats_screen.dart';
+//import 'package:wtsp_clone/presentation/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/presentation/screens/communities/comunities_screen.dart';
-//import 'package:wtsp_clone/presentation/screens/contacts/contacts_screen.dart';
+import 'package:wtsp_clone/presentation/screens/contacts/contacts_screen.dart';
 import 'package:wtsp_clone/presentation/screens/settings/settings_screen.dart';
 import 'package:wtsp_clone/presentation/screens/updates/updates_screen.dart';
 
@@ -15,8 +15,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    //ContactsScreen(),
-    ChatsScreen(),
+    ContactsScreen(),
+    //ChatsScreen(),
     UpdatesScreen(),
     CommunitiesScreen(),
     CallsScreen(),
