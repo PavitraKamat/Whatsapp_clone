@@ -15,7 +15,7 @@ class MessageInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0, left: 10, right: 10),
+      padding: const EdgeInsets.only(bottom: 20.0, left: 10, right: 10),
       child: Row(
         children: [
           Expanded(

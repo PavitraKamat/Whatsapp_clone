@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/profile_image_helper.dart';
@@ -73,7 +72,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           ],
         ),
       ],
-      backgroundColor: Colors.teal,
+      backgroundColor: Colors.white,
     );
   }
 

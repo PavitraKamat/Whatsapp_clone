@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wtsp_clone/presentation/screens/settings/edit_name_screen.dart';
 import 'package:wtsp_clone/presentation/widgets/profile_avatar.dart';
 import 'package:wtsp_clone/presentation/widgets/utils.dart';
 
@@ -30,7 +31,6 @@ class ProfileEditScreen extends StatefulWidget {
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _nameController;
   late TextEditingController _statusController;
-
   Uint8List? _image;
 
   @override
@@ -52,7 +52,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Edit Profile"), backgroundColor: Colors.teal),
+      appBar:
+          AppBar(title: Text("Edit Profile"), backgroundColor: Colors.white),
       body: ListView(
         padding: EdgeInsets.all(20),
         children: [
@@ -60,12 +61,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             child: ProfileAvatar(image: _image, radius: 60, onTap: selectImage),
           ),
           SizedBox(height: 30),
-          _buildEditableField("Name", _nameController, Icons.person, (value) {
-            widget.onNameChanged(value);
-          }),
-          _buildEditableField("Status", _statusController, Icons.info, (value) {
-            widget.onStatusChanged(value);
-          }),
+          _buildEditableField(
+              "Name", _nameController, Icons.person, widget.onNameChanged),
+          _buildEditableField(
+              "Status", _statusController, Icons.info, widget.onStatusChanged),
           ListTile(
             leading: Icon(Icons.phone, color: Colors.teal),
             title: Text(widget.phoneNumber),
@@ -81,12 +80,60 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(height: 5),
         TextField(
           controller: controller,
           onChanged: onChanged,
           decoration: InputDecoration(
             prefixIcon: Icon(icon, color: Colors.teal),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: Colors.teal),
+            ),
+            filled: true,
+            fillColor: Colors.grey[200], // Light grey background
+            suffixIcon: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.edit, color: Colors.teal),
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditNameScreen(
+                            name: _nameController.text,
+                            status: _statusController.text,
+                          ),
+                        ),
+                      );
+
+                      // If the user saves changes, update the profile screen
+                      if (result != null && result is Map<String, String>) {
+                        setState(() {
+                          _nameController.text = result['name']!;
+                          _statusController.text = result['status']!;
+                        });
+
+                        widget.onNameChanged(result['name']!);
+                        widget.onStatusChanged(result['status']!);
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.delete_outline, color: Colors.black),
+                    onPressed: () {
+                      setState(() {
+                        controller.clear();
+                      });
+                      onChanged("");
+                    },
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
         SizedBox(height: 20),

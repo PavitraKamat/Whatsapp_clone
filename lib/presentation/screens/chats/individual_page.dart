@@ -3,9 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/message_model.dart';
-import 'package:wtsp_clone/presentation/widgets/chat_app_bar.dart';
-import 'package:wtsp_clone/presentation/widgets/input_field.dart';
 import 'package:wtsp_clone/presentation/widgets/message_bubble.dart';
+import 'package:wtsp_clone/presentation/widgets/input_field.dart';
+import 'package:wtsp_clone/presentation/widgets/chat_app_bar.dart';
+import 'package:wtsp_clone/presentation/widgets/type_indicator.dart';
 
 class IndividualPage extends StatefulWidget {
   final ContactModel contact;
@@ -35,18 +36,42 @@ class _IndividualPageState extends State<IndividualPage> {
         isTyping = _messageController.text.isNotEmpty;
       });
     });
+
+    //_simulateReceiverTyping();
   }
 
-  void _updateMessages(List<MessageModel> updatedMessages) {
+  void _simulateReceiverTyping() {
+    Future.delayed(Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          isReceiverTyping = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              isReceiverTyping = false;
+            });
+          }
+        });
+      }
+    });
+  }
+
+  void _receiveMessage(String text) {
     setState(() {
-      messages = updatedMessages;
+      messages.add(MessageModel(
+        message: text,
+        time: _getCurrentTime(),
+        isSentByUser: false,
+      ));
     });
   }
 
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
       setState(() {
-        widget.contact.lastSeen = "online"; // Show "online" when typing
+        widget.contact.lastSeen = "online";
       });
 
       _chatController.sendMessage(
@@ -54,14 +79,22 @@ class _IndividualPageState extends State<IndividualPage> {
 
       _messageController.clear();
 
-      Future.delayed(Duration(seconds: 5), () {
+      Future.delayed(Duration(seconds: 7), () {
         if (mounted) {
           setState(() {
             widget.contact.lastSeen = "Last seen at ${_getCurrentTime()}";
           });
         }
       });
+
+      _simulateReceiverTyping();
     }
+  }
+
+  void _updateMessages(List<MessageModel> updatedMessages) {
+    setState(() {
+      messages = updatedMessages;
+    });
   }
 
   String _getCurrentTime() {
@@ -93,8 +126,17 @@ class _IndividualPageState extends State<IndividualPage> {
               Expanded(
                 child: ListView.builder(
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  itemCount: messages.length,
+                  itemCount: messages.length + (isReceiverTyping ? 1 : 0),
                   itemBuilder: (context, index) {
+                    if (isReceiverTyping && index == messages.length) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: TypeIndicator(),
+                        ),
+                      );
+                    }
                     return MessageBubble(message: messages[index]);
                   },
                 ),

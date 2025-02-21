@@ -1,6 +1,9 @@
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wtsp_clone/presentation/widgets/utils.dart';
 import 'profile_edit_screen.dart';
 
@@ -15,11 +18,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String status = "Hey there! I'm using WhatsApp";
   String phoneNumber = "+91 9876543210";
 
-  void selectImage() async {
-    Uint8List img = await pickImage(ImageSource.gallery);
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _image = img;
+      name = prefs.getString('name') ?? "Alice";
+      status = prefs.getString('status') ?? "Hey there! I'm using WhatsApp";
+      phoneNumber = prefs.getString('phoneNumber') ?? "+91 9876543210";
     });
+
+    String? imagePath = prefs.getString('profileImagePath');
+    if (imagePath != null && File(imagePath).existsSync()) {
+      setState(() {
+        _image = File(imagePath).readAsBytesSync();
+      });
+    }
+  }
+
+  Future<void> _saveProfileData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('name', name);
+    prefs.setString('status', status);
+    prefs.setString('phoneNumber', phoneNumber);
+
+    if (_image != null) {
+      String imagePath = await _saveImageToLocalStorage(_image!);
+      prefs.setString('profileImagePath', imagePath);
+    }
+  }
+
+  Future<String> _saveImageToLocalStorage(Uint8List imageBytes) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/profile_image.png';
+    File file = File(filePath);
+    await file.writeAsBytes(imageBytes);
+    return filePath;
+  }
+
+  void selectImage() async {
+    Uint8List? img = await pickImage(ImageSource.gallery);
+    if (img != null) {
+      setState(() {
+        _image = img;
+      });
+      _saveProfileData(); // Save image persistently
+    }
   }
 
   @override
@@ -52,16 +100,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       setState(() {
                         _image = img;
                       });
+                      _saveProfileData();
                     },
                     onNameChanged: (newName) {
                       setState(() {
                         name = newName;
                       });
+                      _saveProfileData();
                     },
                     onStatusChanged: (newStatus) {
                       setState(() {
                         status = newStatus;
                       });
+                      _saveProfileData();
                     },
                   ),
                 ),
