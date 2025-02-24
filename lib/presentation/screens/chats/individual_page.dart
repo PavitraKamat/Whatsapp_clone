@@ -28,6 +28,7 @@ class _IndividualPageState extends State<IndividualPage> {
   void initState() {
     super.initState();
     setState(() {
+      _loadMessages();
       widget.contact.lastSeen = "Last seen at ${_getCurrentTime()}";
     });
 
@@ -36,8 +37,14 @@ class _IndividualPageState extends State<IndividualPage> {
         isTyping = _messageController.text.isNotEmpty;
       });
     });
-
     //_simulateReceiverTyping();
+  }
+
+  Future<void> _loadMessages() async {
+    await _chatController.loadMessages(widget.contact.id);
+    setState(() {
+      messages = List.from(_chatController.messages);
+    });
   }
 
   void _simulateReceiverTyping() {
@@ -59,13 +66,18 @@ class _IndividualPageState extends State<IndividualPage> {
   }
 
   void _receiveMessage(String text) {
+    MessageModel receivedMessage = MessageModel(
+      contactId: widget.contact.id,
+      message: text,
+      time: _getCurrentTime(),
+      isSentByUser: false,
+    );
+
     setState(() {
-      messages.add(MessageModel(
-        message: text,
-        time: _getCurrentTime(),
-        isSentByUser: false,
-      ));
+      messages.add(receivedMessage);
     });
+
+    _chatController.saveMessage(receivedMessage, widget.contact.id);
   }
 
   void _sendMessage() {
@@ -75,7 +87,7 @@ class _IndividualPageState extends State<IndividualPage> {
       });
 
       _chatController.sendMessage(
-          _messageController.text.trim(), _updateMessages);
+          _messageController.text.trim(), _updateMessages, widget.contact.id);
 
       _messageController.clear();
 

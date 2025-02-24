@@ -8,7 +8,6 @@ class ProfileStorage {
   static const String _keyStatus = 'user_status';
   static const String _keyProfileImage = 'profile_image_path';
 
-  /// **Save profile data (name, status, image) to SharedPreferences**
   static Future<void> saveProfile(
       String name, String status, String imagePath) async {
     final prefs = await SharedPreferences.getInstance();
@@ -17,7 +16,6 @@ class ProfileStorage {
     await prefs.setString(_keyProfileImage, imagePath);
   }
 
-  /// **Retrieve profile data**
   static Future<Map<String, String?>> getProfile() async {
     final prefs = await SharedPreferences.getInstance();
     return {
@@ -27,7 +25,6 @@ class ProfileStorage {
     };
   }
 
-  /// **Save Image to App Directory (Persistent)**
   static Future<String> saveImageToLocal(File imageFile) async {
     final directory = await getApplicationDocumentsDirectory();
     final String imagePath = '${directory.path}/profile_image.png';

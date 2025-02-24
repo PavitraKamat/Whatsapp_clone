@@ -2,11 +2,11 @@ import 'dart:math';
 
 // List of default profile images
 final List<String> profileImages = [
-  "assets/images/profile1.jpg",
-  "assets/images/profile2.jpg",
-  "assets/images/profile3.jpg",
   "assets/images/profile4.jpg",
   "assets/images/profile5.jpg",
+  "assets/images/profile2.jpg",
+  "assets/images/profile3.jpg",
+  "assets/images/profile1.jpg"
 ];
 
 // Function to get a consistent profile image based on the contact’s name or phone number

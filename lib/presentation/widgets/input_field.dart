@@ -29,7 +29,7 @@ class MessageInputField extends StatelessWidget {
                 child: TextFormField(
                   controller: controller,
                   textAlignVertical: TextAlignVertical.center,
-                  keyboardType: TextInputType.multiline,
+                  //keyboardType: TextInputType.multiline,
                   maxLines: null,
                   decoration: InputDecoration(
                     hintText: "Type a message",

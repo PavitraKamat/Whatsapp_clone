@@ -133,6 +133,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
                         onTap: () {
                           // Convert Contact into ContactModel
                           ContactModel selectedContact = ContactModel(
+                              id: contact.phones!.isNotEmpty
+                                  ? contact.phones!.first.value ?? "Unknown"
+                                  : "Unknown",
                               name: contact.displayName ?? "Unknown",
                               phone: contact.phones!.isNotEmpty
                                   ? contact.phones!.first.value ?? "No Number"

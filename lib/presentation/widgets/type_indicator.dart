@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class TypeIndicator extends StatelessWidget {
   @override
-  Widget build(Object context) {
+  Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

@@ -16,7 +16,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     ContactsScreen(),
-    //ChatsScreen(),
     UpdatesScreen(),
     CommunitiesScreen(),
     CallsScreen(),
@@ -59,16 +58,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {},
                 ),
                 PopupMenuButton<String>(
-                  onSelected: _onMenuSelected,
                   icon: Icon(Icons.more_vert),
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      PopupMenuItem<String>(
-                        value: "Settings",
-                        child: Text("Settings"),
-                      ),
-                    ];
-                  },
+                  onSelected: _onMenuSelected,
+                  itemBuilder: (context) => [
+                    PopupMenuItem(child: Text("New Group"), value: "New Group"),
+                    PopupMenuItem(
+                        child: Text("Linked device"), value: "Linked device"),
+                    PopupMenuItem(child: Text("Payment"), value: "Payment"),
+                    PopupMenuItem(
+                        child: Text("Starred messages"),
+                        value: "Starred messages"),
+                    PopupMenuItem(child: Text("Settings"), value: "Settings"),
+                  ],
                 ),
               ],
             )
