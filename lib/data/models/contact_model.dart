@@ -13,23 +13,4 @@ class ContactModel {
       required this.phone,
       required this.image,
       required this.lastSeen});
-
-  // factory ContactModel.fromJson(Map<String, dynamic> json) {
-  //   return ContactModel(
-  //     name: json['name'],
-  //     phone: json['phone'],
-  //     image: json['image'] ?? "",
-  //     lastseen: :
-  //   );
-  // }
 }
-
-//   factory ContactModel.fromContact(Contact contact) {
-//     return ContactModel(
-//       name: contact.displayName ?? "Unknown",
-//       phone: contact.phones!.isNotEmpty
-//           ? contact.phones!.first.value!
-//           : "No number",
-//     );
-//   }
-// }

@@ -4,7 +4,6 @@ import 'package:wtsp_clone/data/models/message_model.dart';
 
 class ChatController {
   List<MessageModel> messages = [];
-
   Future<void> loadMessages(String contactId) async {
     messages = await ChatDatabase.instance.getMessages(contactId);
   }

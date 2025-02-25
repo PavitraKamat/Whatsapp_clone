@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:wtsp_clone/presentation/screens/settings/edit_name_screen.dart';
+//import 'package:wtsp_clone/presentation/screens/settings/edit_name_screen.dart';
+import 'package:wtsp_clone/presentation/widgets/bottom_sheet.dart';
 import 'package:wtsp_clone/presentation/widgets/profile_avatar.dart';
 import 'package:wtsp_clone/presentation/widgets/utils.dart';
 
@@ -49,6 +50,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     widget.onImageSelected(img);
   }
 
+  void _showEditBottomSheet({
+    required String title,
+    required TextEditingController controller,
+    required Function(String) onSave,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => EditBottomSheet(
+        title: title,
+        controller: controller,
+        onSave: onSave,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,83 +78,118 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             child: ProfileAvatar(image: _image, radius: 60, onTap: selectImage),
           ),
           SizedBox(height: 30),
-          _buildEditableField(
-              "Name", _nameController, Icons.person, widget.onNameChanged),
-          _buildEditableField(
-              "Status", _statusController, Icons.info, widget.onStatusChanged),
+          ListTile(
+            leading: Icon(Icons.person, color: Colors.teal),
+            title: Text("Name", style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(widget.name),
+            onTap: () => _showEditBottomSheet(
+              title: "Name",
+              controller: _nameController,
+              onSave: widget.onNameChanged,
+            ),
+          ),
+          //Divider(),
+          ListTile(
+            leading: Icon(Icons.info, color: Colors.teal),
+            title: Text("About", style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(widget.status),
+            //
+            onTap: () => _showEditBottomSheet(
+              title: "About",
+              controller: _statusController,
+              onSave: widget.onStatusChanged,
+            ),
+          ),
+          //Divider(),
           ListTile(
             leading: Icon(Icons.phone, color: Colors.teal),
-            title: Text(widget.phoneNumber),
+            title: Text("Phone Number",
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(widget.phoneNumber),
           ),
         ],
       ),
     );
   }
-
-  Widget _buildEditableField(String label, TextEditingController controller,
-      IconData icon, Function(String) onChanged) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-        SizedBox(height: 5),
-        TextField(
-          controller: controller,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: Colors.teal),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.teal),
-            ),
-            filled: true,
-            fillColor: Colors.grey[200], // Light grey background
-            suffixIcon: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.edit, color: Colors.teal),
-                    onPressed: () async {
-                      final result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditNameScreen(
-                            name: _nameController.text,
-                            status: _statusController.text,
-                          ),
-                        ),
-                      );
-
-                      // If the user saves changes, update the profile screen
-                      if (result != null && result is Map<String, String>) {
-                        setState(() {
-                          _nameController.text = result['name']!;
-                          _statusController.text = result['status']!;
-                        });
-
-                        widget.onNameChanged(result['name']!);
-                        widget.onStatusChanged(result['status']!);
-                      }
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete_outline, color: Colors.black),
-                    onPressed: () {
-                      setState(() {
-                        controller.clear();
-                      });
-                      onChanged("");
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 20),
-      ],
-    );
-  }
 }
+
+//           _buildEditableField(
+//               "Name", _nameController, Icons.person, widget.onNameChanged),
+//           _buildEditableField(
+//               "Status", _statusController, Icons.info, widget.onStatusChanged),
+//           ListTile(
+//             leading: Icon(Icons.phone, color: Colors.teal),
+//             title: Text(widget.phoneNumber),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildEditableField(String label, TextEditingController controller,
+//       IconData icon, Function(String) onChanged) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
+//         SizedBox(height: 5),
+//         TextField(
+//           controller: controller,
+//           onChanged: onChanged,
+//           decoration: InputDecoration(
+//             prefixIcon: Icon(icon, color: Colors.teal),
+//             border: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10),
+//               borderSide: BorderSide(color: Colors.teal),
+//             ),
+//             filled: true,
+//             fillColor: Colors.grey[200], // Light grey background
+//             suffixIcon: Padding(
+//               padding: EdgeInsets.symmetric(horizontal: 8.0),
+//               child: Row(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   IconButton(
+//                     icon: Icon(Icons.edit, color: Colors.teal),
+//                     onPressed: () async {
+//                       final result = await Navigator.push(
+//                         context,
+//                         MaterialPageRoute(
+//                           builder: (context) => EditNameScreen(
+//                             name: _nameController.text,
+//                             status: _statusController.text,
+//                           ),
+//                         ),
+//                       );
+
+//                       // If the user saves changes, update the profile screen
+//                       if (result != null && result is Map<String, String>) {
+//                         setState(() {
+//                           _nameController.text = result['name']!;
+//                           _statusController.text = result['status']!;
+//                         });
+
+//                         widget.onNameChanged(result['name']!);
+//                         widget.onStatusChanged(result['status']!);
+//                       }
+//                     },
+//                   ),
+//                   IconButton(
+//                     icon: Icon(Icons.delete_outline, color: Colors.black),
+//                     onPressed: () {
+//                       setState(() {
+//                         controller.clear();
+//                       });
+//                       onChanged("");
+//                     },
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//         SizedBox(height: 20),
+//       ],
+//     );
+//   }
+// }

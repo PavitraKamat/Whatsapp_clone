@@ -16,7 +16,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     ContactsScreen(),
-    UpdatesScreen(),
+    UpdatesScreen(
+      onImageSelected: (image) {},
+      onTextStatusAdded: (text) {},
+    ),
     CommunitiesScreen(),
     CallsScreen(),
   ];
@@ -51,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               backgroundColor: Colors.white,
               elevation: 0,
+              scrolledUnderElevation: 0,
               iconTheme: IconThemeData(color: Colors.black),
               actions: [
                 IconButton(
@@ -58,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {},
                 ),
                 PopupMenuButton<String>(
+                  color: Colors.white,
                   icon: Icon(Icons.more_vert),
                   onSelected: _onMenuSelected,
                   itemBuilder: (context) => [
@@ -75,24 +80,28 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : null,
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        showUnselectedLabels: true,
-        showSelectedLabels: true,
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-        unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
-        items: [
-          _buildNavItem(Icons.chat, "Chats", 0),
-          _buildNavItem(Icons.update, "Updates", 1),
-          _buildNavItem(Icons.groups, "Communities", 2),
-          _buildNavItem(Icons.call, "Calls", 3),
-        ],
-      ),
+      bottomNavigationBar: _bottomNavigationBar(),
+    );
+  }
+
+  Widget _bottomNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: _selectedIndex,
+      onTap: _onItemTapped,
+      type: BottomNavigationBarType.fixed,
+      backgroundColor: Colors.white,
+      selectedItemColor: Colors.black,
+      unselectedItemColor: Colors.black,
+      showUnselectedLabels: true,
+      showSelectedLabels: true,
+      selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
+      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
+      items: [
+        _buildNavItem(Icons.chat, "Chats", 0),
+        _buildNavItem(Icons.update, "Updates", 1),
+        _buildNavItem(Icons.groups, "Communities", 2),
+        _buildNavItem(Icons.call, "Calls", 3),
+      ],
     );
   }
 

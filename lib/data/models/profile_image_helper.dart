@@ -1,5 +1,3 @@
-import 'dart:math';
-
 // List of default profile images
 final List<String> profileImages = [
   "assets/images/profile4.jpg",

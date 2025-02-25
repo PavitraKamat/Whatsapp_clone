@@ -87,7 +87,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(title: Text("Contacts")),
       body: Column(
         children: [
           Padding(

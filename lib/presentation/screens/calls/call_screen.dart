@@ -59,6 +59,7 @@ class _CallScreenState extends State<CallsScreen> {
         elevation: 0,
         actions: [
           PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert),
             onSelected: _onMenuSelected,
             itemBuilder: (BuildContext context) {
               return [
