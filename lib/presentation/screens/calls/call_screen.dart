@@ -57,6 +57,7 @@ class _CallScreenState extends State<CallsScreen> {
         ),
         backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
         actions: [
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert),

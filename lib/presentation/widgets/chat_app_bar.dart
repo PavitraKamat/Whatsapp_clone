@@ -29,6 +29,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       titleSpacing: 0,
+      scrolledUnderElevation: 0,
       leadingWidth: 80,
       leading: InkWell(
         onTap: () => Navigator.pop(context),

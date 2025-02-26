@@ -45,4 +45,8 @@ class ChatController {
   Future<void> saveMessage(MessageModel message, String contactId) async {
     await ChatDatabase.instance.insertMessage(message, contactId);
   }
+
+  Future<MessageModel?> getLastReceivedMessage(String contactId) async {
+    return await ChatDatabase.instance.getLastReceivedMessage(contactId);
+  }
 }

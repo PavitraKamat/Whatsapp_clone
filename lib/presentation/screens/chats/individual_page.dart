@@ -45,39 +45,19 @@ class _IndividualPageState extends State<IndividualPage> {
     setState(() {
       messages = List.from(_chatController.messages);
     });
+
+    // Update last seen based on the last received message
+    await _updateLastSeenFromDatabase();
   }
 
-  void _simulateReceiverTyping() {
-    Future.delayed(Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          isReceiverTyping = true;
-        });
-
-        Future.delayed(Duration(seconds: 3), () {
-          if (mounted) {
-            setState(() {
-              isReceiverTyping = false;
-            });
-          }
-        });
-      }
-    });
-  }
-
-  void _receiveMessage(String text) {
-    MessageModel receivedMessage = MessageModel(
-      contactId: widget.contact.id,
-      message: text,
-      time: _getCurrentTime(),
-      isSentByUser: false,
-    );
-
-    setState(() {
-      messages.add(receivedMessage);
-    });
-
-    _chatController.saveMessage(receivedMessage, widget.contact.id);
+  Future<void> _updateLastSeenFromDatabase() async {
+    MessageModel? lastMessage =
+        await _chatController.getLastReceivedMessage(widget.contact.id);
+    if (lastMessage != null) {
+      setState(() {
+        widget.contact.lastSeen = "Last seen at ${lastMessage.time}";
+      });
+    }
   }
 
   void _sendMessage() {
@@ -101,6 +81,41 @@ class _IndividualPageState extends State<IndividualPage> {
 
       _simulateReceiverTyping();
     }
+  }
+
+  void _receiveMessage(String text) {
+    MessageModel receivedMessage = MessageModel(
+      contactId: widget.contact.id,
+      message: text,
+      time: _getCurrentTime(),
+      isSentByUser: false,
+    );
+
+    setState(() {
+      messages.add(receivedMessage);
+      widget.contact.lastSeen =
+          "Last seen at ${receivedMessage.time}"; // Update last seen correctly
+    });
+
+    _chatController.saveMessage(receivedMessage, widget.contact.id);
+  }
+
+  void _simulateReceiverTyping() {
+    Future.delayed(Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          isReceiverTyping = true;
+        });
+
+        Future.delayed(Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              isReceiverTyping = false;
+            });
+          }
+        });
+      }
+    });
   }
 
   void _updateMessages(List<MessageModel> updatedMessages) {

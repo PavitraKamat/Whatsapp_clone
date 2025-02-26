@@ -57,6 +57,41 @@ class ChatDatabase {
     return result.map((json) => MessageModel.fromMap(json)).toList();
   }
 
+  Future<Map<String, String>?> getLastMessage(String contactId) async {
+    final db = await database;
+    final result = await db.query(
+      'messages',
+      where: 'contactId = ?',
+      whereArgs: [contactId],
+      orderBy: 'time DESC',
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      return {
+        'message': result.first['message'] as String,
+        'time': result.first['time'] as String,
+      };
+    }
+    return null;
+  }
+
+  Future<MessageModel?> getLastReceivedMessage(String contactId) async {
+    final db = await database;
+    final result = await db.query(
+      'messages',
+      where: 'contactId = ? AND isSentByUser = 0',
+      whereArgs: [contactId],
+      orderBy: 'time DESC',
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      return MessageModel.fromMap(result.first);
+    }
+    return null;
+  }
+
   Future<void> clearMessages() async {
     final db = await database;
     await db.delete('messages');

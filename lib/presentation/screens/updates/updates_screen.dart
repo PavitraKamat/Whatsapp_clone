@@ -1,12 +1,14 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wtsp_clone/presentation/screens/updates/image_status_view.dart';
+import 'package:wtsp_clone/presentation/screens/updates/status_view_screen.dart';
 import 'package:wtsp_clone/presentation/screens/updates/text_status_screen.dart';
 import 'package:wtsp_clone/presentation/widgets/utils.dart';
 
 class UpdatesScreen extends StatefulWidget {
   final Function(Uint8List?) onImageSelected;
-  final Function(String) onTextStatusAdded;
+  final Function(Map<String, dynamic>) onTextStatusAdded;
 
   const UpdatesScreen({
     super.key,
@@ -19,22 +21,50 @@ class UpdatesScreen extends StatefulWidget {
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
+  Uint8List? _statusImage;
   Uint8List? _image;
-  String? _textStatus;
-  List<String> statuses = [];
+  Map<String, dynamic>? _textStatus;
+  bool hasStatus = false;
 
   void selectImage() async {
     Uint8List img = await pickImage(ImageSource.gallery);
     setState(() {
-      _image = img;
+      _statusImage = img;
+      hasStatus = true;
     });
     widget.onImageSelected(img);
   }
 
-  void _uploadTextStatus(String status) {
+  void _uploadTextStatus(Map<String, dynamic> status) {
     setState(() {
-      statuses.insert(0, status);
+      _textStatus = status;
+      hasStatus = true;
     });
+    widget.onTextStatusAdded(status);
+  }
+
+  void _viewStatus() {
+    if (_textStatus != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StatusViewScreen(
+            //image: _statusImage!,
+            text: _textStatus!['text'],
+            bgColor: _textStatus!['color'],
+          ),
+        ),
+      );
+    } else if (_statusImage != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImageStatusView(
+            image: _statusImage!,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -52,7 +82,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
         backgroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: Icon(Icons.camera_alt, color: Colors.black),
+            icon: Icon(Icons.camera_alt_outlined, color: Colors.black),
             onPressed: () {},
           ),
           PopupMenuButton<String>(
@@ -76,13 +106,21 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
             ListTile(
               leading: Stack(
                 children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.grey.shade300,
-                    backgroundImage: _image != null
-                        ? MemoryImage(_image!)
-                        : AssetImage("assets/images/profile.jpg")
-                            as ImageProvider,
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: (_statusImage != null || _textStatus != null)
+                          ? Border.all(color: Colors.green, width: 3)
+                          : null,
+                    ),
+                    child: CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.grey.shade300,
+                      backgroundImage: _image != null
+                          ? MemoryImage(_image!)
+                          : AssetImage("assets/images/profile.jpg")
+                              as ImageProvider,
+                    ),
                   ),
                   Positioned(
                     bottom: 0,
@@ -100,7 +138,31 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text("Tap to add status update"),
-              onTap: selectImage,
+              // onTap: () {
+              //   if (_statusImage != null) {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) => ImageStatusView(
+              //           image: _statusImage!,
+              //           // text: _textStatus!['text'],
+              //           // bgColor: _textStatus!['color'],
+              //         ),
+              //       ),
+              //     );
+              //   } else {
+              //     selectImage();
+              //   }
+              // },
+              onTap: () {
+                if (_textStatus != null) {
+                  _viewStatus();
+                } else if (_statusImage != null) {
+                  _viewStatus();
+                } else {
+                  selectImage();
+                }
+              },
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -170,11 +232,8 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
                 ),
               );
 
-              if (result != null && result is String) {
-                setState(() {
-                  _textStatus = result;
-                });
-                widget.onTextStatusAdded(result);
+              if (result != null && result is Map<String, dynamic>) {
+                _uploadTextStatus(result);
               }
             },
             backgroundColor: Colors.blueAccent,
