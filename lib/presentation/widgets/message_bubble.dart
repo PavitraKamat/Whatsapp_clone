@@ -9,6 +9,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isSentByUser = message.isSentByUser;
+    bool isRead = message.isRead;
     double maxWidth = MediaQuery.of(context).size.width * 0.75;
 
     return Align(
@@ -25,8 +26,7 @@ class MessageBubble extends StatelessWidget {
             textDirection: TextDirection.ltr,
           )..layout(maxWidth: maxWidth); // Adjust considering padding
 
-          double textWidth =
-              textPainter.width + 80; // Extra padding for timestamp
+          double textWidth = textPainter.width + 100;
           double containerWidth = textWidth > maxWidth ? maxWidth : textWidth;
 
           return Container(
@@ -53,13 +53,26 @@ class MessageBubble extends StatelessWidget {
                 ),
                 //SizedBox(height: 5),
                 Positioned(
-                  bottom: 0,
+                  bottom: -1,
                   right: 0,
-                  child: Text(
-                    message.time,
-                    style: TextStyle(fontSize: 10, color: Colors.black54),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        message.time,
+                        style: TextStyle(fontSize: 10, color: Colors.black54),
+                      ),
+                      SizedBox(width: 3), // Spacing between time and tick icon
+                      Icon(
+                        Icons.done_all,
+                        size: 14,
+                        color: isRead
+                            ? Colors.blue
+                            : Colors.grey, // Blue for read, grey for sent
+                      ),
+                    ],
                   ),
-                )
+                ),
               ],
             ),
           );

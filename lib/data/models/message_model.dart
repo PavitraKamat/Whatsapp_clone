@@ -4,6 +4,7 @@ class MessageModel {
   final String message;
   final bool isSentByUser;
   final String time;
+  final bool isRead;
 
   MessageModel({
     this.id,
@@ -11,6 +12,7 @@ class MessageModel {
     required this.message,
     required this.isSentByUser,
     required this.time,
+    this.isRead = false,
   });
 
   // Convert MessageModel to a Map for database storage

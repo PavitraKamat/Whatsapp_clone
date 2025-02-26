@@ -1,68 +1,47 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:wtsp_clone/presentation/screens/updates/image_status_view.dart';
-import 'package:wtsp_clone/presentation/screens/updates/status_view_screen.dart';
+import 'package:wtsp_clone/presentation/screens/updates/status_viewer_screen.dart';
 import 'package:wtsp_clone/presentation/screens/updates/text_status_screen.dart';
+import 'package:wtsp_clone/presentation/widgets/profileAvatar.dart';
+import 'package:wtsp_clone/presentation/widgets/status_tile.dart';
+import 'package:wtsp_clone/presentation/widgets/floating_actions.dart';
 import 'package:wtsp_clone/presentation/widgets/utils.dart';
 
 class UpdatesScreen extends StatefulWidget {
-  final Function(Uint8List?) onImageSelected;
-  final Function(Map<String, dynamic>) onTextStatusAdded;
-
-  const UpdatesScreen({
-    super.key,
-    required this.onImageSelected,
-    required this.onTextStatusAdded,
-  });
+  const UpdatesScreen({Key? key}) : super(key: key);
 
   @override
   _UpdatesScreenState createState() => _UpdatesScreenState();
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
-  Uint8List? _statusImage;
   Uint8List? _image;
-  Map<String, dynamic>? _textStatus;
-  bool hasStatus = false;
+  List<Map<String, dynamic>> _statuses = [];
 
   void selectImage() async {
     Uint8List img = await pickImage(ImageSource.gallery);
     setState(() {
-      _statusImage = img;
-      hasStatus = true;
+      _statuses.add({'type': 'image', 'content': img});
     });
-    widget.onImageSelected(img);
   }
 
   void _uploadTextStatus(Map<String, dynamic> status) {
     setState(() {
-      _textStatus = status;
-      hasStatus = true;
+      _statuses.add({
+        'type': 'text',
+        'content': status['text'],
+        'color': status['color']
+      });
     });
-    widget.onTextStatusAdded(status);
   }
 
-  void _viewStatus() {
-    if (_textStatus != null) {
+  void _viewStatuses() {
+    if (_statuses.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => StatusViewScreen(
-            //image: _statusImage!,
-            text: _textStatus!['text'],
-            bgColor: _textStatus!['color'],
-          ),
-        ),
-      );
-    } else if (_statusImage != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ImageStatusView(
-            image: _statusImage!,
-          ),
-        ),
+            builder: (context) => StatusViewerScreen(statuses: _statuses)),
       );
     }
   }
@@ -71,182 +50,57 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Updates",
-          style: TextStyle(
-            color: Colors.teal,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
+        title: const Text("Updates",
+            style: TextStyle(
+                color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 22)),
         backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.camera_alt_outlined, color: Colors.black),
-            onPressed: () {},
-          ),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert),
-            onSelected: (value) {},
-            itemBuilder: (BuildContext context) {
-              return [
-                PopupMenuItem<String>(
-                  value: "Settings",
-                  child: Text("Settings"),
-                ),
-              ];
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: (_statusImage != null || _textStatus != null)
-                          ? Border.all(color: Colors.green, width: 3)
-                          : null,
-                    ),
-                    child: CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.grey.shade300,
-                      backgroundImage: _image != null
-                          ? MemoryImage(_image!)
-                          : AssetImage("assets/images/profile.jpg")
-                              as ImageProvider,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: CircleAvatar(
-                      radius: 10,
-                      backgroundColor: Colors.teal,
-                      child: Icon(Icons.add, color: Colors.white, size: 18),
-                    ),
-                  ),
-                ],
-              ),
-              title: Text(
-                "My Status",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text("Tap to add status update"),
-              // onTap: () {
-              //   if (_statusImage != null) {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) => ImageStatusView(
-              //           image: _statusImage!,
-              //           // text: _textStatus!['text'],
-              //           // bgColor: _textStatus!['color'],
-              //         ),
-              //       ),
-              //     );
-              //   } else {
-              //     selectImage();
-              //   }
-              // },
-              onTap: () {
-                if (_textStatus != null) {
-                  _viewStatus();
-                } else if (_statusImage != null) {
-                  _viewStatus();
-                } else {
-                  selectImage();
-                }
-              },
+              leading: ProfileAvataar(
+                  image: _image,
+                  onSelectImage: selectImage,
+                  hasStatus: _statuses.isNotEmpty),
+              title: const Text("My Status",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text("Tap to add status update"),
+              onTap: _viewStatuses,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                "Recent Updates",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: const Text("Recent Updates",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-            ListTile(
-              leading: CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.grey.shade300,
-                backgroundImage: AssetImage("assets/images/contact1.jpg"),
-              ),
-              title: Text("John Doe"),
-              subtitle: Text("Just now"),
+            StatusTile(
+              imagePath: "assets/images/contact1.jpg",
+              name: "John Doe",
+              subtitle: "Just now",
               onTap: () {},
             ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                "Viewed Updates",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: const Text("Viewed Updates",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
-            ListTile(
-              leading: CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.grey.shade300,
-                backgroundImage: AssetImage("assets/images/contact3.jpg"),
-              ),
-              title: Text("Jane Smith"),
-              subtitle: Text("1 hour ago"),
-              onTap: () {},
-            ),
-            Divider(),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Text(
-                "Channels",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            ListTile(
-              leading: CircleAvatar(
-                radius: 28,
-                backgroundColor: Colors.blue.shade300,
-                backgroundImage: AssetImage("assets/images/channel1.png"),
-              ),
-              title: Text("Flutter Devs"),
-              subtitle: Text("500K followers"),
-              onTap: () {},
-            ),
+            StatusTile(
+                imagePath: "assets/images/contact3.jpg",
+                name: "Jane Smith",
+                subtitle: "1 hour ago",
+                onTap: () {}),
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FloatingActionButton(
-            heroTag: "textStatus",
-            onPressed: () async {
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TextStatusScreen(),
-                ),
-              );
-
-              if (result != null && result is Map<String, dynamic>) {
-                _uploadTextStatus(result);
-              }
-            },
-            backgroundColor: Colors.blueAccent,
-            child: Icon(Icons.edit, color: Colors.white),
-          ),
-          SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: "imageStatus",
-            onPressed: selectImage,
-            backgroundColor: Colors.teal,
-            child: Icon(Icons.camera_alt, color: Colors.white),
-          ),
-        ],
+      floatingActionButton: FloatingActions(
+        onTextStatus: () async {
+          final result = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) => TextStatusScreen()));
+          if (result != null && result is Map<String, dynamic>)
+            _uploadTextStatus(result);
+        },
+        onImageStatus: selectImage,
       ),
     );
   }

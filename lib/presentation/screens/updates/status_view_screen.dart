@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class StatusViewScreen extends StatelessWidget {
   final String text;
   final Color bgColor;
-  //final Uint8List image;
 
   StatusViewScreen({required this.text, required this.bgColor});
 

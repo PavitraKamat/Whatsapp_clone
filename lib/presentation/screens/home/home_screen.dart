@@ -17,9 +17,9 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     ContactsScreen(),
     UpdatesScreen(
-      onImageSelected: (image) {},
-      onTextStatusAdded: (text) {},
-    ),
+        //onImageSelected: (image) {},
+        //onTextStatusAdded: (text) {},
+        ),
     CommunitiesScreen(),
     CallsScreen(),
   ];

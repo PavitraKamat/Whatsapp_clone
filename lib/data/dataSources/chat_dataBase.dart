@@ -10,23 +10,18 @@ class ChatDatabase {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('chat_messages.db');
+    _database = await getDatabase();
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
-
-    return await openDatabase(
-      path,
+  Future<Database> getDatabase() async {
+    final databaseDirPath = await getDatabasesPath();
+    final databasePath = join(databaseDirPath, "chat_messages.db");
+    final database = await openDatabase(
+      databasePath,
       version: 1,
-      onCreate: _createDB,
-    );
-  }
-
-  Future<void> _createDB(Database db, int version) async {
-    await db.execute('''
+      onCreate: (db, version) {
+        db.execute('''
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         contactId TEXT,
@@ -35,7 +30,22 @@ class ChatDatabase {
         time TEXT NOT NULL
       )
     ''');
+      },
+    );
+    return database;
   }
+
+  // Future<void> _createDB(Database db, int version) async {
+  //   await db.execute('''
+  //     CREATE TABLE messages (
+  //       id INTEGER PRIMARY KEY AUTOINCREMENT,
+  //       contactId TEXT,
+  //       message TEXT NOT NULL,
+  //       isSentByUser INTEGER NOT NULL,
+  //       time TEXT NOT NULL
+  //     )
+  //   ''');
+  // }
 
   Future<int> insertMessage(MessageModel message, String contactId) async {
     final db = await database;

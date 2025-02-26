@@ -40,8 +40,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.blueGrey,
-              backgroundImage:
-                  AssetImage(getProfileImage(contact.phone ?? contact.name)),
+              backgroundImage: AssetImage(getProfileImage(contact.phone)),
             ),
           ],
         ),
