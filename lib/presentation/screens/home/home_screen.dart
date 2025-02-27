@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/presentation/screens/calls/call_screen.dart';
-//import 'package:wtsp_clone/presentation/screens/chats/chats_screen.dart';
+import 'package:wtsp_clone/presentation/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/presentation/screens/communities/comunities_screen.dart';
-import 'package:wtsp_clone/presentation/screens/contacts/contacts_screen.dart';
 import 'package:wtsp_clone/presentation/screens/settings/settings_screen.dart';
 import 'package:wtsp_clone/presentation/screens/updates/updates_screen.dart';
 
@@ -15,11 +14,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    ContactsScreen(),
-    UpdatesScreen(
-        //onImageSelected: (image) {},
-        //onTextStatusAdded: (text) {},
-        ),
+    ChatsScreen(),
+    UpdatesScreen(),
     CommunitiesScreen(),
     CallsScreen(),
   ];
@@ -66,14 +62,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.more_vert),
                   onSelected: _onMenuSelected,
                   itemBuilder: (context) => [
-                    PopupMenuItem(child: Text("New Group"), value: "New Group"),
+                    PopupMenuItem(value: "New Group", child: Text("New Group")),
                     PopupMenuItem(
-                        child: Text("Linked device"), value: "Linked device"),
-                    PopupMenuItem(child: Text("Payment"), value: "Payment"),
+                        value: "Linked device", child: Text("Linked device")),
+                    PopupMenuItem(value: "Payment", child: Text("Payment")),
                     PopupMenuItem(
-                        child: Text("Starred messages"),
-                        value: "Starred messages"),
-                    PopupMenuItem(child: Text("Settings"), value: "Settings"),
+                        value: "Starred messages",
+                        child: Text("Starred messages")),
+                    PopupMenuItem(value: "Settings", child: Text("Settings")),
                   ],
                 ),
               ],

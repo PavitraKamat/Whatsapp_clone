@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:wtsp_clone/presentation/widgets/bottom_sheet.dart';
-import 'package:wtsp_clone/presentation/widgets/profile_avatar.dart';
-import 'package:wtsp_clone/presentation/widgets/utils.dart';
+import 'package:wtsp_clone/presentation/components/bottom_sheet.dart';
+import 'package:wtsp_clone/presentation/components/profile_avatar.dart';
+import 'package:wtsp_clone/presentation/components/utils.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   final Uint8List? image;
@@ -40,24 +40,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     super.initState();
     _nameController = TextEditingController(text: widget.name);
     _statusController = TextEditingController(text: widget.status);
-    _image = widget.image; // Use the passed image
-    _loadImage(); // Load saved image from storage
-  }
-
-  void _loadImage() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/profile_image.png';
-    File file = File(filePath);
-
-    if (file.existsSync()) {
-      Uint8List imgBytes = await file.readAsBytes();
-      setState(() {
-        _image = imgBytes;
-      });
-      print("Loaded saved image.");
-    } else {
-      print("No saved image found.");
-    }
+    _image = widget.image;
   }
 
   void selectImage() async {
@@ -73,8 +56,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       await file.writeAsBytes(img);
 
       // Debugging output
-      print("Image saved at: $filePath");
-      print("Image file exists: ${file.existsSync()}");
+      //print("Image saved at: $filePath");
+      //print("Image file exists: ${file.existsSync()}");
 
       setState(() {
         _image = img;

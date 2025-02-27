@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/message_model.dart';
-import 'package:wtsp_clone/presentation/widgets/message_bubble.dart';
-import 'package:wtsp_clone/presentation/widgets/input_field.dart';
-import 'package:wtsp_clone/presentation/widgets/chat_app_bar.dart';
-import 'package:wtsp_clone/presentation/widgets/type_indicator.dart';
+import 'package:wtsp_clone/presentation/components/message_bubble.dart';
+import 'package:wtsp_clone/presentation/components/input_field.dart';
+import 'package:wtsp_clone/presentation/components/chat_app_bar.dart';
+import 'package:wtsp_clone/presentation/components/type_indicator.dart';
 
 class IndividualPage extends StatefulWidget {
   final ContactModel contact;

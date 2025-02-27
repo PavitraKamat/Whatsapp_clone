@@ -60,11 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (pickedFile != null) {
       Uint8List imgBytes = await pickedFile.readAsBytes();
-      // setState(() {
-      //   _image = imgBytes;
-      //   _imagePath = pickedFile.path;
-      // });
-      // _saveProfileData(); // Persist image
       await _saveImage(imgBytes);
     }
   }

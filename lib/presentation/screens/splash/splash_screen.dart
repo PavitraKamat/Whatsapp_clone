@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/presentation/screens/home/home_screen.dart';
-import 'package:wtsp_clone/presentation/widgets/uihelper.dart';
+import 'package:wtsp_clone/presentation/components/uihelper.dart';
 
 class SplashScreen extends StatefulWidget {
   @override

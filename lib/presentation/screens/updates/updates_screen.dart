@@ -1,12 +1,14 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wtsp_clone/data/dataSources/wtsp_db.dart';
+import 'package:wtsp_clone/data/models/status_moodel.dart';
 import 'package:wtsp_clone/presentation/screens/updates/status_viewer_screen.dart';
 import 'package:wtsp_clone/presentation/screens/updates/text_status_screen.dart';
-import 'package:wtsp_clone/presentation/widgets/profileAvatar.dart';
-import 'package:wtsp_clone/presentation/widgets/status_tile.dart';
-import 'package:wtsp_clone/presentation/widgets/floating_actions.dart';
-import 'package:wtsp_clone/presentation/widgets/utils.dart';
+import 'package:wtsp_clone/presentation/components/profileAvatar.dart';
+import 'package:wtsp_clone/presentation/components/status_tile.dart';
+import 'package:wtsp_clone/presentation/components/floating_actions.dart';
+import 'package:wtsp_clone/presentation/components/utils.dart';
 
 class UpdatesScreen extends StatefulWidget {
   const UpdatesScreen({Key? key}) : super(key: key);
@@ -17,23 +19,43 @@ class UpdatesScreen extends StatefulWidget {
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
   Uint8List? _image;
-  List<Map<String, dynamic>> _statuses = [];
+  List<Status> _statuses = [];
+  final WtspDb _statusController = WtspDb();
+  //List<Map<String, dynamic>> _statuses = [];
 
-  void selectImage() async {
-    Uint8List img = await pickImage(ImageSource.gallery);
+  @override
+  void initState() {
+    super.initState();
+    _loadStatuses();
+  }
+
+  Future<void> _loadStatuses() async {
+    List<Status> storedStatuses = await _statusController.getStatuses();
     setState(() {
-      _statuses.add({'type': 'image', 'content': img});
+      _statuses = storedStatuses;
     });
   }
 
-  void _uploadTextStatus(Map<String, dynamic> status) {
-    setState(() {
-      _statuses.add({
-        'type': 'text',
-        'content': status['text'],
-        'color': status['color']
-      });
-    });
+  void selectImage() async {
+    Uint8List img = await pickImage(ImageSource.gallery);
+    Status newStatus = Status(
+      type: 'image',
+      imageContent: img,
+      timestamp: DateTime.now().toIso8601String(),
+    );
+    await _statusController.insertStatus(newStatus);
+    _loadStatuses();
+  }
+
+  void _uploadTextStatus(Map<String, dynamic> status) async {
+    Status newStatus = Status(
+      type: 'text',
+      textContent: status['text'],
+      color: status['color'],
+      timestamp: DateTime.now().toIso8601String(),
+    );
+    await _statusController.insertStatus(newStatus);
+    _loadStatuses();
   }
 
   void _viewStatuses() {

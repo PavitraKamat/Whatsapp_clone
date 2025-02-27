@@ -1,10 +1,9 @@
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:wtsp_clone/data/models/status_moodel.dart';
 import '../models/message_model.dart';
 
 class WtspDb {
@@ -43,6 +42,16 @@ class WtspDb {
         imagePath TEXT
       )
     ''');
+        db.execute('''
+          CREATE TABLE statuses(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT,
+            textContent TEXT,
+            color TEXT,
+            imageContent BLOB,
+            timestamp TEXT
+          )
+        ''');
       },
     );
     return database;
@@ -166,5 +175,27 @@ class WtspDb {
   Future<void> clearProfile() async {
     final db = await database;
     await db.delete('profile');
+  }
+
+  // Insert a new status
+  Future<void> insertStatus(Status status) async {
+    final db = await database;
+    await db.insert('statuses', status.toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  // Retrieve all statuses
+  Future<List<Status>> getStatuses() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('statuses');
+    return List.generate(maps.length, (i) {
+      return Status.fromMap(maps[i]);
+    });
+  }
+
+  // Clear old statuses (optional)
+  Future<void> clearStatuses() async {
+    final db = await database;
+    await db.delete('statuses');
   }
 }
