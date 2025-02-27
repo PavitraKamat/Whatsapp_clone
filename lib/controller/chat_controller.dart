@@ -1,11 +1,11 @@
 import 'package:intl/intl.dart';
-import 'package:wtsp_clone/data/dataSources/chat_dataBase.dart';
+import 'package:wtsp_clone/data/dataSources/wtsp_db.dart';
 import 'package:wtsp_clone/data/models/message_model.dart';
 
 class ChatController {
   List<MessageModel> messages = [];
   Future<void> loadMessages(String contactId) async {
-    messages = await ChatDatabase.instance.getMessages(contactId);
+    messages = await WtspDb.instance.getMessages(contactId);
   }
 
   void sendMessage(String message, Function(List<MessageModel>) updateMessages,
@@ -18,7 +18,7 @@ class ChatController {
         time: _getCurrentTime(),
       );
 
-      await ChatDatabase.instance.insertMessage(newMessage, contactId);
+      await WtspDb.instance.insertMessage(newMessage, contactId);
       messages.add(newMessage);
       updateMessages(List.from(messages));
 
@@ -31,7 +31,7 @@ class ChatController {
           time: _getCurrentTime(),
         );
 
-        await ChatDatabase.instance.insertMessage(receivedMessage, contactId);
+        await WtspDb.instance.insertMessage(receivedMessage, contactId);
         messages.add(receivedMessage);
         updateMessages(List.from(messages));
       });
@@ -43,10 +43,10 @@ class ChatController {
   }
 
   Future<void> saveMessage(MessageModel message, String contactId) async {
-    await ChatDatabase.instance.insertMessage(message, contactId);
+    await WtspDb.instance.insertMessage(message, contactId);
   }
 
   Future<MessageModel?> getLastReceivedMessage(String contactId) async {
-    return await ChatDatabase.instance.getLastReceivedMessage(contactId);
+    return await WtspDb.instance.getLastReceivedMessage(contactId);
   }
 }

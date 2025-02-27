@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:wtsp_clone/data/dataSources/chat_dataBase.dart';
+import 'package:wtsp_clone/data/dataSources/wtsp_db.dart';
+
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/profile_image_helper.dart';
 import 'package:wtsp_clone/presentation/screens/chats/individual_page.dart';
@@ -40,6 +41,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   void getContactPermission() async {
     PermissionStatus status = await Permission.contacts.request();
     if (status.isGranted) {
+      //print("$status");
       _fetchContacts();
     }
   }
@@ -55,7 +57,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
           String contactId = contact.phones!.isNotEmpty
               ? contact.phones!.first.value ?? "Unknown"
               : "Unknown";
-          return await ChatDatabase.instance.getLastMessage(contactId) ??
+          return await WtspDb.instance.getLastMessage(contactId) ??
               {'message': 'No messages', 'time': ''};
         }),
       );
@@ -88,7 +90,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
   }
 
   Future<Map<String, String>> getLastMessage(String contactId) async {
-    return await ChatDatabase.instance.getLastMessage(contactId) ??
+    return await WtspDb.instance.getLastMessage(contactId) ??
         {"message": "No messages yet", "timestamp": ""};
   }
 
@@ -99,16 +101,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "Search contacts...",
-                prefixIcon: Icon(Icons.search, color: Colors.black),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-            ),
+            child: searchBar(),
           ),
           Expanded(
             child: _filteredContacts.isEmpty
@@ -177,6 +170,19 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  TextField searchBar() {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: "Search contacts...",
+        prefixIcon: Icon(Icons.search, color: Colors.black),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
       ),
     );
   }
