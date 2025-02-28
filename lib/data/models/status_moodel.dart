@@ -5,7 +5,7 @@ class Status {
   String type;
   String? textContent;
   String? color;
-  Uint8List? imageContent;
+  String? imageContentPath;
   String timestamp;
 
   Status({
@@ -13,7 +13,7 @@ class Status {
     required this.type,
     this.textContent,
     this.color,
-    this.imageContent,
+    this.imageContentPath,
     required this.timestamp,
   });
 
@@ -24,7 +24,7 @@ class Status {
       'type': type,
       'textContent': textContent,
       'color': color,
-      'imageContent': imageContent,
+      'imageContentPath': imageContentPath,
       'timestamp': timestamp,
     };
   }
@@ -36,7 +36,7 @@ class Status {
       type: map['type'],
       textContent: map['textContent'],
       color: map['color'],
-      imageContent: map['imageContent'],
+      imageContentPath: map['imageContentPath'],
       timestamp: map['timestamp'],
     );
   }

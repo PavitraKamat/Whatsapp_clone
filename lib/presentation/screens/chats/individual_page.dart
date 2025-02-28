@@ -28,8 +28,8 @@ class _IndividualPageState extends State<IndividualPage> {
   void initState() {
     super.initState();
     setState(() {
-      _loadMessages();
       widget.contact.lastSeen = "Last seen at ${_getCurrentTime()}";
+      _loadMessages();
     });
 
     _messageController.addListener(() {

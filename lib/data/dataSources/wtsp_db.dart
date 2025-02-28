@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -21,37 +22,34 @@ class WtspDb {
   Future<Database> getDatabase() async {
     final databaseDirPath = await getDatabasesPath();
     final databasePath = join(databaseDirPath, "Whatsapp.db");
+
     final database = await openDatabase(
       databasePath,
-      version: 1,
+      version: 3, // Update version to 3
       onCreate: (db, version) {
         db.execute('''
-      CREATE TABLE messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        contactId TEXT,
-        message TEXT NOT NULL,
-        isSentByUser INTEGER NOT NULL,
-        time TEXT NOT NULL
-      )
-    ''');
+        CREATE TABLE messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          contactId TEXT,
+          message TEXT NOT NULL,
+          isSentByUser INTEGER NOT NULL,
+          time TEXT NOT NULL
+        )
+      ''');
         db.execute('''
-      CREATE TABLE profile (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        status TEXT NOT NULL,
-        imagePath TEXT
-      )
-    ''');
-        db.execute('''
-          CREATE TABLE statuses(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            type TEXT,
-            textContent TEXT,
-            color TEXT,
-            imageContent BLOB,
-            timestamp TEXT
-          )
-        ''');
+        CREATE TABLE profile (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          status TEXT NOT NULL,
+          imagePath TEXT
+        )
+      ''');
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 3) {
+          await db.execute('DROP TABLE IF EXISTS statuses');
+          await db.execute('DROP TABLE IF EXISTS status');
+        }
       },
     );
     return database;
@@ -177,25 +175,38 @@ class WtspDb {
     await db.delete('profile');
   }
 
-  // Insert a new status
-  Future<void> insertStatus(Status status) async {
+  Future<int> saveStatusImage(String imagePath) async {
     final db = await database;
-    await db.insert('statuses', status.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace);
+    final result = await db.query('status', limit: 1);
+
+    if (result.isNotEmpty) {
+      return await db.update(
+        'status',
+        {'imagePath': imagePath},
+        where: "id = ?",
+        whereArgs: [result.first['id']],
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } else {
+      return await db.insert(
+        'status',
+        {'imagePath': imagePath},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
   }
 
-  // Retrieve all statuses
-  Future<List<Status>> getStatuses() async {
+  Future<Map<String, String?>> getStatusImage() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('statuses');
-    return List.generate(maps.length, (i) {
-      return Status.fromMap(maps[i]);
-    });
-  }
+    final result = await db.query('status', limit: 1);
 
-  // Clear old statuses (optional)
-  Future<void> clearStatuses() async {
-    final db = await database;
-    await db.delete('statuses');
+    if (result.isNotEmpty) {
+      return {
+        'imagePath': result.first['imagePath'] as String?,
+      };
+    }
+    return {
+      'imagePath': '',
+    };
   }
 }
