@@ -4,6 +4,7 @@ import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/controller/contact_provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/controller/onetooneChat_provider.dart';
+import 'package:wtsp_clone/controller/settings_provider.dart';
 import 'package:wtsp_clone/presentation/screens/splash/splash_screen.dart';
 
 void main() {
@@ -24,7 +25,8 @@ class WhatsAppClone extends StatelessWidget {
             chatController:
                 ChatController(), // Create an instance of ChatController
           ),
-        )
+        ),
+        ChangeNotifierProvider(create: (context) => SettingsProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
