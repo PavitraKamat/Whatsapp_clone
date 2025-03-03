@@ -26,9 +26,8 @@ class ContactsProvider extends ChangeNotifier {
   }
 
   Future<void> _fetchContacts() async {
-    _isLoading = true;
-    notifyListeners();
-
+    //_isLoading = true;
+    //notifyListeners();
     try {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       List<Contact> contactList = contacts.toList();

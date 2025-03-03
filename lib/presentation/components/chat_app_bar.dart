@@ -7,24 +7,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   ChatAppBar({Key? key, required this.contact}) : super(key: key);
 
-  final List<String> profileImages = [
-    "assets/images/profile.jpg",
-    "assets/images/profile1.jpg",
-    "assets/images/profile2.jpg",
-    "assets/images/profile3.jpg",
-    "assets/images/profile4.jpg",
-  ];
-
-  // String getRandomImage() {
-  //   final random = Random();
-  //   return profileImages[random.nextInt(profileImages.length)];
-  // }
-
-  String getProfileImage(String identifier) {
-    int index = getConsistentIndex(identifier);
-    return profileImages[index];
-  }
-
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -40,7 +22,8 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.blueGrey,
-              backgroundImage: AssetImage(getProfileImage(contact.phone)),
+              backgroundImage:
+                  AssetImage(ProfileImageHelper.getProfileImage(contact.phone)),
             ),
           ],
         ),
@@ -60,18 +43,21 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
         IconButton(onPressed: () {}, icon: Icon(Icons.call)),
-        PopupMenuButton<String>(
-          icon: Icon(Icons.more_vert),
-          onSelected: (value) => print(value),
-          itemBuilder: (context) => [
-            PopupMenuItem(child: Text("Search"), value: "Search"),
-            PopupMenuItem(child: Text("Add to List"), value: "Add to List"),
-            PopupMenuItem(
-                child: Text("Media, Links, and Docs"), value: "Media"),
-          ],
-        ),
+        popUpMenu(),
       ],
       backgroundColor: Colors.white,
+    );
+  }
+
+  PopupMenuButton<String> popUpMenu() {
+    return PopupMenuButton<String>(
+      icon: Icon(Icons.more_vert),
+      onSelected: (value) => print(value),
+      itemBuilder: (context) => [
+        PopupMenuItem(child: Text("Search"), value: "Search"),
+        PopupMenuItem(child: Text("Add to List"), value: "Add to List"),
+        PopupMenuItem(child: Text("Media, Links, and Docs"), value: "Media"),
+      ],
     );
   }
 
