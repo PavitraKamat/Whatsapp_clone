@@ -16,14 +16,14 @@ class ChatsScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          searchBar(contactsProvider),
-          SearchedContacts(contactsProvider),
+          _buildSearchBar(contactsProvider),
+          _buildContactsList(contactsProvider),
         ],
       ),
     );
   }
 
-  Expanded SearchedContacts(ContactsProvider contactsProvider) {
+  Expanded _buildContactsList(ContactsProvider contactsProvider) {
     return Expanded(
       child: contactsProvider.isLoading
           ? Center(child: CircularProgressIndicator())
@@ -98,7 +98,7 @@ class ChatsScreen extends StatelessWidget {
     );
   }
 
-  Padding searchBar(ContactsProvider contactsProvider) {
+  Padding _buildSearchBar(ContactsProvider contactsProvider) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(

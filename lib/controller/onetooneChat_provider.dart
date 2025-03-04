@@ -72,7 +72,7 @@ class OnetoonechatProvider extends ChangeNotifier {
     );
 
     _messages.add(receivedMessage);
-    _lastSeen = "Last seen at ${receivedMessage.time}";
+    // _lastSeen = "Last seen at ${receivedMessage.time}";
     _chatController.saveMessage(receivedMessage, contactId);
     notifyListeners();
   }

@@ -9,7 +9,7 @@ class SettingsScreen extends StatelessWidget {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
-      appBar: SettingsAppBar(),
+      appBar: settingsAppBar(),
       body: ListView(
         children: [
           GestureDetector(
@@ -34,54 +34,59 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  AppBar SettingsAppBar() {
-    return AppBar(
-      title: Text(
-        "Settings",
-        style: TextStyle(
-          color: Colors.teal,
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
+AppBar settingsAppBar() {
+  return AppBar(
+    title: Text(
+      "Settings",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 22,
+        color: Colors.teal,
+      ),
+    ),
+    backgroundColor: Colors.white,
+    actions: [
+      IconButton(
+        icon: Icon(Icons.search, color: Colors.black),
+        onPressed: () {},
+      ),
+    ],
+  );
+}
+
+Widget _buildProfileSection(ProfileProvider provider) {
+  return Container(
+    padding: EdgeInsets.all(10),
+    child: Row(
+      children: [
+        CircleAvatar(
+          radius: 40,
+          backgroundImage:
+              provider.image != null ? MemoryImage(provider.image!) : null,
+          child: provider.image == null ? Icon(Icons.person, size: 40) : null,
         ),
-      ),
-      backgroundColor: Colors.white,
-      scrolledUnderElevation: 0,
-    );
-  }
+        SizedBox(width: 20),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(provider.name,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 5),
+            Text(provider.status, style: TextStyle(color: Colors.grey[600])),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildProfileSection(ProfileProvider provider) {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 35,
-            backgroundImage:
-                provider.image != null ? MemoryImage(provider.image!) : null,
-            child: provider.image == null ? Icon(Icons.person, size: 40) : null,
-          ),
-          SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(provider.name,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 5),
-              Text(provider.status, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsOption(IconData icon, String title) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {},
-    );
-  }
+Widget _buildSettingsOption(IconData icon, String title) {
+  return ListTile(
+    leading: Icon(icon),
+    title: Text(title),
+    trailing: Icon(Icons.arrow_forward_ios, size: 16),
+    onTap: () {},
+  );
 }
