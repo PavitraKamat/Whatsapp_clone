@@ -1,73 +1,13 @@
-import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/presentation/components/bottom_sheet.dart';
 import 'package:wtsp_clone/presentation/components/profile_avatar.dart';
-import 'package:wtsp_clone/presentation/components/utils.dart';
 
-class ProfileEditScreen extends StatefulWidget {
-  final Uint8List? image;
-  final String name;
-  final String status;
-  final String phoneNumber;
-  final Function(Uint8List?) onImageSelected;
-  final Function(String) onNameChanged;
-  final Function(String) onStatusChanged;
-
-  ProfileEditScreen({
-    required this.image,
-    required this.name,
-    required this.status,
-    required this.phoneNumber,
-    required this.onImageSelected,
-    required this.onNameChanged,
-    required this.onStatusChanged,
-  });
-
+class ProfileEditScreen extends StatelessWidget {
   @override
-  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
-}
-
-class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  late TextEditingController _nameController;
-  late TextEditingController _statusController;
-  Uint8List? _image;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.name);
-    _statusController = TextEditingController(text: widget.status);
-    _image = widget.image;
-  }
-
-  void selectImage() async {
-    Uint8List img = await pickImage(ImageSource.gallery);
-
-    // Get app's document directory
-    if (img != null) {
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/profile_image.png';
-      File file = File(filePath);
-
-      // Save the selected image to storage
-      await file.writeAsBytes(img);
-
-      // Debugging output
-      //print("Image saved at: $filePath");
-      //print("Image file exists: ${file.existsSync()}");
-
-      setState(() {
-        _image = img;
-      });
-
-      widget.onImageSelected(img);
-    }
-  }
-
   void _showEditBottomSheet({
+    required BuildContext context,
     required String title,
     required TextEditingController controller,
     required Function(String) onSave,
@@ -83,46 +23,55 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  @override
   Widget build(BuildContext context) {
+    final profileProvider = Provider.of<ProfileProvider>(context);
+    final nameController = TextEditingController(text: profileProvider.name);
+    final statusController =
+        TextEditingController(text: profileProvider.status);
+
     return Scaffold(
-      appBar:
-          AppBar(title: Text("Edit Profile"), backgroundColor: Colors.white),
+      appBar: AppBar(
+        title: Text("Edit Profile"),
+        backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
+      ),
       body: ListView(
         padding: EdgeInsets.all(20),
         children: [
           Center(
-            child: ProfileAvatar(image: _image, radius: 60, onTap: selectImage),
+            child: ProfileAvatar(
+                image: profileProvider.image,
+                radius: 60,
+                onTap: () => profileProvider.selectImage()),
           ),
           SizedBox(height: 30),
           ListTile(
             leading: Icon(Icons.person, color: Colors.teal),
             title: Text("Name", style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(widget.name),
+            subtitle: Text(profileProvider.name),
             onTap: () => _showEditBottomSheet(
+              context: context,
               title: "Name",
-              controller: _nameController,
-              onSave: widget.onNameChanged,
+              controller: nameController,
+              onSave: profileProvider.updateName,
             ),
           ),
-          //Divider(),
           ListTile(
             leading: Icon(Icons.info, color: Colors.teal),
             title: Text("About", style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(widget.status),
-            //
+            subtitle: Text(profileProvider.status),
             onTap: () => _showEditBottomSheet(
+              context: context,
               title: "About",
-              controller: _statusController,
-              onSave: widget.onStatusChanged,
+              controller: statusController,
+              onSave: profileProvider.updateStatus,
             ),
           ),
-          //Divider(),
           ListTile(
             leading: Icon(Icons.phone, color: Colors.teal),
             title: Text("Phone Number",
                 style: TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(widget.phoneNumber),
+            subtitle: Text(profileProvider.phoneNumber),
           ),
         ],
       ),

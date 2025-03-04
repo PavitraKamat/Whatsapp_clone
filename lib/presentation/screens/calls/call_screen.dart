@@ -50,18 +50,19 @@ class _CallScreenState extends State<CallsScreen> {
         title: Text(
           "Calls",
           style: TextStyle(
-            color: Colors.teal,
             fontWeight: FontWeight.bold,
             fontSize: 22,
+            color: Colors.teal,
           ),
         ),
         backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
         actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.black),
+            onPressed: () {},
+          ),
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert),
-            onSelected: _onMenuSelected,
+            icon: Icon(Icons.more_vert, color: Colors.black),
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem<String>(

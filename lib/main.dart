@@ -4,7 +4,7 @@ import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/controller/contact_provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/controller/onetooneChat_provider.dart';
-import 'package:wtsp_clone/controller/settings_provider.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/presentation/screens/splash/splash_screen.dart';
 
 void main() {
@@ -21,12 +21,12 @@ class WhatsAppClone extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => HomeProvider()),
         ChangeNotifierProvider(
           create: (context) => OnetoonechatProvider(
-            contactId: "123", // Pass a valid contact ID
-            chatController:
-                ChatController(), // Create an instance of ChatController
+            contactId: "123",
+            chatController: ChatController(),
           ),
         ),
-        ChangeNotifierProvider(create: (context) => SettingsProvider())
+        //ChangeNotifierProvider(create: (context) => SettingsProvider()),
+        ChangeNotifierProvider(create: (context) => ProfileProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

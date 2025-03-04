@@ -48,12 +48,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Updates",
-            style: TextStyle(
-                color: Colors.teal, fontWeight: FontWeight.bold, fontSize: 22)),
-        backgroundColor: Colors.white,
-      ),
+      appBar: UpdateScreenAppBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,6 +96,37 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
         },
         onImageStatus: selectImage,
       ),
+    );
+  }
+
+  AppBar UpdateScreenAppBar() {
+    return AppBar(
+      title: Text(
+        "Updates",
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 22,
+          color: Colors.teal,
+        ),
+      ),
+      backgroundColor: Colors.white,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.search, color: Colors.black),
+          onPressed: () {},
+        ),
+        PopupMenuButton<String>(
+          icon: Icon(Icons.more_vert, color: Colors.black),
+          itemBuilder: (BuildContext context) {
+            return [
+              PopupMenuItem<String>(
+                value: "Settings",
+                child: Text("Settings"),
+              ),
+            ];
+          },
+        ),
+      ],
     );
   }
 }

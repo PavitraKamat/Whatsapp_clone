@@ -1,52 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/settings_provider.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final profileProvider = Provider.of<ProfileProvider>(context);
+
     return Scaffold(
       appBar: SettingsAppBar(),
-      body: Consumer<SettingsProvider>(
-        builder: (context, provider, child) {
-          return UserProfile(context, provider);
-        },
-      ),
-    );
-  }
-
-  ListView UserProfile(BuildContext context, SettingsProvider provider) {
-    return ListView(
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProfileEditScreen(
-                  image: provider.image,
-                  name: provider.name,
-                  status: provider.status,
-                  phoneNumber: provider.phoneNumber,
-                  onImageSelected: (img) => provider.selectImage(),
-                  onNameChanged: (newName) => provider.updateName(newName),
-                  onStatusChanged: (newStatus) =>
-                      provider.updateStatus(newStatus),
+      body: ListView(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileEditScreen(),
                 ),
-              ),
-            );
-          },
-          child: _buildProfileSection(provider),
-        ),
-        Divider(thickness: 1, color: Colors.grey[300]),
-        _buildSettingsOption(Icons.lock, "Privacy"),
-        _buildSettingsOption(Icons.notifications, "Notifications"),
-        _buildSettingsOption(Icons.storage, "Storage and Data"),
-        _buildSettingsOption(Icons.help_outline, "Help"),
-        _buildSettingsOption(Icons.info_outline, "About"),
-        SizedBox(height: 20),
-      ],
+              );
+            },
+            child: _buildProfileSection(profileProvider),
+          ),
+          Divider(thickness: 1, color: Colors.grey[300]),
+          _buildSettingsOption(Icons.lock, "Privacy"),
+          _buildSettingsOption(Icons.notifications, "Notifications"),
+          _buildSettingsOption(Icons.storage, "Storage and Data"),
+          _buildSettingsOption(Icons.help_outline, "Help"),
+          _buildSettingsOption(Icons.info_outline, "About"),
+          SizedBox(height: 20),
+        ],
+      ),
     );
   }
 
@@ -61,10 +46,11 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
       backgroundColor: Colors.white,
+      scrolledUnderElevation: 0,
     );
   }
 
-  Widget _buildProfileSection(SettingsProvider provider) {
+  Widget _buildProfileSection(ProfileProvider provider) {
     return Container(
       padding: EdgeInsets.all(10),
       child: Row(
