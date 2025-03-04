@@ -43,12 +43,14 @@ class OnetoonechatProvider extends ChangeNotifier {
     if (lastMessage != null) {
       _lastSeen = "Last seen at ${lastMessage.time}";
       notifyListeners();
+      //print("Last seen updated from database: $_lastSeen");
     }
   }
 
   void sendMessage(String text) {
     if (text.trim().isNotEmpty) {
       _lastSeen = "online";
+      print('$_lastSeen');
       notifyListeners();
 
       _chatController.sendMessage(text.trim(), _updateMessages, contactId);
@@ -56,6 +58,7 @@ class OnetoonechatProvider extends ChangeNotifier {
 
       Future.delayed(Duration(seconds: 7), () {
         _lastSeen = "Last seen at ${_getCurrentTime()}";
+        print('$_lastSeen');
         notifyListeners();
       });
 
@@ -72,9 +75,10 @@ class OnetoonechatProvider extends ChangeNotifier {
     );
 
     _messages.add(receivedMessage);
-    // _lastSeen = "Last seen at ${receivedMessage.time}";
     _chatController.saveMessage(receivedMessage, contactId);
+    _lastSeen = "Last seen at ${receivedMessage.time}";
     notifyListeners();
+    print('$_lastSeen');
   }
 
   void _simulateReceiverTyping() {

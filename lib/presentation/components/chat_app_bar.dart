@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/onetooneChat_provider.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/data/models/profile_image_helper.dart';
 
@@ -36,7 +38,15 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               contact.name,
               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
             ),
-            Text(contact.lastSeen, style: TextStyle(fontSize: 13)),
+            Consumer<OnetoonechatProvider>(
+              builder: (context, chatProvider, child) {
+                //print("UI Rebuilt - Last Seen: ${chatProvider.lastSeen}");
+                return Text(
+                  chatProvider.lastSeen,
+                  style: TextStyle(fontSize: 13),
+                );
+              },
+            ),
           ],
         ),
       ),
