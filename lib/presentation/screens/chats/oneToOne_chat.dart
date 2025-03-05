@@ -18,6 +18,7 @@ class OnetooneChat extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => OnetoonechatProvider(
           contactId: contact.id, chatController: ChatController()),
+          lazy:false,
       child: _OnetooneChatScreen(contact: contact),
     );
   }

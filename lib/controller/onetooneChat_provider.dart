@@ -33,6 +33,7 @@ class OnetoonechatProvider extends ChangeNotifier {
   Future<void> _loadMessages() async {
     await _chatController.loadMessages(contactId);
     _messages = List.from(_chatController.messages);
+    //await Future.delayed(Duration(milliseconds: 500));
     await _updateLastSeenFromDatabase();
     notifyListeners();
   }
@@ -40,6 +41,8 @@ class OnetoonechatProvider extends ChangeNotifier {
   Future<void> _updateLastSeenFromDatabase() async {
     MessageModel? lastMessage =
         await _chatController.getLastReceivedMessage(contactId);
+    print(
+        "Fetched last message for $contactId: ${lastMessage?.message} at ${lastMessage?.time}");
     if (lastMessage != null) {
       _lastSeen = "Last seen at ${lastMessage.time}";
       notifyListeners();
@@ -82,10 +85,10 @@ class OnetoonechatProvider extends ChangeNotifier {
   }
 
   void _simulateReceiverTyping() {
-    Future.delayed(Duration(seconds: 2), () {
+    //Future.delayed(Duration(seconds: 2), () {
       _isReceiverTyping = true;
       notifyListeners();
-    });
+   // });
 
     Future.delayed(Duration(seconds: 3), () {
       _isReceiverTyping = false;

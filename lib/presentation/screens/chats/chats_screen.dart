@@ -1,5 +1,6 @@
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/contact_provider.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
@@ -25,34 +26,43 @@ class ChatsScreen extends StatelessWidget {
 
   Expanded _buildContactsList(ContactsProvider contactsProvider) {
     return Expanded(
-      child: contactsProvider.isLoading
-          ? Center(child: CircularProgressIndicator())
-          : contactsProvider.filteredContacts.isEmpty
-              ? Center(child: Text("No contacts found"))
-              : ListView.builder(
-                  itemCount: contactsProvider.filteredContacts.length,
-                  itemBuilder: (context, index) {
-                    final contact = contactsProvider.filteredContacts[index];
-                    final contactId = contact.phones!.isNotEmpty
-                        ? contact.phones!.first.value ?? "Unknown"
-                        : "Unknown";
-                    final lastMessage = contactsProvider.lastMessages.isNotEmpty
-                        ? contactsProvider.lastMessages[index]["message"] ??
-                            "No messages yet"
-                        : "No messages yet";
-                    final lastTime = contactsProvider.lastMessages.isNotEmpty
-                        ? contactsProvider.lastMessages[index]["time"] ?? ""
-                        : "";
+        child: contactsProvider.isLoading
+            ? Center(child: CircularProgressIndicator())
+            : contactsProvider.filteredContacts.isEmpty
+                ? Center(child: Text("No contacts found"))
+                : Consumer<ContactsProvider>(
+                    builder: (context, contactsProvider, child) {
+                    return ListView.builder(
+                      itemCount: contactsProvider.filteredContacts.length,
+                      itemBuilder: (context, index) {
+                        final contact =
+                            contactsProvider.filteredContacts[index];
+                        final contactId = contact.phones!.isNotEmpty == true
+                            ? contact.phones!.first.value ?? "Unknown"
+                            : "Unknown";
+                        final lastMessage = contactsProvider
+                                    .lastMessages.isNotEmpty &&
+                                index < contactsProvider.lastMessages.length
+                            ? contactsProvider.lastMessages[index]["message"] ??
+                                "No messages yet"
+                            : "No messages yet";
+                        final lastTime = contactsProvider
+                                    .lastMessages.isNotEmpty &&
+                                index < contactsProvider.lastMessages.length
+                            ? contactsProvider.lastMessages[index]["time"] ?? ""
+                            : "";
+                        print(
+                            "DEBUG: UI - Contact: ${contactsProvider.filteredContacts[index].displayName} | Last Message: $lastMessage | Last Seen: $lastTime");
 
-                    return contactListTile(
-                        contact, lastTime, lastMessage, contactId, context);
-                  },
-                ),
-    );
+                        return _buildContactTile(
+                            contact, lastTime, lastMessage, contactId, context);
+                      },
+                    );
+                  }));
   }
 
-  ListTile contactListTile(Contact contact, String lastTime, String lastMessage,
-      String contactId, BuildContext context) {
+  ListTile _buildContactTile(Contact contact, String lastTime,
+      String lastMessage, String contactId, BuildContext context) {
     return ListTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,19 +108,35 @@ class ChatsScreen extends StatelessWidget {
     );
   }
 
-  Padding _buildSearchBar(ContactsProvider contactsProvider) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          hintText: "Search contacts...",
-          prefixIcon: Icon(Icons.search, color: Colors.black),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20),
+  Container _buildSearchBar(ContactsProvider contactsProvider) {
+    return Container(
+      height: 60.0,
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            hintText: "Search contacts...",
+            prefixIcon: Icon(Icons.search, color: Colors.black),
+            suffixIcon: _searchController.text.isNotEmpty
+                ? IconButton(
+                    icon: Icon(Icons.close, color: Colors.black, size: 18),
+                    onPressed: () {
+                      _searchController.clear();
+                      contactsProvider
+                          .filterContacts(''); // Reset filtered contacts
+                      FocusScope.of(context as BuildContext).unfocus();
+                    },
+                  )
+                : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
           ),
+          onChanged: (value) {
+            contactsProvider.filterContacts(value);
+          },
         ),
-        onChanged: (query) => contactsProvider.filterContacts(query),
       ),
     );
   }

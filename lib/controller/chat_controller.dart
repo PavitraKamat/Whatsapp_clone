@@ -4,6 +4,7 @@ import 'package:wtsp_clone/data/models/message_model.dart';
 
 class ChatController {
   List<MessageModel> messages = [];
+  
   Future<void> loadMessages(String contactId) async {
     messages = await WtspDb.instance.getMessages(contactId);
   }
@@ -48,5 +49,9 @@ class ChatController {
 
   Future<MessageModel?> getLastReceivedMessage(String contactId) async {
     return await WtspDb.instance.getLastReceivedMessage(contactId);
+  }
+
+  Future<Map<String, String>?> getLastMessage(String contactId) async {
+    return await WtspDb.instance.getLastMessage(contactId);
   }
 }

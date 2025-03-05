@@ -26,25 +26,22 @@ class ContactsProvider extends ChangeNotifier {
   }
 
   Future<void> _fetchContacts() async {
-    //_isLoading = true;
-    //notifyListeners();
     try {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       List<Contact> contactList = contacts.toList();
+      List<Map<String, String>> lastMessages = [];
 
-      List<Map<String, String>> lastMessages = await Future.wait(
-        contactList.map((contact) async {
-          String contactId = contact.phones!.isNotEmpty
-              ? contact.phones!.first.value ?? "Unknown"
-              : "Unknown";
-          return await WtspDb.instance.getLastMessage(contactId) ??
-              {'message': 'No messages', 'time': ''};
-        }),
-      );
-
+      for (var contact in contactList) {
+        String contactId = contact.phones!.isNotEmpty
+            ? contact.phones!.first.value ?? "Unknown"
+            : "Unknown";
+        var lastMsg = await WtspDb.instance.getLastMessage(contactId);
+        lastMessages.add(lastMsg ?? {'message': 'No messages', 'time': ''});
+      }
       _contacts = contactList;
       _filteredContacts = _contacts;
       _lastMessages = lastMessages;
+      print("Fetched Last Messages: $_lastMessages");
     } catch (e) {
       print("Error fetching contacts: $e");
     }

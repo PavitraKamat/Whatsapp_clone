@@ -1,10 +1,8 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:wtsp_clone/data/models/status_moodel.dart';
 import '../models/message_model.dart';
 
 class WtspDb {
@@ -84,7 +82,7 @@ class WtspDb {
       orderBy: 'time DESC',
       limit: 1,
     );
-
+    print('$contactId:$result');
     if (result.isNotEmpty) {
       return {
         'message': result.first['message'] as String,
