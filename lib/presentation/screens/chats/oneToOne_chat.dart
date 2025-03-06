@@ -18,7 +18,7 @@ class OnetooneChat extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => OnetoonechatProvider(
           contactId: contact.id, chatController: ChatController()),
-          lazy:false,
+      lazy: false,
       child: _OnetooneChatScreen(contact: contact),
     );
   }
@@ -46,10 +46,20 @@ class _OnetooneChatScreen extends StatelessWidget {
   }
 
   Column MessageTiles(OnetoonechatProvider chatProvider) {
+    ScrollController _scrollController = ScrollController();
+  
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
+  });
+
     return Column(
       children: [
         Expanded(
           child: ListView.builder(
+            controller: _scrollController,
+            //reverse: true,
             padding: EdgeInsets.symmetric(vertical: 8),
             itemCount: chatProvider.messages.length +
                 (chatProvider.isReceiverTyping ? 1 : 0),
@@ -70,8 +80,14 @@ class _OnetooneChatScreen extends StatelessWidget {
         ),
         MessageInputField(
           controller: chatProvider.messageController,
-          onSend: () =>
-              chatProvider.sendMessage(chatProvider.messageController.text),
+          onSend: () {
+            chatProvider.sendMessage(chatProvider.messageController.text);
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          },
           isTyping: chatProvider.isTyping,
         ),
       ],
@@ -87,3 +103,4 @@ class _OnetooneChatScreen extends StatelessWidget {
     );
   }
 }
+

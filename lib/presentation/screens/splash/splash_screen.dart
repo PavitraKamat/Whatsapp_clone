@@ -2,13 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/presentation/screens/home/home_screen.dart';
 import 'package:wtsp_clone/presentation/components/uihelper.dart';
-import 'package:wtsp_clone/presentation/screens/onboarding/onboardingScreen.dart';
+//import 'package:wtsp_clone/presentation/screens/onboarding/onboardingScreen.dart';
 
 class SplashScreen extends StatelessWidget {
   Future<void> _navigateToHome(BuildContext context) async {
     await Future.delayed(Duration(seconds: 2));
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => OnBoardingScreen()));
+        context, MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 
   @override

@@ -10,12 +10,18 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
   String selectedCountry = "India";
-  final List<String> countries = ["India", "America", "Africa", "Italy", "Germany"];
+  final List<String> countries =[
+    "India",
+    "America",
+    "Africa",
+    "Italy",
+    "Germany"
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
           child: Column(
@@ -50,8 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildInfoText() {
     return Column(
       children: [
-        UiHelper.CustomText(text: "WhatsApp will need to verify your phone", height: 16),
-        UiHelper.CustomText(text: "number. Carrier charges may apply.", height: 16),
+        UiHelper.CustomText(
+            text: "WhatsApp will need to verify your phone", height: 16),
+        UiHelper.CustomText(
+            text: "number. Carrier charges may apply.", height: 16),
         UiHelper.CustomText(
           text: "What’s my number?",
           height: 16,

@@ -33,7 +33,7 @@ class OnetoonechatProvider extends ChangeNotifier {
   Future<void> _loadMessages() async {
     await _chatController.loadMessages(contactId);
     _messages = List.from(_chatController.messages);
-    //await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(Duration(milliseconds: 500));
     await _updateLastSeenFromDatabase();
     notifyListeners();
   }
@@ -86,9 +86,9 @@ class OnetoonechatProvider extends ChangeNotifier {
 
   void _simulateReceiverTyping() {
     //Future.delayed(Duration(seconds: 2), () {
-      _isReceiverTyping = true;
-      notifyListeners();
-   // });
+    _isReceiverTyping = true;
+    notifyListeners();
+    // });
 
     Future.delayed(Duration(seconds: 3), () {
       _isReceiverTyping = false;
@@ -112,3 +112,4 @@ class OnetoonechatProvider extends ChangeNotifier {
     super.dispose();
   }
 }
+
