@@ -5,7 +5,7 @@ class CommunitiesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       //backgroundColor: Colors.white,
-      appBar: CommunityAppBar(),
+      appBar: communityAppBar(),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -46,7 +46,7 @@ class CommunitiesScreen extends StatelessWidget {
     );
   }
 
-  AppBar CommunityAppBar() {
+  AppBar communityAppBar() {
     return AppBar(
       title: Text(
         "Communities",

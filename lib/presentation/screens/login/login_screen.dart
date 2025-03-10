@@ -1,6 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/presentation/components/uihelper.dart';
+import 'otp_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,50 +12,51 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
-  String selectedCountry = "India";
-  final List<String> countries =[
-    "India",
-    "America",
-    "Africa",
-    "Italy",
-    "Germany"
-  ];
+  String countryCode = "+91";
+  String verificationId = "";
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final List<String> countryCodes = ["+91", "+1", "+44", "+61", "+81", "+49"];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 50),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              UiHelper.CustomText(
-                text: "Enter your phone number",
-                height: 20,
-                color: Color(0xFF00A884),
-                fontweight: FontWeight.bold,
-              ),
-              const SizedBox(height: 15),
-              _buildInfoText(),
-              const SizedBox(height: 30),
-              _buildCountryDropdown(),
-              const SizedBox(height: 20),
-              _buildPhoneNumberField(),
-            ],
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                UiHelper.CustomText(
+                  text: "Enter your phone number",
+                  height: 20,
+                  color: Color(0xFF00A884),
+                  fontweight: FontWeight.bold,
+                ),
+                const SizedBox(height: 20),
+                _buildInfoText(),
+                const SizedBox(height: 35),
+                _buildPhoneNumberField(),
+                const SizedBox(height: 30),
+                UiHelper.CustomButton(
+                  callback: login,
+                  buttonname: "Next",
+                  backgroundColor: Color(0xFF00A884),
+                ),
+                const SizedBox(height: 20),
+                Divider(thickness: 1, color: Colors.grey[300]),
+                const SizedBox(height: 20),
+                _buildGoogleSignInButton(),
+              ],
+            ),
           ),
         ),
       ),
-      floatingActionButton: UiHelper.CustomButton(
-        callback: () => login(phoneController.text.trim()),
-        buttonname: "Next",
-        backgroundColor: Color(0xFF00A884),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
-  /// Widget to show informational text
   Widget _buildInfoText() {
     return Column(
       children: [
@@ -60,94 +64,116 @@ class _LoginScreenState extends State<LoginScreen> {
             text: "WhatsApp will need to verify your phone", height: 16),
         UiHelper.CustomText(
             text: "number. Carrier charges may apply.", height: 16),
-        UiHelper.CustomText(
-          text: "What’s my number?",
-          height: 16,
-          color: Color(0xFF00A884),
-        ),
       ],
     );
   }
 
-  /// Country Dropdown Widget
-  Widget _buildCountryDropdown() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: DropdownButtonFormField(
-        value: selectedCountry,
-        decoration: _inputDecoration(),
-        items: countries.map((String country) {
-          return DropdownMenuItem(value: country, child: Text(country));
-        }).toList(),
-        onChanged: (newValue) {
-          setState(() {
-            selectedCountry = newValue!;
-          });
-        },
-      ),
-    );
-  }
-
-  /// Phone Number Input Fields
   Widget _buildPhoneNumberField() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildSmallTextField(hintText: "+91"), // Country code field
+        DropdownButton<String>(
+          value: countryCode,
+          onChanged: (String? newValue) {
+            setState(() {
+              countryCode = newValue!;
+            });
+          },
+          items: countryCodes.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value,
+                  style: TextStyle(fontSize: 18, color: Color(0xFF00A884))),
+            );
+          }).toList(),
+        ),
         const SizedBox(width: 10),
-        _buildLargeTextField(controller: phoneController), // Phone number input
+        Expanded(
+          child: TextField(
+            keyboardType: TextInputType.phone,
+            controller: phoneController,
+            maxLength: 10,
+            decoration: InputDecoration(
+              hintText: "Enter phone number",
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF00A884)),
+              ),
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF00A884)),
+              ),
+              counterText: "",
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  /// Small Text Field (Country Code)
-  Widget _buildSmallTextField({required String hintText}) {
-    return SizedBox(
-      width: 50,
-      child: TextField(
-        keyboardType: TextInputType.phone,
-        textAlign: TextAlign.center,
-        decoration: _inputDecoration(hintText: hintText),
-      ),
+  Widget _buildGoogleSignInButton() {
+    return UiHelper.CustomButton(
+      callback: () {
+        final provider =
+            Provider.of<GoogleSignInProvider>(context, listen: false);
+        provider.googleLogin();
+      },
+      buttonname: "Sign in with Google",
+      backgroundColor: Colors.white,
+      textColor: Colors.black,
+      icon: Icon(Icons.g_mobiledata, size: 40),
     );
   }
 
-  /// Large Text Field (Phone Number)
-  Widget _buildLargeTextField({required TextEditingController controller}) {
-    return Expanded(
-      child: TextField(
-        keyboardType: TextInputType.phone,
-        controller: controller,
-        decoration: _inputDecoration(),
-      ),
-    );
-  }
-
-  /// Common Input Decoration
-  InputDecoration _inputDecoration({String hintText = ""}) {
-    return InputDecoration(
-      hintText: hintText,
-      enabledBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF00A884)),
-      ),
-      focusedBorder: UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF00A884)),
-      ),
-    );
-  }
-
-  /// Login Logic
-  void login(String phoneNumber) {
-    if (phoneNumber.isEmpty) {
+  void login() async {
+    String phoneNumber = phoneController.text.trim();
+    if (phoneNumber.isEmpty || phoneNumber.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Enter Phone Number"),
-          backgroundColor: Color(0xFF00A884),
-        ),
+            content: Text("Enter a valid 10-digit phone number"),
+            backgroundColor: Color(0xFF00A884)),
       );
-    } else {
-      // Proceed to OTP screen
-      // Navigator.push(context, MaterialPageRoute(builder: (context) => OTPScreen(phonenumber: phoneNumber)));
+      return;
+    }
+
+    String fullPhoneNumber = "$countryCode$phoneNumber";
+    try {
+      await _auth.verifyPhoneNumber(
+        phoneNumber: fullPhoneNumber,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await _auth.signInWithCredential(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text("Verification Failed: ${e.message}"),
+                backgroundColor: Colors.red),
+          );
+        },
+        codeSent: (String? verificationId, int? resendToken) {
+          if (verificationId != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => OTPScreen(
+                  phonenumber: phoneNumber,
+                  verificationId: verificationId,
+                ),
+              ),
+            );
+          }
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          setState(() {
+            this.verificationId = verificationId;
+          });
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Error: ${e.toString()}"),
+            backgroundColor: Colors.red),
+      );
     }
   }
 }

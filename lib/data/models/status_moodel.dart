@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 class Status {
   int? id;
   String type;

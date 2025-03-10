@@ -4,22 +4,42 @@ class UiHelper {
   static CustomButton(
       {required VoidCallback callback,
       required String buttonname,
-      Color? backgroundColor}) {
+      Color? backgroundColor,
+      Color? textColor,
+      Widget? icon}) {
     return SizedBox(
       height: 45,
       width: 350,
       child: ElevatedButton(
-          onPressed: () {
-            callback();
-          },
-          style: ElevatedButton.styleFrom(
+        onPressed: () {
+          callback();
+        },
+        style: ElevatedButton.styleFrom(
             backgroundColor: Color(0xFF00A884),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40))),
-          child: Text(
-            buttonname,
-            style: TextStyle(fontSize: 14, color: Colors.white),
-          )),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40))),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              icon,
+              SizedBox(width:3),
+            ],
+            Text(
+              buttonname,
+              style: TextStyle(
+                fontSize: 14,
+                color: textColor ?? Colors.white,
+              ),
+            ),
+          ],
+        ),
+
+        // child: Text(
+        //   buttonname,
+        //   style: TextStyle(fontSize: 14, color: Colors.white),
+        // )
+      ),
     );
   }
 

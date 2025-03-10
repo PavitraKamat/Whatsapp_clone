@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wtsp_clone/presentation/screens/settings/settings_screen.dart';
-
 class CallsScreen extends StatefulWidget {
   @override
   _CallScreenState createState() => _CallScreenState();
@@ -33,15 +31,6 @@ class _CallScreenState extends State<CallsScreen> {
       "incoming": false
     },
   ];
-
-  void _onMenuSelected(String value) {
-    if (value == "Settings") {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => SettingsScreen()),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

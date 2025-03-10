@@ -6,8 +6,8 @@ class TextStatusScreen extends StatefulWidget {
 }
 
 class _TextStatusScreenState extends State<TextStatusScreen> {
-  TextEditingController _controller = TextEditingController();
-  FocusNode _focusNode = FocusNode();
+  final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   Color backgroundColor = Colors.brown[300]!;
   List<Color> colors = [
     Colors.black,

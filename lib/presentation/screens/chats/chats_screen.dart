@@ -51,8 +51,8 @@ class ChatsScreen extends StatelessWidget {
                                 index < contactsProvider.lastMessages.length
                             ? contactsProvider.lastMessages[index]["time"] ?? ""
                             : "";
-                        print(
-                            "DEBUG: UI - Contact: ${contactsProvider.filteredContacts[index].displayName} | Last Message: $lastMessage | Last Seen: $lastTime");
+                        // print(
+                        //     "DEBUG: UI - Contact: ${contactsProvider.filteredContacts[index].displayName} | Last Message: $lastMessage | Last Seen: $lastTime");
 
                         return _buildContactTile(
                             contact, lastTime, lastMessage, contactId, context);

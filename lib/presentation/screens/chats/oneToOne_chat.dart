@@ -35,17 +35,17 @@ class _OnetooneChatScreen extends StatelessWidget {
 
     return Stack(
       children: [
-        ChatScreenBackgroundImage(context),
+        chatScreenBackgroundImage(context),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: ChatAppBar(contact: contact),
-          body: MessageTiles(chatProvider),
+          body: messageTiles(chatProvider),
         ),
       ],
     );
   }
 
-  Column MessageTiles(OnetoonechatProvider chatProvider) {
+  Column messageTiles(OnetoonechatProvider chatProvider) {
     ScrollController _scrollController = ScrollController();
   
   WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -94,7 +94,7 @@ class _OnetooneChatScreen extends StatelessWidget {
     );
   }
 
-  Image ChatScreenBackgroundImage(BuildContext context) {
+  Image chatScreenBackgroundImage(BuildContext context) {
     return Image.asset(
       "assets/images/whatsapp_background.png",
       height: MediaQuery.of(context).size.height,

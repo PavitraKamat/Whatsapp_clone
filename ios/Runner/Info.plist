@@ -45,7 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSContactsUsageDescription</key>  
+	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function properly.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library usage</string>
@@ -53,5 +53,26 @@
 	<string>Camera usage</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone usage</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<true/>
+	<key>NSPhoneNumberUsageDescription</key>
+	<string>We use your phone number for authentication</string>
+	<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>com.googleusercontent.apps.1032460508637-eqre5sj79bj64supi4vtl6dmtuusd3hp</string>
+    </array>
+  </dict>
+</array>
+
 </dict>
 </plist>
