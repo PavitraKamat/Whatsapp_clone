@@ -24,11 +24,16 @@ class SettingsScreen extends StatelessWidget {
             child: _buildProfileSection(profileProvider),
           ),
           Divider(thickness: 1, color: Colors.grey[300]),
-          _buildSettingsOption(Icons.lock, "Privacy"),
-          _buildSettingsOption(Icons.notifications, "Notifications"),
-          _buildSettingsOption(Icons.storage, "Storage and Data"),
-          _buildSettingsOption(Icons.help_outline, "Help"),
-          _buildSettingsOption(Icons.info_outline, "About"),
+          _buildSettingsOption(Icons.lock, "Privacy", () {}),
+          _buildSettingsOption(Icons.notifications, "Notifications", () {}),
+          _buildSettingsOption(Icons.storage, "Storage and Data", () {}),
+          _buildSettingsOption(Icons.help_outline, "Help", () {}),
+          _buildSettingsOption(Icons.info_outline, "About", () {}),
+          _buildSettingsOption(
+              Icons.logout,
+              "Logout",
+              () => Provider.of<ProfileProvider>(context, listen: false)
+                  .logout(context)),
           SizedBox(height: 20),
         ],
       ),
@@ -82,11 +87,11 @@ Widget _buildProfileSection(ProfileProvider provider) {
   );
 }
 
-Widget _buildSettingsOption(IconData icon, String title) {
+Widget _buildSettingsOption(IconData icon, String title, VoidCallback onTap) {
   return ListTile(
     leading: Icon(icon),
     title: Text(title),
     trailing: Icon(Icons.arrow_forward_ios, size: 16),
-    onTap: () {},
+    onTap: onTap,
   );
 }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/presentation/components/uihelper.dart';
+import 'package:wtsp_clone/presentation/screens/home/home_screen.dart';
 import 'otp_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -79,6 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               countryCode = newValue!;
             });
           },
+          underline: SizedBox(),
           items: countryCodes.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
@@ -108,17 +110,30 @@ class _LoginScreenState extends State<LoginScreen> {
       ],
     );
   }
-
   Widget _buildGoogleSignInButton() {
     return UiHelper.CustomButton(
-      callback: () {
+      callback: () async {
         final provider =
             Provider.of<GoogleSignInProvider>(context, listen: false);
-        provider.googleLogin();
+        User? user = await provider.googleLogin(); // Get the user after sign-in
+
+        if (user != null) {
+          // Navigate to HomeScreen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text("Google Sign-In Failed"),
+                backgroundColor: Colors.red),
+          );
+        }
       },
       buttonname: "Sign in with Google",
-      backgroundColor: Colors.white,
-      textColor: Colors.black,
+      //backgroundColor: Colors.white,
+      textColor: Colors.white,
       icon: Icon(Icons.g_mobiledata, size: 40),
     );
   }

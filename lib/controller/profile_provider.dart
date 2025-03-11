@@ -3,7 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/data/dataSources/wtsp_db.dart';
+import 'package:wtsp_clone/presentation/screens/login/login_screen.dart';
 
 class ProfileProvider extends ChangeNotifier {
   Uint8List? _image;
@@ -43,7 +46,7 @@ class ProfileProvider extends ChangeNotifier {
 
   Future<void> _saveProfileData() async {
     if (_imagePath == null) return;
-    await WtspDb.instance.saveProfile(_name, _status, _imagePath!);
+    await WtspDb.instance.saveProfile(_name, _status, _imagePath ?? "");
   }
 
   void updateName(String newName) {
@@ -77,4 +80,22 @@ class ProfileProvider extends ChangeNotifier {
     _saveProfileData();
     notifyListeners();
   }
+  void logout(BuildContext context) async {
+  try {
+    final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
+    await provider.signOut();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+      (route) => false, 
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Logout Failed: ${e.toString()}"),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
 }

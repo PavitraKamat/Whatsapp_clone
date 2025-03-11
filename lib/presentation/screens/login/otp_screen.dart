@@ -7,7 +7,9 @@ class OTPScreen extends StatefulWidget {
   final String phonenumber;
   final String verificationId;
 
-  const OTPScreen({Key? key, required this.phonenumber, required this.verificationId}) : super(key: key);
+  const OTPScreen(
+      {Key? key, required this.phonenumber, required this.verificationId})
+      : super(key: key);
 
   @override
   _OTPScreenState createState() => _OTPScreenState();
@@ -24,9 +26,14 @@ class _OTPScreenState extends State<OTPScreen> {
         child: Column(
           children: [
             const SizedBox(height: 80),
-            UiHelper.CustomText(text: "Verifying your number", height: 20, color: Color(0XFF00A884), fontweight: FontWeight.bold),
+            UiHelper.CustomText(
+                text: "Verifying your number",
+                height: 20,
+                color: Color(0XFF00A884),
+                fontweight: FontWeight.bold),
             const SizedBox(height: 30),
-            UiHelper.CustomText(text: "Enter OTP sent to +91${widget.phonenumber}", height: 15),
+            UiHelper.CustomText(
+                text: "Enter OTP sent to +91${widget.phonenumber}", height: 15),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -51,16 +58,22 @@ class _OTPScreenState extends State<OTPScreen> {
   void verifyOTP(BuildContext context) async {
     String otp = otpController.text.trim();
     if (otp.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Enter a valid 6-digit OTP")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Enter a valid 6-digit OTP")));
       return;
     }
 
     try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: widget.verificationId, smsCode: otp);
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: widget.verificationId, smsCode: otp);
       await _auth.signInWithCredential(credential);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("OTP verification failed")));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("OTP verification failed")));
     }
   }
 }

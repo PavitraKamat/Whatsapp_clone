@@ -52,7 +52,7 @@ class OnBoardingScreen extends StatelessWidget {
       ),
       floatingActionButton: UiHelper.CustomButton(
           callback: () {
-            Navigator.push(context,MaterialPageRoute(builder: (context)=>LoginScreen()));
+            Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=>LoginScreen()));
           }, buttonname: "Agree and continue"),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

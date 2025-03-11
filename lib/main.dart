@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/controller/contact_provider.dart';
@@ -44,7 +42,7 @@ class WhatsAppClone extends StatelessWidget {
           primaryColor: Colors.teal,
           scaffoldBackgroundColor: Colors.white,
         ),
-        home: LoginScreen(),
+        home: SplashScreen(),
       ),
     );
   }
