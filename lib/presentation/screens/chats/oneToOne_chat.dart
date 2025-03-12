@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/chat_controller.dart';
-import 'package:wtsp_clone/controller/onetooneChat_provider.dart';
+import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/presentation/components/message_bubble.dart';
 import 'package:wtsp_clone/presentation/components/input_field.dart';

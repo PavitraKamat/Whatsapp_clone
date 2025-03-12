@@ -57,9 +57,11 @@ class _OTPScreenState extends State<OTPScreen> {
 
   void verifyOTP(BuildContext context) async {
     String otp = otpController.text.trim();
-    if (otp.length < 6) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Enter a valid 6-digit OTP")));
+    if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Enter a valid 6-digit OTP"),
+        backgroundColor: Colors.red,
+      ));
       return;
     }
 
@@ -67,9 +69,10 @@ class _OTPScreenState extends State<OTPScreen> {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
           verificationId: widget.verificationId, smsCode: otp);
       await _auth.signInWithCredential(credential);
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
+        (route) => false,
       );
     } catch (e) {
       ScaffoldMessenger.of(context)

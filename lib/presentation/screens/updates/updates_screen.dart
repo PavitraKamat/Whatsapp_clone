@@ -17,7 +17,7 @@ class UpdatesScreen extends StatefulWidget {
 class _UpdatesScreenState extends State<UpdatesScreen> {
   Uint8List? _image;
   List<Map<String, dynamic>> _statuses = [];
-  String? _imagePath;
+  //String? _imagePath;
   void selectImage() async {
     Uint8List img = await pickImage(ImageSource.gallery);
     setState(() {

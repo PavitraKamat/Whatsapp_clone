@@ -73,6 +73,7 @@
     </array>
   </dict>
 </array>
-
+	<key>FirebaseDeepLinkScheme</key>
+	<string>com.example.wtspClone</string>
 </dict>
 </plist>

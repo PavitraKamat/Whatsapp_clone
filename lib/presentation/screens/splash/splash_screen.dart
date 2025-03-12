@@ -1,31 +1,43 @@
-import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:wtsp_clone/presentation/components/uihelper.dart';
-import 'package:wtsp_clone/presentation/screens/onboarding/onBoarding_screen.dart';
+import 'package:wtsp_clone/presentation/screens/home/home_screen.dart';
+import 'package:wtsp_clone/presentation/screens/login/login_screen.dart';
 
-class SplashScreen extends StatelessWidget {
-  Future<void> _navigateToHome(BuildContext context) async {
-    await Future.delayed(Duration(seconds: 2));
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => OnBoardingScreen()));
+class SplashScreen extends StatefulWidget {
+  @override
+  _SplashScreenState createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Navigate after a delay
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigateToHome();
+    });
+  }
+
+  void _navigateToHome() async {
+    await Future.delayed(Duration(seconds: 2)); // Simulate splash duration
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (mounted) {
+      // Ensure widget is still active
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => user != null ? HomeScreen() : LoginScreen(),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    _navigateToHome(context);
-
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset("assets/images/whatsapp 1.png"),
-            SizedBox(height: 10),
-            UiHelper.CustomText(
-                text: "Whatsapp", height: 18, fontweight: FontWeight.bold)
-          ],
-        ),
-      ),
+      body:
+          Center(child: CircularProgressIndicator()), // Show loading indicator
     );
   }
 }
