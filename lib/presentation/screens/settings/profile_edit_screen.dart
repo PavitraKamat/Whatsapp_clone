@@ -80,7 +80,7 @@ class ProfileEditScreen extends StatelessWidget {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 22,
-          color: Colors.teal,
+          color:Color.fromARGB(255, 108, 193, 149),
         ),
       ),
       backgroundColor: Colors.white,

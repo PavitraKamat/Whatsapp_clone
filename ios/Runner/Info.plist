@@ -49,6 +49,8 @@
 	<string>This app requires contacts access to function properly.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library usage</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+<string>App needs permission to save photos</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera usage</string>
 	<key>NSMicrophoneUsageDescription</key>

@@ -60,7 +60,7 @@ class _OTPScreenState extends State<OTPScreen> {
               defaultPinTheme: defaultPinTheme,
               focusedPinTheme: defaultPinTheme.copyWith(
                 decoration: defaultPinTheme.decoration!.copyWith(
-                  border: Border.all(color:  Color.fromARGB(255, 77, 147, 132)),
+                  border: Border.all(color: Color.fromARGB(255, 77, 147, 132)),
                 ),
               ),
               submittedPinTheme: defaultPinTheme.copyWith(

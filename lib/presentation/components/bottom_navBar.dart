@@ -13,7 +13,7 @@ class BottomNavbar extends StatelessWidget {
       onTap: (index) => homeProvider.updateIndex(index),
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
-      selectedItemColor: Colors.black,
+      selectedItemColor: Color(0xFF0D4D3E), 
       unselectedItemColor: Colors.black,
       showUnselectedLabels: true,
       showSelectedLabels: true,
@@ -30,21 +30,26 @@ class BottomNavbar extends StatelessWidget {
 
   BottomNavigationBarItem _buildNavItem(
       IconData icon, String label, int index, int selectedIndex) {
+    bool isSelected = selectedIndex == index;
+
     return BottomNavigationBarItem(
       label: label,
       icon: Stack(
         alignment: Alignment.center,
         children: [
-          if (selectedIndex == index)
+          if (isSelected)
             Container(
-              width: 42,
-              height: 42,
+              width: 50,
+              height: 35,
               decoration: BoxDecoration(
-                color: Colors.teal.withValues(),
-                shape: BoxShape.circle,
+                color: Color(0xFFDFF7DF), 
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
-          Icon(icon, color: Colors.black),
+          Icon(
+            icon,
+            color: isSelected ? Color(0xFF0D4D3E) : Colors.black,
+          ),
         ],
       ),
     );

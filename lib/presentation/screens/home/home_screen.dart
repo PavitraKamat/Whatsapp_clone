@@ -21,20 +21,23 @@ class HomeScreen extends StatelessWidget {
     final homeProvider = Provider.of<HomeProvider>(context);
 
     return Scaffold(
-      appBar: homeProvider.selectedIndex == 0 ? appBar() : null,
+      appBar: homeProvider.selectedIndex == 0
+          ? _appBar(context, homeProvider)
+          : null,
       body: _pages[homeProvider.selectedIndex],
       bottomNavigationBar: BottomNavbar(),
     );
   }
 
-  AppBar appBar() {
+  AppBar _appBar(BuildContext context, HomeProvider homeProvider) {
     return AppBar(
       title: Text(
         "WhatsApp",
         style: TextStyle(
-          color: Colors.teal,
+          color: Color.fromARGB(255, 108, 193, 149),
+          //color:Color.fromARGB(255, 107, 200, 152),
           fontWeight: FontWeight.bold,
-          fontSize: 22,
+          fontSize: 24,
         ),
       ),
       backgroundColor: Colors.white,
@@ -43,8 +46,15 @@ class HomeScreen extends StatelessWidget {
       iconTheme: IconThemeData(color: Colors.black),
       actions: [
         IconButton(
-          icon: Icon(Icons.camera_alt_outlined),
+          icon: Icon(Icons.qr_code_scanner),
           onPressed: () {},
+        ),
+        IconButton(
+          icon: Icon(Icons.camera_alt_outlined),
+          onPressed: () {
+            //homeProvider.captureImageFromCamera();
+            homeProvider.pickImageFromGallery();
+          },
         ),
         PopupMenu(),
       ],
