@@ -4,7 +4,7 @@ import 'package:wtsp_clone/data/models/message_model.dart';
 
 class ChatController {
   List<MessageModel> messages = [];
-  
+
   Future<void> loadMessages(String contactId) async {
     messages = await WtspDb.instance.getMessages(contactId);
   }
@@ -21,6 +21,8 @@ class ChatController {
 
       await WtspDb.instance.insertMessage(newMessage, contactId);
       messages.add(newMessage);
+
+      print("Message Sent: ${newMessage.message}");
       updateMessages(List.from(messages));
 
       // Simulate received message after delay
@@ -34,6 +36,7 @@ class ChatController {
 
         await WtspDb.instance.insertMessage(receivedMessage, contactId);
         messages.add(receivedMessage);
+        print("Simulated Received Message: ${receivedMessage.message}");
         updateMessages(List.from(messages));
       });
     }

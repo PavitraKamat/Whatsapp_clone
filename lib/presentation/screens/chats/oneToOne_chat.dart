@@ -47,12 +47,12 @@ class _OnetooneChatScreen extends StatelessWidget {
 
   Column messageTiles(OnetoonechatProvider chatProvider) {
     ScrollController _scrollController = ScrollController();
-  
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    }
-  });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
 
     return Column(
       children: [
@@ -103,4 +103,3 @@ class _OnetooneChatScreen extends StatelessWidget {
     );
   }
 }
-
