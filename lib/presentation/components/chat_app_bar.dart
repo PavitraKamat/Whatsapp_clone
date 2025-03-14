@@ -47,6 +47,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 );
               },
             ),
+            // Text(
+            //   contact.lastSeen,
+            //   style: TextStyle(fontSize: 13,),
+            // ),
           ],
         ),
       ),

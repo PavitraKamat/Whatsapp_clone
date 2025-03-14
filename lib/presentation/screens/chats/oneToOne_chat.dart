@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/chat_controller.dart';
 import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/data/models/contact_model.dart';
 import 'package:wtsp_clone/presentation/components/message_bubble.dart';
@@ -16,8 +15,7 @@ class OnetooneChat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => OnetoonechatProvider(
-          contactId: contact.id, chatController: ChatController()),
+      create: (_) => OnetoonechatProvider(contactId: contact.id),
       lazy: false,
       child: _OnetooneChatScreen(contact: contact),
     );
@@ -59,7 +57,6 @@ class _OnetooneChatScreen extends StatelessWidget {
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
-            //reverse: true,
             padding: EdgeInsets.symmetric(vertical: 8),
             itemCount: chatProvider.messages.length +
                 (chatProvider.isReceiverTyping ? 1 : 0),

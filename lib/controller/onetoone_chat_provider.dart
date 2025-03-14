@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wtsp_clone/controller/chat_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:wtsp_clone/data/dataSources/wtsp_db.dart';
 import 'package:wtsp_clone/data/models/message_model.dart';
 
 class OnetoonechatProvider extends ChangeNotifier {
-  final ChatController _chatController;
   final String contactId;
   List<MessageModel> _messages = [];
   bool _isTyping = false;
@@ -18,9 +17,7 @@ class OnetoonechatProvider extends ChangeNotifier {
   bool get isReceiverTyping => _isReceiverTyping;
   String get lastSeen => _lastSeen;
 
-  OnetoonechatProvider(
-      {required this.contactId, required ChatController chatController})
-      : _chatController = chatController {
+  OnetoonechatProvider({required this.contactId}) {
     _lastSeen = "Last seen at ${_getCurrentTime()}";
     _loadMessages();
 
@@ -29,76 +26,76 @@ class OnetoonechatProvider extends ChangeNotifier {
       notifyListeners();
     });
   }
-
   Future<void> _loadMessages() async {
-    await _chatController.loadMessages(contactId);
-    _messages = List.from(_chatController.messages);
-    await Future.delayed(Duration(milliseconds: 500));
+    _messages = await WtspDb.instance.getMessages(contactId);
+    if (_messages.isNotEmpty) {
+      var lastMsg = _messages.last;
+      print("Last message fetched: '${lastMsg.message}' at ${lastMsg.time}");
+    } else {
+      print("No messages to display.");
+    }
     await _updateLastSeenFromDatabase();
     notifyListeners();
   }
 
   Future<void> _updateLastSeenFromDatabase() async {
     MessageModel? lastMessage =
-        await _chatController.getLastReceivedMessage(contactId);
-    print(
-        "Fetched last message for $contactId: ${lastMessage?.message} at ${lastMessage?.time}");
+        await WtspDb.instance.getLastReceivedMessage(contactId);
     if (lastMessage != null) {
       _lastSeen = "Last seen at ${lastMessage.time}";
       notifyListeners();
-      //print("Last seen updated from database: $_lastSeen");
+      print("Last seen updated from database: $_lastSeen");
+    } else {
+      print("No last message found for updating last seen.");
     }
   }
 
-  void sendMessage(String text) {
+  void sendMessage(String text) async {
     if (text.trim().isNotEmpty) {
       _lastSeen = "online";
-      print('$_lastSeen');
+      notifyListeners();
+      print(
+          "Sending message: '$text' to contact: $contactId at ${_getCurrentTime()}");
+
+      MessageModel newMessage = MessageModel(
+        contactId: contactId,
+        message: text.trim(),
+        isSentByUser: true,
+        time: _getCurrentTime(),
+      );
+
+      await WtspDb.instance.insertMessage(newMessage, contactId);
+      _messages.add(newMessage);
       notifyListeners();
 
-      _chatController.sendMessage(text.trim(), _updateMessages, contactId);
-      messageController.clear();
+      Future.delayed(Duration(seconds: 3), () async {
+        MessageModel receivedMessage = MessageModel(
+          contactId: contactId,
+          message: text,
+          isSentByUser: false,
+          time: _getCurrentTime(),
+        );
 
-      Future.delayed(Duration(seconds: 7), () {
-        _lastSeen = "Last seen at ${_getCurrentTime()}";
-        print('$_lastSeen');
+        await WtspDb.instance.insertMessage(receivedMessage, contactId);
+        _messages.add(receivedMessage);
         notifyListeners();
       });
 
+      messageController.clear();
+      Future.delayed(Duration(seconds: 7), () async {
+        await _updateLastSeenFromDatabase();
+      });
       _simulateReceiverTyping();
     }
   }
 
-  void receiveMessage(String text) {
-    MessageModel receivedMessage = MessageModel(
-      contactId: contactId,
-      message: text,
-      time: _getCurrentTime(),
-      isSentByUser: false,
-    );
-
-    _messages.add(receivedMessage);
-    _chatController.saveMessage(receivedMessage, contactId);
-    _lastSeen = "Last seen at ${receivedMessage.time}";
-    notifyListeners();
-    print('$_lastSeen');
-  }
-
   void _simulateReceiverTyping() {
-    //Future.delayed(Duration(seconds: 2), () {
     _isReceiverTyping = true;
     notifyListeners();
-    // });
-
     Future.delayed(Duration(seconds: 3), () {
       _isReceiverTyping = false;
       notifyListeners();
     });
-  }
-
-  void _updateMessages(List<MessageModel> updatedMessages) {
-    _messages = updatedMessages;
-    notifyListeners();
   }
 
   String _getCurrentTime() {

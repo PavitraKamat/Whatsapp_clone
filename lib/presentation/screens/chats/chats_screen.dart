@@ -23,7 +23,6 @@ class ChatsScreen extends StatelessWidget {
       ),
     );
   }
-
   Expanded _buildContactsList(ContactsProvider contactsProvider) {
     return Expanded(
         child: contactsProvider.isLoading
@@ -51,16 +50,12 @@ class ChatsScreen extends StatelessWidget {
                                 index < contactsProvider.lastMessages.length
                             ? contactsProvider.lastMessages[index]["time"] ?? ""
                             : "";
-                        // print(
-                        //     "DEBUG: UI - Contact: ${contactsProvider.filteredContacts[index].displayName} | Last Message: $lastMessage | Last Seen: $lastTime");
-
                         return _buildContactTile(
                             contact, lastTime, lastMessage, contactId, context);
                       },
                     );
                   }));
   }
-
   ListTile _buildContactTile(Contact contact, String lastTime,
       String lastMessage, String contactId, BuildContext context) {
     return ListTile(
@@ -107,17 +102,19 @@ class ChatsScreen extends StatelessWidget {
       },
     );
   }
-
   Container _buildSearchBar(ContactsProvider contactsProvider) {
     return Container(
       height: 60.0,
       child: Padding(
-        padding: const EdgeInsets.all(6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         child: TextField(
           controller: _searchController,
           decoration: InputDecoration(
-            hintText: "Search contacts...",
-            prefixIcon: Icon(Icons.search, color: Colors.black),
+            hintText: "Ask Meta AI or Search",
+            hintStyle: TextStyle(color: Colors.black54),
+            prefixIcon: Icon(Icons.search, color: Colors.black54),
+            filled: true,
+            fillColor: Color(0xFFF1F4F3), // Light gray background
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
                     icon: Icon(Icons.close, color: Colors.black, size: 18),
@@ -129,8 +126,10 @@ class ChatsScreen extends StatelessWidget {
                     },
                   )
                 : null,
+            contentPadding: EdgeInsets.symmetric(vertical: 12.0),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(25.0),
+              borderSide: BorderSide.none,
             ),
           ),
           onChanged: (value) {

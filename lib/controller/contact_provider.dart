@@ -35,13 +35,17 @@ class ContactsProvider extends ChangeNotifier {
         String contactId = contact.phones!.isNotEmpty
             ? contact.phones!.first.value ?? "Unknown"
             : "Unknown";
-        var lastMsg = await WtspDb.instance.getLastMessage(contactId);
-        lastMessages.add(lastMsg ?? {'message': 'No messages', 'time': ''});
+        var lastMsg = await WtspDb.instance.getLastReceivedMessage(contactId);
+        if (lastMsg != null) {
+          lastMessages.add({'message': lastMsg.message, 'time': lastMsg.time});
+        } else {
+          lastMessages.add({'message': 'No messages', 'time': ''});
+        }
       }
       _contacts = contactList;
       _filteredContacts = _contacts;
       _lastMessages = lastMessages;
-      print("Fetched Last Messages: $_lastMessages");
+      //print("Fetched Last Messages: $_lastMessages");
     } catch (e) {
       print("Error fetching contacts: $e");
     }
