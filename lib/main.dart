@@ -4,9 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/contact_provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
+import 'package:wtsp_clone/controller/navigation_service.dart';
 import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
-import 'package:wtsp_clone/presentation/screens/splash/splash_screen.dart';
+import 'package:wtsp_clone/view/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,7 @@ class WhatsAppClone extends StatelessWidget {
           primaryColor: Colors.teal,
           scaffoldBackgroundColor: Colors.white,
         ),
+        navigatorKey: NavigationService.navigatorKey,
         home: SplashScreen(),
       ),
     );

@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:wtsp_clone/data/dataSources/wtsp_db.dart';
+import 'package:wtsp_clone/model/dataSources/wtsp_db.dart';
 
 class ContactsProvider extends ChangeNotifier {
   List<Contact> _contacts = [];
   List<Contact> _filteredContacts = [];
-  List<Map<String, String>> _lastMessages = [];
+  Map<String, Map<String, String>> _lastMessages = {}; // ✅ Change List to Map
   bool _isLoading = false;
 
   List<Contact> get contacts => _contacts;
   List<Contact> get filteredContacts => _filteredContacts;
-  List<Map<String, String>> get lastMessages => _lastMessages;
+  Map<String, Map<String, String>> get lastMessages => _lastMessages; // ✅ Return as Map
   bool get isLoading => _isLoading;
 
   ContactsProvider() {
@@ -29,23 +29,23 @@ class ContactsProvider extends ChangeNotifier {
     try {
       Iterable<Contact> contacts = await ContactsService.getContacts();
       List<Contact> contactList = contacts.toList();
-      List<Map<String, String>> lastMessages = [];
+      Map<String, Map<String, String>> lastMessages = {}; // ✅ Change List to Map
 
       for (var contact in contactList) {
         String contactId = contact.phones!.isNotEmpty
             ? contact.phones!.first.value ?? "Unknown"
             : "Unknown";
+
         var lastMsg = await WtspDb.instance.getLastReceivedMessage(contactId);
-        if (lastMsg != null) {
-          lastMessages.add({'message': lastMsg.message, 'time': lastMsg.time});
-        } else {
-          lastMessages.add({'message': 'No messages', 'time': ''});
-        }
+
+        lastMessages[contactId] = {
+          'message': lastMsg != null ? lastMsg.message : 'No messages',
+          'time': lastMsg != null ? lastMsg.time : '',
+        };
       }
       _contacts = contactList;
       _filteredContacts = _contacts;
-      _lastMessages = lastMessages;
-      //print("Fetched Last Messages: $_lastMessages");
+      _lastMessages = lastMessages; // ✅ Assign the updated map
     } catch (e) {
       print("Error fetching contacts: $e");
     }
@@ -68,5 +68,11 @@ class ContactsProvider extends ChangeNotifier {
       return matchesName || matchesNumber;
     }).toList();
     notifyListeners();
+  }
+
+  // ✅ Corrected updateLastMessage method
+  void updateLastMessage(String contactId, String message, String time) {
+    _lastMessages[contactId] = {"message": message, "time": time};
+    notifyListeners(); // Notify UI to rebuild
   }
 }
