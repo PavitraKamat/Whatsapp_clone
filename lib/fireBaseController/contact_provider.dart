@@ -1,126 +1,58 @@
-// import 'package:contacts_service/contacts_service.dart';
-// import 'package:flutter/material.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:wtsp_clone/model/dataSources/wtsp_db.dart';
-
-// class ContactsProvider extends ChangeNotifier {
-//   List<Contact> _contacts = [];
-//   List<Contact> _filteredContacts = [];
-//   Map<String, Map<String, String>> _lastMessages = {}; // ✅ Change List to Map
-//   bool _isLoading = false;
-
-//   List<Contact> get contacts => _contacts;
-//   List<Contact> get filteredContacts => _filteredContacts;
-//   Map<String, Map<String, String>> get lastMessages => _lastMessages; // ✅ Return as Map
-//   bool get isLoading => _isLoading;
-
-//   ContactsProvider() {
-//     getContactPermission();
-//   }
-
-//   Future<void> getContactPermission() async {
-//     PermissionStatus status = await Permission.contacts.request();
-//     if (status.isGranted) {
-//       await _fetchContacts();
-//     }
-//   }
-
-//   Future<void> _fetchContacts() async {
-//     try {
-//       Iterable<Contact> contacts = await ContactsService.getContacts();
-//       List<Contact> contactList = contacts.toList();
-//       Map<String, Map<String, String>> lastMessages = {}; // ✅ Change List to Map
-
-//       for (var contact in contactList) {
-//         String contactId = contact.phones!.isNotEmpty
-//             ? contact.phones!.first.value ?? "Unknown"
-//             : "Unknown";
-
-//         var lastMsg = await WtspDb.instance.getLastReceivedMessage(contactId);
-
-//         lastMessages[contactId] = {
-//           'message': lastMsg != null ? lastMsg.message : 'No messages',
-//           'time': lastMsg != null ? lastMsg.time : '',
-//         };
-//       }
-//       _contacts = contactList;
-//       _filteredContacts = _contacts;
-//       _lastMessages = lastMessages; // ✅ Assign the updated map
-//     } catch (e) {
-//       print("Error fetching contacts: $e");
-//     }
-
-//     _isLoading = false;
-//     notifyListeners();
-//   }
-
-//   void filterContacts(String query) {
-//     query = query.toLowerCase();
-//     _filteredContacts = _contacts.where((contact) {
-//       bool matchesName = contact.displayName != null &&
-//           contact.displayName!.toLowerCase().contains(query);
-
-//       bool matchesNumber = contact.phones != null &&
-//           contact.phones!.any((phone) =>
-//               phone.value != null &&
-//               phone.value!.replaceAll(RegExp(r'\D'), '').contains(query));
-
-//       return matchesName || matchesNumber;
-//     }).toList();
-//     notifyListeners();
-//   }
-
-//   // ✅ Corrected updateLastMessage method
-//   void updateLastMessage(String contactId, String message, String time) {
-//     _lastMessages[contactId] = {"message": message, "time": time};
-//     notifyListeners(); // Notify UI to rebuild
-//   }
-// }
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
-class ContactsProvider extends ChangeNotifier {
+class FireBaseContactsProvider extends ChangeNotifier {
   List<UserModel> _contacts = [];
   List<UserModel> _filteredContacts = [];
-  bool _isLoading = false;
+  Map<String, Map<String, String>> _lastMessages = {};
+  bool _isLoading = true;
 
   List<UserModel> get contacts => _contacts;
   List<UserModel> get filteredContacts => _filteredContacts;
+  Map<String, Map<String, String>> get lastMessages => _lastMessages;
   bool get isLoading => _isLoading;
 
-  ContactsProvider() {
-    fetchContactsFromFirestore();
+  FireBaseContactsProvider() {
+    fetchUsersFromFirestore();
   }
 
-  Future<void> fetchContactsFromFirestore() async {
-    _isLoading = true;
-    notifyListeners();
-
+  Future<void> fetchUsersFromFirestore() async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('users').get();
-      List<UserModel> contactList = querySnapshot.docs.map((doc) {
-        return UserModel.fromFirestore(doc);
-      }).toList();
+      _isLoading = true;
+      notifyListeners();
 
-      _contacts = contactList;
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('users').get();
+
+      _contacts =
+          snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
       _filteredContacts = _contacts;
-    } catch (e) {
-      print("Error fetching users from Firestore: $e");
-    }
+      //_lastMessages = lastMessage;
 
-    _isLoading = false;
-    notifyListeners();
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      print("Error fetching users: $e");
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   void filterContacts(String query) {
     query = query.toLowerCase();
     _filteredContacts = _contacts.where((user) {
       bool matchesName = user.firstName.toLowerCase().contains(query);
-      bool matchesNumber = user.phone.contains(query);
+      bool matchesNumber =
+          user.phone.replaceAll(RegExp(r'\D'), '').contains(query);
 
       return matchesName || matchesNumber;
     }).toList();
+    notifyListeners();
+  }
+
+  void updateLastMessage(String userId, String message, String time) {
+    _lastMessages[userId] = {"message": message, "time": time};
     notifyListeners();
   }
 }

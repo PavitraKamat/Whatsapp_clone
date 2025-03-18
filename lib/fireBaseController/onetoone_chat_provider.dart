@@ -1,17 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/contact_provider.dart';
-import 'package:wtsp_clone/controller/navigation_service.dart';
-import 'package:wtsp_clone/model/dataSources/wtsp_db.dart';
-import 'package:wtsp_clone/model/models/message_model.dart';
+import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
 
-class OnetoonechatProvider extends ChangeNotifier {
-  final String contactId;
+class FirebaseOnetoonechatProvider extends ChangeNotifier {
+  final String chatId;
+  final String currentUserId;
   List<MessageModel> _messages = [];
   bool _isTyping = false;
   bool _isReceiverTyping = false;
-  String _lastSeen = "";
+  String _lastSeen = "Last seen at ${_getCurrentTime()}";
 
   TextEditingController messageController = TextEditingController();
 
@@ -20,83 +18,85 @@ class OnetoonechatProvider extends ChangeNotifier {
   bool get isReceiverTyping => _isReceiverTyping;
   String get lastSeen => _lastSeen;
 
-  OnetoonechatProvider({required this.contactId}) {
-    _lastSeen = "Last seen at ${_getCurrentTime()}";
-    _loadMessages();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  FirebaseOnetoonechatProvider({required this.chatId, required this.currentUserId}) {
+    _listenToMessages();
+    _listenToLastSeen();
     messageController.addListener(() {
       _isTyping = messageController.text.isNotEmpty;
       notifyListeners();
     });
   }
-  Future<void> _loadMessages() async {
-    _messages = await WtspDb.instance.getMessages(contactId);
-    if (_messages.isNotEmpty) {
-      var lastMsg = _messages.last;
-      print("Last message fetched: '${lastMsg.message}' at ${lastMsg.time}");
-    } else {
-      print("No messages to display.");
-    }
-    await _updateLastSeenFromDatabase();
+
+  /// Listen to messages in real-time
+  void _listenToMessages() {
+    _firestore
+        .collection('messages')
+        .doc(chatId)
+        .collection('chat')
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .listen((snapshot) {
+      _messages = snapshot.docs
+          .map((doc) => MessageModel.fromFirestore(doc))
+          .toList()
+          .reversed
+          .toList();
+      notifyListeners();
+    });
+  }
+
+  /// **Listen to last seen status**
+  void _listenToLastSeen() {
+    _firestore.collection('users').doc(chatId).snapshots().listen((snapshot) {
+      if (snapshot.exists && snapshot.data() != null) {
+        _lastSeen = snapshot.data()!['lastSeen'] ?? "Last seen recently";
+        notifyListeners();
+      }
+    });
+  }
+
+  /// **Send Message**
+  Future<void> sendMessage(String text) async {
+    if (text.trim().isEmpty) return;
+
+    _lastSeen = "online";
+    notifyListeners();
+
+    String messageId = _firestore.collection('messages').doc(chatId).collection('chat').doc().id;
+
+    MessageModel newMessage = MessageModel(
+      id: messageId,
+      userId: currentUserId,
+      content: text.trim(),
+      isFromCurrentUser: true,
+      timestamp: DateTime.now(),
+    );
+
+    await _firestore.collection('messages').doc(chatId).collection('chat').doc(messageId).set(newMessage.toMap());
+
+    await _firestore.collection('chats').doc(chatId).update({
+      'lastMessage': text.trim(),
+      'lastMessageTime': FieldValue.serverTimestamp(),
+    });
+
+    messageController.clear();
+    notifyListeners();
+
+    Future.delayed(Duration(seconds: 7), _updateLastSeen);
+    _simulateReceiverTyping();
+  }
+
+  /// **Update Last Seen**
+  Future<void> _updateLastSeen() async {
+    await _firestore.collection('users').doc(currentUserId).update({
+      'lastSeen': "Last seen at ${_getCurrentTime()}",
+    });
     notifyListeners();
   }
 
-  Future<void> _updateLastSeenFromDatabase() async {
-    MessageModel? lastMessage =
-        await WtspDb.instance.getLastReceivedMessage(contactId);
-    if (lastMessage != null) {
-      _lastSeen = "Last seen at ${lastMessage.time}";
-      notifyListeners();
-      print("Last seen updated from database: $_lastSeen");
-    } else {
-      print("No last message found for updating last seen.");
-    }
-  }
-
-  void sendMessage(String text) async {
-    if (text.trim().isNotEmpty) {
-      _lastSeen = "online";
-      notifyListeners();
-      print(
-          "Sending message: '$text' to contact: $contactId at ${_getCurrentTime()}");
-
-      MessageModel newMessage = MessageModel(
-        contactId: contactId,
-        message: text.trim(),
-        isSentByUser: true,
-        time: _getCurrentTime(),
-      );
-
-      await WtspDb.instance.insertMessage(newMessage, contactId);
-      _messages.add(newMessage);
-      notifyListeners();
-
-      Future.delayed(Duration(seconds: 3), () async {
-        MessageModel receivedMessage = MessageModel(
-          contactId: contactId,
-          message: text,
-          isSentByUser: false,
-          time: _getCurrentTime(),
-        );
-
-        await WtspDb.instance.insertMessage(receivedMessage, contactId);
-        _messages.add(receivedMessage);
-        notifyListeners();
-      });
-
-      messageController.clear();
-      Future.delayed(Duration(seconds: 7), () async {
-        await _updateLastSeenFromDatabase();
-      });
-      _simulateReceiverTyping();
-    }
-    final contactsProvider = Provider.of<ContactsProvider>(
-        NavigationService.navigatorKey.currentContext!,
-        listen: false);
-    
-    contactsProvider.updateLastMessage(contactId, text, _getCurrentTime());
-  }
-
+  /// **Simulate Receiver Typing**
   void _simulateReceiverTyping() {
     _isReceiverTyping = true;
     notifyListeners();
@@ -106,7 +106,8 @@ class OnetoonechatProvider extends ChangeNotifier {
     });
   }
 
-  String _getCurrentTime() {
+  /// **Get Current Time**
+  static String _getCurrentTime() {
     return DateFormat('hh:mm a').format(DateTime.now());
   }
 

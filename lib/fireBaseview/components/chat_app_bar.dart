@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
-import 'package:wtsp_clone/model/models/contact_model.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/model/models/profile_image_helper.dart';
-import 'package:wtsp_clone/view/screens/chats/contact_profile_screen.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final ContactModel contact;
+  final UserModel user;
 
-  ChatAppBar({Key? key, required this.contact}) : super(key: key);
+
+  ChatAppBar({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +24,19 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             Icon(Icons.arrow_back, size: 24, color: Colors.black),
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        ContactProfileScreen(contact: contact),
-                  ),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) =>
+                //         ContactProfileScreen(contact: contact),
+                //   ),
+                // );
               },
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.blueGrey,
                 backgroundImage: AssetImage(
-                    ProfileImageHelper.getProfileImage(contact.phone)),
+                    ProfileImageHelper.getProfileImage(user.phone)),
               ),
             ),
           ],
@@ -47,10 +47,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              contact.name,
+              user.firstName,
               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
             ),
-            Consumer<OnetoonechatProvider>(
+            Consumer<FirebaseOnetoonechatProvider>(
               builder: (context, chatProvider, child) {
                 //print("UI Rebuilt - Last Seen: ${chatProvider.lastSeen}");
                 return Text(

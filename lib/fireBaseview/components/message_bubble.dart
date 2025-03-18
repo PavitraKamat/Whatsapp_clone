@@ -87,7 +87,7 @@
 // }
 
 import 'package:flutter/material.dart';
-import 'package:wtsp_clone/model/models/message_model.dart';
+import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -96,13 +96,13 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isSentByUser = message.isSentByUser;
+    bool isFromCurrentUser = message.isFromCurrentUser;
     bool isRead = message.isRead;
     double maxWidth = MediaQuery.of(context).size.width * 0.75;
 
     return Align(
-      alignment: isSentByUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: messageLayout(maxWidth, isSentByUser, isRead),
+      alignment: isFromCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: messageLayout(maxWidth, isFromCurrentUser, isRead),
     );
   }
 
@@ -128,7 +128,7 @@ class MessageBubble extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              message.message,
+              message.content,
               style: const TextStyle(fontSize: 16),
             ),
           ),
@@ -136,7 +136,7 @@ class MessageBubble extends StatelessWidget {
           Row(
             children: [
               Text(
-                message.time,
+                message.timestamp as String,
                 style: const TextStyle(fontSize: 10, color: Colors.black54),
               ),
               if (isSentByUser) ...[
@@ -144,7 +144,7 @@ class MessageBubble extends StatelessWidget {
                 Icon(
                   Icons.done_all,
                   size: 12,
-                  color: isRead ? Colors.blue : Colors.grey,
+                  color: isRead ? const Color.fromARGB(255, 77, 149, 63) : Colors.grey,
                 ),
               ],
             ],

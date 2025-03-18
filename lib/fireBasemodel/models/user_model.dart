@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
-  final String? uid;
+  final String uid;
   final String firstName;
   final String email;
   final String phone;
   final String photoURL;
   final DateTime? createdAt;
+  final String? lastMessage;
+  final DateTime? lastMessageTime;
 
   UserModel({
     required this.uid,
@@ -15,9 +17,10 @@ class UserModel {
     required this.phone,
     required this.photoURL,
     this.createdAt,
+    this.lastMessage,
+    this.lastMessageTime,
   });
 
-  // Convert UserModel to a Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -26,10 +29,11 @@ class UserModel {
       'phone': phone,
       'photoURL': photoURL,
       'createdAt': createdAt ?? DateTime.now(),
+      'lastMessage': lastMessage,
+      'lastMessageTime': lastMessageTime,
     };
   }
 
-  // Create UserModel from Firestore data
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',
@@ -38,8 +42,11 @@ class UserModel {
       phone: map['phone'] ?? '',
       photoURL: map['photoURL'] ?? '',
       createdAt: (map['createdAt'] as Timestamp?)?.toDate(),
+      lastMessage: map['lastMessage'] ?? '',
+      lastMessageTime: (map['lastMessageTime'] as Timestamp?)?.toDate(),
     );
   }
+
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return UserModel(
@@ -49,6 +56,8 @@ class UserModel {
       phone: data['phone'] ?? '',
       photoURL: data['photoURL'] ?? '',
       createdAt: data['createdAt'] != null ? (data['createdAt'] as Timestamp).toDate() : null,
+      lastMessage: data['lastMessage'] ?? '',
+      lastMessageTime: data['lastMessageTime'] != null ? (data['lastMessageTime'] as Timestamp).toDate() : null,
     );
   }
 }

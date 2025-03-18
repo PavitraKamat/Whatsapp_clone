@@ -1,49 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
-import 'package:wtsp_clone/model/models/contact_model.dart';
-import 'package:wtsp_clone/view/components/message_bubble.dart';
-import 'package:wtsp_clone/view/components/input_field.dart';
-import 'package:wtsp_clone/view/components/chat_app_bar.dart';
-import 'package:wtsp_clone/view/components/type_indicator.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
+import 'package:wtsp_clone/fireBaseview/components/chat_app_bar.dart';
+import 'package:wtsp_clone/fireBaseview/components/input_field.dart';
+import 'package:wtsp_clone/fireBaseview/components/message_bubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/type_indicator.dart';
+
 
 class OnetooneChat extends StatelessWidget {
-  final ContactModel contact;
+  final UserModel user;
 
-  const OnetooneChat({super.key, required this.contact});
+  const OnetooneChat({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => OnetoonechatProvider(contactId: contact.id),
+      create: (_) => FirebaseOnetoonechatProvider(chatId: " ",currentUserId: ""), 
       lazy: false,
-      child: _OnetooneChatScreen(contact: contact),
+      child: _OnetooneChatScreen(user: user),
     );
   }
 }
 
 class _OnetooneChatScreen extends StatelessWidget {
-  final ContactModel contact;
+  final UserModel user;
 
-  const _OnetooneChatScreen({required this.contact});
+  const _OnetooneChatScreen({required this.user});
 
   @override
   Widget build(BuildContext context) {
-    final chatProvider = Provider.of<OnetoonechatProvider>(context);
+    final chatProvider = Provider.of<FirebaseOnetoonechatProvider>(context);
 
     return Stack(
       children: [
         chatScreenBackgroundImage(context),
         Scaffold(
           backgroundColor: Colors.transparent,
-          appBar: ChatAppBar(contact: contact),
+          appBar: ChatAppBar(user: user), 
           body: messageTiles(chatProvider),
         ),
       ],
     );
   }
 
-  Column messageTiles(OnetoonechatProvider chatProvider) {
+  Column messageTiles(FirebaseOnetoonechatProvider chatProvider) {
     ScrollController _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

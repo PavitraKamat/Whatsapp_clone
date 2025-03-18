@@ -1,19 +1,18 @@
-import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/contact_provider.dart';
-import 'package:wtsp_clone/model/models/contact_model.dart';
-import 'package:wtsp_clone/model/models/profile_image_helper.dart';
-import 'package:wtsp_clone/view/screens/chats/oneToOne_chat.dart';
-
-class ChatsScreen extends StatelessWidget {
+import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
+import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
+import 'package:wtsp_clone/view/components/type_indicator.dart';
+ 
+class FirebaseChatsScreen extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
-
+ 
   @override
   Widget build(BuildContext context) {
-    final contactsProvider = Provider.of<ContactsProvider>(context);
-
+    final contactsProvider = Provider.of<FireBaseContactsProvider>(context);
+ 
     return Scaffold(
       body: Column(
         children: [
@@ -23,45 +22,42 @@ class ChatsScreen extends StatelessWidget {
       ),
     );
   }
-
-  Expanded _buildContactsList(ContactsProvider contactsProvider) {
+ 
+  Expanded _buildContactsList(FireBaseContactsProvider contactsProvider) {
     return Expanded(
         child: contactsProvider.isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: TypeIndicator())
             : contactsProvider.filteredContacts.isEmpty
-                ? Center(child: Text("No contacts found"))
-                : Consumer<ContactsProvider>(
+                ? Center(child: Text("No users found"))
+                : Consumer<FireBaseContactsProvider>(
                     builder: (context, contactsProvider, child) {
                     return ListView.builder(
                       itemCount: contactsProvider.filteredContacts.length,
                       itemBuilder: (context, index) {
-                        final contact =
-                            contactsProvider.filteredContacts[index];
-                        final contactId = contact.phones!.isNotEmpty == true
-                            ? contact.phones!.first.value ?? "Unknown"
-                            : "Unknown";
-                        final lastMessage = contactsProvider
-                                .lastMessages[contactId]?["message"] ??
-                            "No messages yet";
-                        final lastTime =
-                            contactsProvider.lastMessages[contactId]?["time"] ??
-                                "";
-                        return _buildContactTile(
-                            contact, lastTime, lastMessage, contactId, context);
+                        final user = contactsProvider.filteredContacts[index];
+                        final userId = user.uid;
+                        final lastMessage =
+                            contactsProvider.lastMessages[userId]?["message"] ??
+                                "No messages yet";
+                        final lastTime = contactsProvider.lastMessages[userId]
+                                ?["time"] ??
+                            "";
+                        return _buildUserTile(
+                            user, lastTime, lastMessage, context);
                       },
                     );
                   }));
   }
-
-  ListTile _buildContactTile(Contact contact, String lastTime,
-      String lastMessage, String contactId, BuildContext context) {
+ 
+  ListTile _buildUserTile(UserModel user, String lastTime, String lastMessage,
+      BuildContext context) {
     return ListTile(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
             child: Text(
-              contact.displayName ?? "No Name",
+              user.firstName,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(color: Colors.black),
             ),
@@ -79,28 +75,22 @@ class ChatsScreen extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       leading: CircleAvatar(
-        backgroundImage:
-            AssetImage(ProfileImageHelper.getProfileImage(contactId)),
+        backgroundImage: user.photoURL.isNotEmpty
+            ? NetworkImage(user.photoURL)
+            : AssetImage("assets/images/profile1.jpg") as ImageProvider,
       ),
       onTap: () {
-        ContactModel selectedContact = ContactModel(
-          id: contactId,
-          name: contact.displayName ?? "Unknown",
-          phone: contactId,
-          image: ProfileImageHelper.getProfileImage(contactId),
-          lastSeen: lastTime,
-        );
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OnetooneChat(contact: selectedContact),
+            builder: (context) => OnetooneChat(user: user),
           ),
         );
       },
     );
   }
-
-  Container _buildSearchBar(ContactsProvider contactsProvider) {
+ 
+  Container _buildSearchBar(FireBaseContactsProvider contactsProvider) {
     return Container(
       height: 60.0,
       child: Padding(
@@ -112,14 +102,13 @@ class ChatsScreen extends StatelessWidget {
             hintStyle: TextStyle(color: Colors.black54),
             prefixIcon: Icon(Icons.search, color: Colors.black54),
             filled: true,
-            fillColor: Color(0xFFF1F4F3), // Light gray background
+            fillColor: Color(0xFFF1F4F3),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
                     icon: Icon(Icons.close, color: Colors.black, size: 18),
                     onPressed: () {
                       _searchController.clear();
-                      contactsProvider
-                          .filterContacts(''); // Reset filtered contacts
+                      contactsProvider.filterContacts('');
                       FocusScope.of(context as BuildContext).unfocus();
                     },
                   )
@@ -138,3 +127,5 @@ class ChatsScreen extends StatelessWidget {
     );
   }
 }
+ 
+ 

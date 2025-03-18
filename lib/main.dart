@@ -1,12 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:wtsp_clone/controller/contact_provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/controller/navigation_service.dart';
 import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
+import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/view/screens/splash/splash_screen.dart';
 
 void main() async {
@@ -26,14 +27,18 @@ class WhatsAppClone extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ContactsProvider()),
+        ChangeNotifierProvider(create: (context) => FireBaseContactsProvider()),
+        //ChangeNotifierProvider(create: (context)=>ContactsProvider()),
         ChangeNotifierProvider(create: (context) => HomeProvider()),
+        // ChangeNotifierProvider(
+        //   create: (context) => OnetoonechatProvider(
+        //     contactId: "123",
+        //     //chatController: ChatController(),
+        //   ),
+        // ),
         ChangeNotifierProvider(
-          create: (context) => OnetoonechatProvider(
-            contactId: "123",
-            //chatController: ChatController(),
-          ),
-        ),
+            create: (context) =>
+                FirebaseOnetoonechatProvider(chatId: "",currentUserId: "")),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (context) => GoogleSignInProvider()),
       ],
