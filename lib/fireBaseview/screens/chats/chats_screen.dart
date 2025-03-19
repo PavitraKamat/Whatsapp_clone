@@ -5,14 +5,14 @@ import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
 import 'package:wtsp_clone/view/components/type_indicator.dart';
- 
+
 class FirebaseChatsScreen extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
- 
+
   @override
   Widget build(BuildContext context) {
     final contactsProvider = Provider.of<FireBaseContactsProvider>(context);
- 
+
     return Scaffold(
       body: Column(
         children: [
@@ -22,11 +22,11 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
     );
   }
- 
+
   Expanded _buildContactsList(FireBaseContactsProvider contactsProvider) {
     return Expanded(
         child: contactsProvider.isLoading
-            ? Center(child: TypeIndicator())
+            ? Center(child: CircularProgressIndicator())
             : contactsProvider.filteredContacts.isEmpty
                 ? Center(child: Text("No users found"))
                 : Consumer<FireBaseContactsProvider>(
@@ -48,7 +48,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                     );
                   }));
   }
- 
+
   ListTile _buildUserTile(UserModel user, String lastTime, String lastMessage,
       BuildContext context) {
     return ListTile(
@@ -83,13 +83,13 @@ class FirebaseChatsScreen extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OnetooneChat(user: user),
+            builder: (context) => FireBaseOnetooneChat(user: user),
           ),
         );
       },
     );
   }
- 
+
   Container _buildSearchBar(FireBaseContactsProvider contactsProvider) {
     return Container(
       height: 60.0,
@@ -127,5 +127,3 @@ class FirebaseChatsScreen extends StatelessWidget {
     );
   }
 }
- 
- 

@@ -25,20 +25,36 @@ class MessageModel {
       'userId': userId,
       'isFromCurrentUser': isFromCurrentUser,
       'timestamp': Timestamp.fromDate(timestamp),
+      'isRead': isRead,
     };
   }
 
   // Create an object from Firestore DocumentSnapshot
-  factory MessageModel.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  // factory MessageModel.fromFirestore(DocumentSnapshot doc) {
+  //   Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //   return MessageModel(
+  //     id: doc.id,
+  //     content: data['content'] ?? '',
+  //     userId: data['userId'] ?? '',
+  //     isFromCurrentUser: data['isFromCurrentUser'] ?? false,
+  //     timestamp: (data['timestamp'] as Timestamp).toDate(),
+  //     isRead: data['isRead']?? 'false',
+  //   );
+  // }
+
+  factory MessageModel.fromMap(String id, Map<String, dynamic> data) {
     return MessageModel(
-      id: doc.id,
+      id: id,
       content: data['content'] ?? '',
       userId: data['userId'] ?? '',
       isFromCurrentUser: data['isFromCurrentUser'] ?? false,
+      //timestamp: (data['timestamp'] as Timestamp).toDate(),
       timestamp: (data['timestamp'] as Timestamp).toDate(),
+      isRead: data['isRead'] ?? false,
     );
   }
+
+  // static Future<void> fromMap(String id, Map<String, dynamic> data) async {}
   // String get formattedTime {
   //   return DateFormat('h:mm a').format(timestamp.toDate());
   // }

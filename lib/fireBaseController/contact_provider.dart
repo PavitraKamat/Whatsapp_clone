@@ -28,7 +28,6 @@ class FireBaseContactsProvider extends ChangeNotifier {
       _contacts =
           snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
       _filteredContacts = _contacts;
-      //_lastMessages = lastMessage;
 
       _isLoading = false;
       notifyListeners();

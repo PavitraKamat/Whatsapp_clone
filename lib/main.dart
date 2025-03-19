@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +9,7 @@ import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/view/screens/splash/splash_screen.dart';
 
 void main() async {
@@ -37,8 +39,15 @@ class WhatsAppClone extends StatelessWidget {
         //   ),
         // ),
         ChangeNotifierProvider(
-            create: (context) =>
-                FirebaseOnetoonechatProvider(chatId: "",currentUserId: "")),
+          create: (context) {
+            User? firebaseUser = FirebaseAuth.instance.currentUser;
+            UserModel userModel = firebaseUser != null
+                ? UserModel.fromFirebaseUser(firebaseUser) 
+                : UserModel(uid: '', firstName: 'Guest', email: '', photoURL: '',phone: '');
+
+            return FireBaseOnetoonechatProvider(user: userModel);
+          },
+        ),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (context) => GoogleSignInProvider()),
       ],

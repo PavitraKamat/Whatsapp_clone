@@ -87,6 +87,7 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -136,7 +137,7 @@ class MessageBubble extends StatelessWidget {
           Row(
             children: [
               Text(
-                message.timestamp as String,
+                DateFormat.jm().format(message.timestamp),
                 style: const TextStyle(fontSize: 10, color: Colors.black54),
               ),
               if (isSentByUser) ...[

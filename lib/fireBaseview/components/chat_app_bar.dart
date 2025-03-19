@@ -50,7 +50,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               user.firstName,
               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
             ),
-            Consumer<FirebaseOnetoonechatProvider>(
+            Consumer<FireBaseOnetoonechatProvider>(
               builder: (context, chatProvider, child) {
                 //print("UI Rebuilt - Last Seen: ${chatProvider.lastSeen}");
                 return Text(

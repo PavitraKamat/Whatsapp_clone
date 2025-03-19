@@ -7,7 +7,7 @@ import 'package:wtsp_clone/view/screens/chats/contact_profile_screen.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ContactModel contact;
-
+  
   ChatAppBar({Key? key, required this.contact}) : super(key: key);
 
   @override

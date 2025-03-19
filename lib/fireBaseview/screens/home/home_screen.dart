@@ -5,7 +5,6 @@ import 'package:wtsp_clone/fireBaseview/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/view/components/bottom_navBar.dart';
 import 'package:wtsp_clone/view/components/pop_up_menu.dart';
 import 'package:wtsp_clone/view/screens/calls/call_screen.dart';
-import 'package:wtsp_clone/view/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/view/screens/communities/comunities_screen.dart';
 import 'package:wtsp_clone/view/screens/updates/updates_screen.dart';
 
