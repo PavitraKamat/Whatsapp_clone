@@ -113,9 +113,8 @@ class UserModel {
     );
   }
 
-  /// Convert Firestore DocumentSnapshot to UserModel
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?; // Handle null case
+    final data = doc.data() as Map<String, dynamic>?; 
 
     if (data == null) {
       return UserModel(
@@ -145,7 +144,7 @@ class UserModel {
       email: firebaseUser.email ?? '',
       phone: firebaseUser.phoneNumber ?? '',
       photoURL: firebaseUser.photoURL ?? '',
-      createdAt: DateTime.now(), // You can replace this with Firestore timestamp if needed
+      createdAt: DateTime.now(), 
     );
   }
 }

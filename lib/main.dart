@@ -14,12 +14,7 @@ import 'package:wtsp_clone/view/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //final db = await WtspDb.instance.database;
-  //await WtspDb.instance.listTables(db);
-  //WtspDb.instance.checkTableStructure(db);
-  //await WtspDb.instance.viewMessages();
-  //WtspDb.instance.printMessages(db);
-  await Firebase.initializeApp(); // Initialize Firebase
+  await Firebase.initializeApp(); 
   runApp(WhatsAppClone());
 }
 

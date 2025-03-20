@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/view/screens/home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -33,11 +34,16 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authService =
           Provider.of<GoogleSignInProvider>(context, listen: false);
+      // final profileProvider =
+      //     Provider.of<ProfileProvider>(context, listen: false);
       if (isLogin) {
         await authService.signIn(email, password);
       } else {
         await authService.signUp(name, phone, email, password);
       }
+
+      //profileProvider.updateName(name);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -74,15 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(
-          child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-            child: Image.asset(
-              "assets/images/loginBackground.jpg",
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
+        backGroundImage(),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
@@ -157,6 +155,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Positioned backGroundImage() {
+    return Positioned.fill(
+      child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 1, sigmaY: 1),
+        child: Image.asset(
+          "assets/images/loginBackground.jpg",
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }
+
   Widget _buildTextField(
       String label, TextEditingController controller, IconData icon,
       {bool isObscure = false}) {
@@ -173,13 +183,11 @@ class _LoginScreenState extends State<LoginScreen> {
           filled: true,
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                  color: const Color.fromARGB(
-                      255, 221, 221, 221))), // Border color when not focused
+              borderSide:
+                  BorderSide(color: const Color.fromARGB(255, 221, 221, 221))),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-                color: Colors.teal, width: 2), // Border color when focused
+            borderSide: BorderSide(color: Colors.teal, width: 2),
           ),
         ),
       ),

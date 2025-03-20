@@ -59,6 +59,7 @@ class ProfileEditScreen extends StatelessWidget {
             icon: Icons.phone,
             title: "Phone Number",
             subTitle: profileProvider.phoneNumber,
+            onSave: profileProvider.updatePhone,
           ),
         ],
       ),
@@ -80,7 +81,7 @@ class ProfileEditScreen extends StatelessWidget {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 22,
-          color:Color.fromARGB(255, 108, 193, 149),
+          color: Color.fromARGB(255, 108, 193, 149),
         ),
       ),
       backgroundColor: Colors.white,

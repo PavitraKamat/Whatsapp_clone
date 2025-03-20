@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
+import 'package:intl/intl.dart';
 
 class FireBaseContactsProvider extends ChangeNotifier {
   List<UserModel> _contacts = [];
@@ -19,9 +21,6 @@ class FireBaseContactsProvider extends ChangeNotifier {
 
   Future<void> fetchUsersFromFirestore() async {
     try {
-      _isLoading = true;
-      notifyListeners();
-
       QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('users').get();
 
@@ -31,6 +30,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
 
       _isLoading = false;
       notifyListeners();
+      _fetchLastMessages();
     } catch (e) {
       print("Error fetching users: $e");
       _isLoading = false;
@@ -48,6 +48,40 @@ class FireBaseContactsProvider extends ChangeNotifier {
       return matchesName || matchesNumber;
     }).toList();
     notifyListeners();
+  }
+
+  void _fetchLastMessages() {
+    for (var contact in _contacts) {
+      String chatId = _getChatId(contact.uid);
+
+      FirebaseFirestore.instance
+          .collection("chats")
+          .doc(chatId)
+          .snapshots()
+          .listen((chatDoc) {
+        if (chatDoc.exists && chatDoc.data() != null) {
+          var data = chatDoc.data();
+          if (data != null &&
+              data.containsKey('lastMessage') &&
+              data.containsKey('lastMessageTime')) {
+            String lastMsg = data['lastMessage'];
+            Timestamp lastMsgTime = data['lastMessageTime'];
+            String formattedTime =
+                DateFormat('hh:mm a').format(lastMsgTime.toDate());
+
+            updateLastMessage(contact.uid, lastMsg, formattedTime);
+          }
+        }
+      });
+    }
+  }
+
+  String _getChatId(String otherUserId) {
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return "";
+    return (currentUserId.hashCode <= otherUserId.hashCode)
+        ? "$currentUserId\_$otherUserId"
+        : "$otherUserId\_$currentUserId";
   }
 
   void updateLastMessage(String userId, String message, String time) {

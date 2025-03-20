@@ -22,7 +22,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   FireBaseOnetoonechatProvider({required this.user}) {
     _lastSeen = "Last seen at ${_getCurrentTime()}";
-    //_loadMessages();
 
     messageController.addListener(() {
       _isTyping = messageController.text.isNotEmpty;
@@ -65,11 +64,10 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       _messages = snapshot.docs
           .map((doc) => MessageModel.fromMap(doc.id, doc.data()))
           .toList();
-      if (_messages.isNotEmpty) {
-        var lastMsg = _messages.last;
-        _updateLastSeenFromDatabase(chatId);
-      }
+      notifyListeners();
     });
+    _updateLastSeenFromDatabase(chatId);
+    notifyListeners();
   }
 
   Future<void> _updateLastSeenFromDatabase(String chatId) async {
@@ -85,7 +83,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       var lastMessage = lastMessageDoc.docs.first.data();
       _lastSeen =
           "Last seen at ${DateFormat('hh:mm a').format((lastMessage['timestamp'] as Timestamp).toDate())}";
-      //notifyListeners();
     } else {
       _lastSeen = "Last seen recently";
     }
@@ -102,7 +99,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     if (text.trim().isNotEmpty) {
       _lastSeen = "online";
       notifyListeners();
-      print("Sending message: '$text' to user: ${chatId}");
+      //print("Sending message: '$text' to user: ${chatId}");
 
       String messageId = _firestore
           .collection('chats')
@@ -125,8 +122,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .collection('messages')
           .doc(messageId)
           .set(newMessage.toMap());
-
-      _messages.add(newMessage);
       notifyListeners();
 
       Future.delayed(Duration(seconds: 3), () async {
@@ -144,8 +139,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
             .collection('messages')
             .doc(receivedMessage.id)
             .set(receivedMessage.toMap());
-
-        _messages.add(receivedMessage);
         notifyListeners();
       });
 
@@ -157,10 +150,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
       _simulateReceiverTyping();
 
-      final contactsProvider = Provider.of<ContactsProvider>(
-        NavigationService.navigatorKey.currentContext!,
-        listen: false);
-        
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage': text,
         'lastMessageTime': Timestamp.now(),

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
-import 'package:wtsp_clone/view/components/type_indicator.dart';
 
 class FirebaseChatsScreen extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
@@ -77,7 +77,8 @@ class FirebaseChatsScreen extends StatelessWidget {
       leading: CircleAvatar(
         backgroundImage: user.photoURL.isNotEmpty
             ? NetworkImage(user.photoURL)
-            : AssetImage("assets/images/profile1.jpg") as ImageProvider,
+            : AssetImage(
+                    ProfileImageHelper.getProfileImage(user.phone)),
       ),
       onTap: () {
         Navigator.push(
