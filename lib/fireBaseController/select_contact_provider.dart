@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:intl/intl.dart';
 
-class FireBaseContactsProvider extends ChangeNotifier {
+class SelectContactProvider extends ChangeNotifier {
   List<UserModel> _contacts = [];
   List<UserModel> _filteredContacts = [];
   Map<String, Map<String, String>> _lastMessages = {};
@@ -15,40 +15,21 @@ class FireBaseContactsProvider extends ChangeNotifier {
   Map<String, Map<String, String>> get lastMessages => _lastMessages;
   bool get isLoading => _isLoading;
 
-  FireBaseContactsProvider() {
-    fetchChathistoryUsers();
+  SelectContactProvider() {
+    fetchUsersFromFirestore();
   }
-  Future<void> fetchChathistoryUsers() async {
-    try {
-      String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
+  Future<void> fetchUsersFromFirestore() async {
+    try {
       QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('users').get();
 
-      List<UserModel> allUsers =
+      _contacts =
           snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
-
-      _contacts.clear();
-      _filteredContacts.clear();
-
-      for (var user in allUsers) {
-        if (user.uid == currentUserId) continue;
-        String chatId = _getChatId(user.uid);
-
-        DocumentSnapshot chatDoc = await FirebaseFirestore.instance
-            .collection("chats")
-            .doc(chatId)
-            .get();
-
-        if (chatDoc.exists) {
-          _contacts.add(user);
-          _filteredContacts.add(user);
-        }
-      }
+      _filteredContacts = _contacts;
 
       _isLoading = false;
       notifyListeners();
-
       _fetchLastMessages();
     } catch (e) {
       print("Error fetching users: $e");

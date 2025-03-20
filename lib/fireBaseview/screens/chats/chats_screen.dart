@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
+import 'package:wtsp_clone/fireBaseview/screens/chats/select_contact_page.dart';
 
 class FirebaseChatsScreen extends StatelessWidget {
   final TextEditingController _searchController = TextEditingController();
@@ -20,6 +22,21 @@ class FirebaseChatsScreen extends StatelessWidget {
           _buildContactsList(contactsProvider),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SelectContactPage(),
+            ),
+          );
+        },
+        backgroundColor: Color.fromARGB(255, 108, 193, 149),
+        child: Icon(
+          Icons.chat,
+          color: Colors.white,
+        ),
+      ),
     );
   }
 
@@ -31,10 +48,27 @@ class FirebaseChatsScreen extends StatelessWidget {
                 ? Center(child: Text("No users found"))
                 : Consumer<FireBaseContactsProvider>(
                     builder: (context, contactsProvider, child) {
+                      List<UserModel> sortedContacts = List.from(contactsProvider.filteredContacts);
+                  sortedContacts.sort((a, b) {
+                    String timeA = contactsProvider.lastMessages[a.uid]?["time"] ?? "";
+                    String timeB = contactsProvider.lastMessages[b.uid]?["time"] ?? "";
+
+                    // Convert time string to DateTime for proper sorting
+                    DateTime dateTimeA = timeA.isNotEmpty
+                        ? DateFormat('hh:mm a').parse(timeA)
+                        : DateTime(2000); // Default old date if no message
+
+                    DateTime dateTimeB = timeB.isNotEmpty
+                        ? DateFormat('hh:mm a').parse(timeB)
+                        : DateTime(2000);
+
+                    return dateTimeB.compareTo(dateTimeA); // Sort in descending order
+                  });
+
                     return ListView.builder(
-                      itemCount: contactsProvider.filteredContacts.length,
+                      itemCount: sortedContacts.length,
                       itemBuilder: (context, index) {
-                        final user = contactsProvider.filteredContacts[index];
+                        final user = sortedContacts[index];
                         final userId = user.uid;
                         final lastMessage =
                             contactsProvider.lastMessages[userId]?["message"] ??
@@ -77,8 +111,7 @@ class FirebaseChatsScreen extends StatelessWidget {
       leading: CircleAvatar(
         backgroundImage: user.photoURL.isNotEmpty
             ? NetworkImage(user.photoURL)
-            : AssetImage(
-                    ProfileImageHelper.getProfileImage(user.phone)),
+            : AssetImage(ProfileImageHelper.getProfileImage(user.phone)),
       ),
       onTap: () {
         Navigator.push(

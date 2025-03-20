@@ -12,7 +12,7 @@ import 'package:wtsp_clone/view/screens/login/login_screen.dart';
 class ProfileProvider extends ChangeNotifier {
   Uint8List? _image;
   String _name = "";
-  String _status = "Hey there! I'm using WhatsApp";
+  String _status = "";
   String _phoneNumber = "";
   String? _imagePath;
 
