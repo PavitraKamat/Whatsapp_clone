@@ -35,20 +35,20 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context);
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
     return Stack(
       children: [
         chatScreenBackgroundImage(context),
         Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: ChatAppBar(user: user),
-          body: messageTiles(chatProvider),
-        ),
+            backgroundColor: Colors.transparent,
+            appBar: ChatAppBar(user: user),
+            body: messageTiles(chatProvider,currentUserId)),
       ],
     );
   }
 
-  Column messageTiles(FireBaseOnetoonechatProvider chatProvider) {
+  Column messageTiles(FireBaseOnetoonechatProvider chatProvider,String currentUserId) {
     ScrollController _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,27 +76,33 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
                   ),
                 );
               }
-              return MessageBubble(message: chatProvider.messages[index]);
+              final message = chatProvider.messages[index];
+              final isSentByMe = message.userId == currentUserId;
+              return Align(
+                alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: MessageBubble(message: message, isSentByMe: isSentByMe), // Fix parameter
+              );
             },
           ),
         ),
         MessageInputField(
-  controller: chatProvider.messageController,
-  onSend: () {
-    String user1 = FirebaseAuth.instance.currentUser!.uid;  // Current User
-    String user2 = user.uid; // The other user in the chat
+          controller: chatProvider.messageController,
+          onSend: () {
+            String user1 =
+                FirebaseAuth.instance.currentUser!.uid; // Current User
+            String user2 = user.uid; // The other user in the chat
 
-    chatProvider.sendMessage(user1, user2, chatProvider.messageController.text);
-    
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
-  },
-  isTyping: chatProvider.isTyping,
-),
+            chatProvider.sendMessage(
+                user1, user2, chatProvider.messageController.text);
 
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          },
+          isTyping: chatProvider.isTyping,
+        ),
       ],
     );
   }

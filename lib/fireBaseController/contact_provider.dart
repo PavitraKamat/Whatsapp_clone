@@ -1,24 +1,25 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:intl/intl.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class FireBaseContactsProvider extends ChangeNotifier {
   List<UserModel> _contacts = [];
   List<UserModel> _filteredContacts = [];
-  Map<String, Map<String, String>> _lastMessages = {};
+  Map<String, Map<String, dynamic>> _lastMessages = {};
   bool _isLoading = true;
 
   List<UserModel> get contacts => _contacts;
   List<UserModel> get filteredContacts => _filteredContacts;
-  Map<String, Map<String, String>> get lastMessages => _lastMessages;
+  Map<String, Map<String, dynamic>> get lastMessages => _lastMessages;
   bool get isLoading => _isLoading;
 
   FireBaseContactsProvider() {
-    fetchChathistoryUsers();
+    fetchChatHistoryUsers();
   }
-  Future<void> fetchChathistoryUsers() async {
+
+  Future<void> fetchChatHistoryUsers() async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
@@ -85,10 +86,9 @@ class FireBaseContactsProvider extends ChangeNotifier {
               data.containsKey('lastMessageTime')) {
             String lastMsg = data['lastMessage'];
             Timestamp lastMsgTime = data['lastMessageTime'];
-            String formattedTime =
-                DateFormat('hh:mm a').format(lastMsgTime.toDate());
+            String formattedTime = formatTimestamp(lastMsgTime);
 
-            updateLastMessage(contact.uid, lastMsg, formattedTime);
+            updateLastMessage(contact.uid, lastMsg, formattedTime, lastMsgTime);
           }
         }
       });
@@ -103,8 +103,45 @@ class FireBaseContactsProvider extends ChangeNotifier {
         : "$otherUserId\_$currentUserId";
   }
 
-  void updateLastMessage(String userId, String message, String time) {
-    _lastMessages[userId] = {"message": message, "time": time};
+  void updateLastMessage(
+      String userId, String message, String time, Timestamp timestamp) {
+    _lastMessages[userId] = {
+      "message": message,
+      "time": time,
+      "timestamp": timestamp,
+    };
+
+    void sortContacts(List<UserModel> list) {
+      list.sort((a, b) {
+        Timestamp timeA = _lastMessages[a.uid]?['timestamp'] ?? Timestamp(0, 0);
+        Timestamp timeB = _lastMessages[b.uid]?['timestamp'] ?? Timestamp(0, 0);
+        return timeB
+            .compareTo(timeA); // Sort in descending order (latest first)
+      });
+    }
+
+    sortContacts(_contacts);
+    sortContacts(_filteredContacts);
+
     notifyListeners();
+  }
+
+  String formatTimestamp(Timestamp timestamp) {
+    DateTime messageDate = timestamp.toDate();
+    DateTime now = DateTime.now();
+
+    DateTime today = DateTime(now.year, now.month, now.day);
+    DateTime yesterday = today.subtract(Duration(days: 1));
+    DateTime messageDay =
+        DateTime(messageDate.year, messageDate.month, messageDate.day);
+
+    if (messageDay == today) {
+      return DateFormat('hh:mm a').format(messageDate); // Today's messages
+    } else if (messageDay == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('dd/MM/yyyy hh:mm a')
+          .format(messageDate); // Older messages
+    }
   }
 }

@@ -48,7 +48,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: UpdateScreenAppBar(),
+      appBar: updateScreenAppBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +99,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
     );
   }
 
-  AppBar UpdateScreenAppBar() {
+  AppBar updateScreenAppBar() {
     return AppBar(
       title: Text(
         "Updates",

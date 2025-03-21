@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
@@ -48,23 +47,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                 ? Center(child: Text("No users found"))
                 : Consumer<FireBaseContactsProvider>(
                     builder: (context, contactsProvider, child) {
-                      List<UserModel> sortedContacts = List.from(contactsProvider.filteredContacts);
-                  sortedContacts.sort((a, b) {
-                    String timeA = contactsProvider.lastMessages[a.uid]?["time"] ?? "";
-                    String timeB = contactsProvider.lastMessages[b.uid]?["time"] ?? "";
-
-                    // Convert time string to DateTime for proper sorting
-                    DateTime dateTimeA = timeA.isNotEmpty
-                        ? DateFormat('hh:mm a').parse(timeA)
-                        : DateTime(2000); // Default old date if no message
-
-                    DateTime dateTimeB = timeB.isNotEmpty
-                        ? DateFormat('hh:mm a').parse(timeB)
-                        : DateTime(2000);
-
-                    return dateTimeB.compareTo(dateTimeA); // Sort in descending order
-                  });
-
+                      final sortedContacts = contactsProvider.filteredContacts;
                     return ListView.builder(
                       itemCount: sortedContacts.length,
                       itemBuilder: (context, index) {
@@ -161,3 +144,7 @@ class FirebaseChatsScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+

@@ -140,7 +140,7 @@ class ProfileEditScreen extends StatelessWidget {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final nameController = TextEditingController(text: profileProvider.name);
     final statusController =
-        TextEditingController(text: profileProvider.status);
+        TextEditingController(text: profileProvider.about);
 
     return Scaffold(
       appBar: profileEditingAppBar(),
@@ -163,7 +163,7 @@ class ProfileEditScreen extends StatelessWidget {
             context: context,
             icon: Icons.info,
             title: "About",
-            subTitle: profileProvider.status,
+            subTitle: profileProvider.about,
             controller: statusController,
             onSave: profileProvider.updateStatus,
           ),

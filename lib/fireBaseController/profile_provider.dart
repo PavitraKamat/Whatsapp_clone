@@ -12,13 +12,13 @@ import 'package:wtsp_clone/view/screens/login/login_screen.dart';
 class ProfileProvider extends ChangeNotifier {
   Uint8List? _image;
   String _name = "";
-  String _status = "";
+  String _about = "Hey there! I'm using WhatsApp";
   String _phoneNumber = "";
   String? _imagePath;
 
   Uint8List? get image => _image;
   String get name => _name;
-  String get status => _status;
+  String get about => _about;
   String get phoneNumber => _phoneNumber;
   String? get imagePath => _imagePath;
 
@@ -36,8 +36,8 @@ class ProfileProvider extends ChangeNotifier {
             .get();
         if (userDoc.exists) {
           _name = userDoc['firstName'] ?? _name;
-          _status = userDoc['status'] ?? _status;
-          _phoneNumber = user.phoneNumber ?? "";
+          _about = userDoc['status'] ?? _about;
+          _phoneNumber = userDoc['phone'] ?? "";
           _imagePath = userDoc['photoURL'];
           notifyListeners();
         }
@@ -61,16 +61,30 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> updateStatus(String newStatus) async {
+  Future<void> updateStatus(String newAbout) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .update({
-        'status': newStatus,
+        'status': newAbout,
       });
-      _status = newStatus;
+      _about = newAbout;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updatePhone(String newPhone) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({
+        'phone': newPhone,
+      });
+      _phoneNumber = newPhone;
       notifyListeners();
     }
   }

@@ -79,7 +79,7 @@ Widget _buildProfileSection(ProfileProvider provider) {
             Text(provider.name,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             SizedBox(height: 5),
-            Text(provider.status, style: TextStyle(color: Colors.grey[600])),
+            Text(provider.about, style: TextStyle(color: Colors.grey[600])),
           ],
         ),
       ],

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/contact_provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/controller/navigation_service.dart';
@@ -26,14 +27,14 @@ class WhatsAppClone extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => FireBaseContactsProvider()),
-        //ChangeNotifierProvider(create: (context)=>ContactsProvider()),
+        ChangeNotifierProvider(create: (context)=>ContactsProvider()),
         ChangeNotifierProvider(create: (context) => HomeProvider()),
-        // ChangeNotifierProvider(
-        //   create: (context) => OnetoonechatProvider(
-        //     contactId: "123",
-        //     //chatController: ChatController(),
-        //   ),
-        // ),
+        ChangeNotifierProvider(
+          create: (context) => OnetoonechatProvider(
+            contactId: "123",
+            //chatController: ChatController(),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (context) {
             User? firebaseUser = FirebaseAuth.instance.currentUser;

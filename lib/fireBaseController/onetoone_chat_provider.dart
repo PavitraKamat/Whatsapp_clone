@@ -47,7 +47,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         "lastMessageTime": DateTime.now(),
       }, SetOptions(merge: true));
     }
-
     return chatId;
   }
 
@@ -112,7 +111,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         id: messageId,
         content: text.trim(),
         userId: senderId,
-        isFromCurrentUser: true,
         timestamp: Timestamp.now().toDate(),
       );
 
@@ -124,47 +122,48 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .set(newMessage.toMap());
       notifyListeners();
 
-      Future.delayed(Duration(seconds: 3), () async {
-        MessageModel receivedMessage = MessageModel(
-          id: _firestore.collection('messages').doc().id,
-          content: text,
-          userId: user.uid,
-          isFromCurrentUser: false,
-          timestamp: DateTime.now(),
-        );
+      // Future.delayed(Duration(seconds: 3), () async {
+      //   MessageModel receivedMessage = MessageModel(
+      //     id: _firestore.collection('messages').doc().id,
+      //     content: text,
+      //     userId: user.uid,
+      //     isFromCurrentUser: false,
+      //     timestamp: DateTime.now(),
+      //   );
 
-        await _firestore
-            .collection('chats')
-            .doc(chatId)
-            .collection('messages')
-            .doc(receivedMessage.id)
-            .set(receivedMessage.toMap());
-        notifyListeners();
-      });
+      //   await _firestore
+      //       .collection('chats')
+      //       .doc(chatId)
+      //       .collection('messages')
+      //       .doc(receivedMessage.id)
+      //       .set(receivedMessage.toMap());
+      //   notifyListeners();
+      // });
 
+      // messageController.clear();
+
+      // Future.delayed(Duration(seconds: 7), () async {
+      //   await _updateLastSeenFromDatabase(chatId);
+      // });
+
+      // _simulateReceiverTyping();
       messageController.clear();
-
-      Future.delayed(Duration(seconds: 7), () async {
-        await _updateLastSeenFromDatabase(chatId);
-      });
-
-      _simulateReceiverTyping();
-
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage': text,
         'lastMessageTime': Timestamp.now(),
       });
+      _updateLastSeenFromDatabase(chatId);
     }
   }
 
-  void _simulateReceiverTyping() {
-    _isReceiverTyping = true;
-    notifyListeners();
-    Future.delayed(Duration(seconds: 3), () {
-      _isReceiverTyping = false;
-      notifyListeners();
-    });
-  }
+  // void _simulateReceiverTyping() {
+  //   _isReceiverTyping = true;
+  //   notifyListeners();
+  //   Future.delayed(Duration(seconds: 3), () {
+  //     _isReceiverTyping = false;
+  //     notifyListeners();
+  //   });
+  // }
 
   String _getCurrentTime() {
     return DateFormat('hh:mm a').format(DateTime.now());

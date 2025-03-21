@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/model/models/contact_model.dart';
 
 class ContactProfileScreen extends StatelessWidget {
-  final ContactModel contact;
+  final UserModel user;
 
-  ContactProfileScreen({Key? key, required this.contact}) : super(key: key);
+  ContactProfileScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +31,11 @@ class ContactProfileScreen extends StatelessWidget {
             CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey[800],
-              backgroundImage: AssetImage(contact.image),
+              backgroundImage: AssetImage(user.photoURL),
             ),
             SizedBox(height: 10),
             Text(
-              contact.name,
+              user.firstName,
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
@@ -42,7 +43,7 @@ class ContactProfileScreen extends StatelessWidget {
             ),
             SizedBox(height: 5),
             Text(
-              contact.phone,
+              user.phone,
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             SizedBox(height: 20),
@@ -98,17 +99,17 @@ class ContactProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _iconButton(IconData icon, String label) {
-    return Column(
-      children: [
-        IconButton(
-          icon: Icon(icon, size: 30, color: Colors.green),
-          onPressed: () {},
-        ),
-        Text(label, style: TextStyle(fontSize: 12)),
-      ],
-    );
-  }
+  // Widget _iconButton(IconData icon, String label) {
+  //   return Column(
+  //     children: [
+  //       IconButton(
+  //         icon: Icon(icon, size: 30, color: Colors.green),
+  //         onPressed: () {},
+  //       ),
+  //       Text(label, style: TextStyle(fontSize: 12)),
+  //     ],
+  //   );
+  // }
 
   Widget _mediaPreview() {
     return Padding(

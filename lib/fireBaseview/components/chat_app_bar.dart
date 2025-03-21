@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
+import 'package:wtsp_clone/fireBaseview/screens/chats/contact_profile_screen.dart';
 import 'package:wtsp_clone/model/models/profile_image_helper.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -24,13 +25,13 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
             Icon(Icons.arrow_back, size: 24, color: Colors.black),
             GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) =>
-                //         ContactProfileScreen(contact: contact),
-                //   ),
-                // );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ContactProfileScreen(user: user),
+                  ),
+                );
               },
               child: CircleAvatar(
                 radius: 20,
