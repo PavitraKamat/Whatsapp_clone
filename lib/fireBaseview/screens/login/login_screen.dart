@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
-import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/view/screens/home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -34,16 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final authService =
           Provider.of<GoogleSignInProvider>(context, listen: false);
-      // final profileProvider =
-      //     Provider.of<ProfileProvider>(context, listen: false);
       if (isLogin) {
         await authService.signIn(email, password);
       } else {
         await authService.signUp(name, phone, email, password);
       }
-
-      //profileProvider.updateName(name);
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),

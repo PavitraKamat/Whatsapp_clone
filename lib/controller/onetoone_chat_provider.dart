@@ -24,11 +24,12 @@ class OnetoonechatProvider extends ChangeNotifier {
     _lastSeen = "Last seen at ${_getCurrentTime()}";
     _loadMessages();
 
-    messageController.addListener(() {
-      _isTyping = messageController.text.isNotEmpty;
-      notifyListeners();
-    });
+    // messageController.addListener(() {
+    //   _isTyping = messageController.text.isNotEmpty;
+    //   notifyListeners();
+  // });
   }
+  
   Future<void> _loadMessages() async {
     _messages = await WtspDb.instance.getMessages(contactId);
     if (_messages.isNotEmpty) {

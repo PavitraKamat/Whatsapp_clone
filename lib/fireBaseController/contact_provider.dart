@@ -140,8 +140,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
     } else if (messageDay == yesterday) {
       return 'Yesterday';
     } else {
-      return DateFormat('dd/MM/yyyy hh:mm a')
-          .format(messageDate); // Older messages
+      return DateFormat('dd/MM/yyyy').format(messageDate); // Older messages
     }
   }
 }

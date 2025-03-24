@@ -19,18 +19,19 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNextScreen() async {
-    await Future.delayed(Duration(seconds: 2)); 
-    
+    await Future.delayed(Duration(seconds: 2));
+
     final prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
     if (isFirstTime) {
-      prefs.setBool('isFirstTime', false); 
+      prefs.setBool('isFirstTime', false);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => OnBoardingScreen()),
       );
     } else {
+      await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         Navigator.pushReplacement(

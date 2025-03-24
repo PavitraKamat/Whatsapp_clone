@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
-import 'package:wtsp_clone/model/models/contact_model.dart';
 
 class ContactProfileScreen extends StatelessWidget {
   final UserModel user;
@@ -29,10 +29,11 @@ class ContactProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.grey[800],
-              backgroundImage: AssetImage(user.photoURL),
-            ),
+                radius: 20,
+                backgroundColor: Colors.blueGrey,
+                backgroundImage: AssetImage(
+                    ProfileImageHelper.getProfileImage(user.phone)),
+              ),
             SizedBox(height: 10),
             Text(
               user.firstName,

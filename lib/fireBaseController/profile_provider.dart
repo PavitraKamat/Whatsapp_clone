@@ -36,7 +36,7 @@ class ProfileProvider extends ChangeNotifier {
             .get();
         if (userDoc.exists) {
           _name = userDoc['firstName'] ?? _name;
-          _about = userDoc['status'] ?? _about;
+          _about = userDoc['aboutInfo'] ?? _about;
           _phoneNumber = userDoc['phone'] ?? "";
           _imagePath = userDoc['photoURL'];
           notifyListeners();
@@ -54,7 +54,7 @@ class ProfileProvider extends ChangeNotifier {
           .collection('users')
           .doc(user.uid)
           .update({
-        'name': newName,
+        'firstName': newName,
       });
       _name = newName;
       notifyListeners();
@@ -68,7 +68,7 @@ class ProfileProvider extends ChangeNotifier {
           .collection('users')
           .doc(user.uid)
           .update({
-        'status': newAbout,
+        'aboutInfo': newAbout,
       });
       _about = newAbout;
       notifyListeners();
@@ -112,7 +112,7 @@ class ProfileProvider extends ChangeNotifier {
           .collection('users')
           .doc(user.uid)
           .update({
-        'imagePath': filePath,
+        'photoURL': filePath,
       });
     }
     notifyListeners();

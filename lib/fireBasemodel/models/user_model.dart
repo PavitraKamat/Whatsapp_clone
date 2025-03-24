@@ -70,6 +70,7 @@ class UserModel {
   final String email;
   final String phone;
   final String photoURL;
+  final String aboutInfo;
   final DateTime? createdAt;
   final String? lastMessage;
   final DateTime? lastMessageTime;
@@ -80,6 +81,7 @@ class UserModel {
     required this.email,
     required this.phone,
     required this.photoURL,
+    this.aboutInfo = "Hey there! I'm using WhatsApp",
     this.createdAt,
     this.lastMessage,
     this.lastMessageTime,
@@ -93,9 +95,13 @@ class UserModel {
       'email': email,
       'phone': phone,
       'photoURL': photoURL,
-      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
+      'aboutInfo': aboutInfo,
+      'createdAt': createdAt != null
+          ? Timestamp.fromDate(createdAt!)
+          : FieldValue.serverTimestamp(),
       'lastMessage': lastMessage,
-      'lastMessageTime': lastMessageTime != null ? Timestamp.fromDate(lastMessageTime!) : null,
+      'lastMessageTime':
+          lastMessageTime != null ? Timestamp.fromDate(lastMessageTime!) : null,
     };
   }
 
@@ -107,14 +113,19 @@ class UserModel {
       email: map['email'] ?? '',
       phone: map['phone'] ?? '',
       photoURL: map['photoURL'] ?? '',
-      createdAt: map['createdAt'] is Timestamp ? (map['createdAt'] as Timestamp).toDate() : null,
+      aboutInfo: map['aboutInfo'] ?? "Hey there! I'm using WhatsApp",
+      createdAt: map['createdAt'] is Timestamp
+          ? (map['createdAt'] as Timestamp).toDate()
+          : null,
       lastMessage: map['lastMessage'] ?? '',
-      lastMessageTime: map['lastMessageTime'] is Timestamp ? (map['lastMessageTime'] as Timestamp).toDate() : null,
+      lastMessageTime: map['lastMessageTime'] is Timestamp
+          ? (map['lastMessageTime'] as Timestamp).toDate()
+          : null,
     );
   }
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>?; 
+    final data = doc.data() as Map<String, dynamic>?;
 
     if (data == null) {
       return UserModel(
@@ -123,6 +134,7 @@ class UserModel {
         email: '',
         phone: '',
         photoURL: '',
+        aboutInfo: "Hey there! I'm using WhatsApp",
       );
     }
 
@@ -132,9 +144,14 @@ class UserModel {
       email: data['email'] ?? '',
       phone: data['phone'] ?? '',
       photoURL: data['photoURL'] ?? '',
-      createdAt: data['createdAt'] is Timestamp ? (data['createdAt'] as Timestamp).toDate() : null,
+      aboutInfo: data['aboutInfo'] ?? "Hey there! I'm using WhatsApp",
+      createdAt: data['createdAt'] is Timestamp
+          ? (data['createdAt'] as Timestamp).toDate()
+          : null,
       lastMessage: data['lastMessage'] ?? '',
-      lastMessageTime: data['lastMessageTime'] is Timestamp ? (data['lastMessageTime'] as Timestamp).toDate() : null,
+      lastMessageTime: data['lastMessageTime'] is Timestamp
+          ? (data['lastMessageTime'] as Timestamp).toDate()
+          : null,
     );
   }
   factory UserModel.fromFirebaseUser(User firebaseUser) {
@@ -144,7 +161,8 @@ class UserModel {
       email: firebaseUser.email ?? '',
       phone: firebaseUser.phoneNumber ?? '',
       photoURL: firebaseUser.photoURL ?? '',
-      createdAt: DateTime.now(), 
+      aboutInfo: "Hey there! I'm using WhatsApp",
+      createdAt: DateTime.now(),
     );
   }
 }
