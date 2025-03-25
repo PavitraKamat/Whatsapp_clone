@@ -8,6 +8,8 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
 
+    print("profileProvider ${profileProvider.name}");
+
     return Scaffold(
       appBar: settingsAppBar(),
       body: ListView(
@@ -37,6 +39,48 @@ class SettingsScreen extends StatelessWidget {
           SizedBox(height: 20),
         ],
       ),
+      // body: FutureBuilder(
+      //   future:
+      //       profileProvider.loadProfileData(), // Load user data asynchronously
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return Center(
+      //           child: CircularProgressIndicator()); // Show loading indicator
+      //     } else if (snapshot.hasError) {
+      //       return Center(child: Text("Error loading profile"));
+      //     } else {
+      //       final profileProvider = Provider.of<ProfileProvider>(context);
+      //       return ListView(
+      //         children: [
+      //           GestureDetector(
+      //             onTap: () {
+      //               Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                   builder: (context) => ProfileEditScreen(),
+      //                 ),
+      //               );
+      //             },
+      //             child: _buildProfileSection(profileProvider),
+      //           ),
+      //           Divider(thickness: 1, color: Colors.grey[300]),
+      //           _buildSettingsOption(Icons.lock, "Privacy", () {}),
+      //           _buildSettingsOption(
+      //               Icons.notifications, "Notifications", () {}),
+      //           _buildSettingsOption(Icons.storage, "Storage and Data", () {}),
+      //           _buildSettingsOption(Icons.help_outline, "Help", () {}),
+      //           _buildSettingsOption(Icons.info_outline, "About", () {}),
+      //           _buildSettingsOption(
+      //             Icons.logout,
+      //             "Logout",
+      //             () => profileProvider.logout(context),
+      //           ),
+      //           SizedBox(height: 20),
+      //         ],
+      //       );
+      //     }
+      //   },
+      // ),
     );
   }
 }

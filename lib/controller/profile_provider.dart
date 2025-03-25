@@ -23,10 +23,10 @@ class ProfileProvider extends ChangeNotifier {
   String? get imagePath => _imagePath;
 
   ProfileProvider() {
-    _loadProfileData();
+    loadProfileData();
   }
 
-  Future<void> _loadProfileData() async {
+  Future<void> loadProfileData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
@@ -142,3 +142,5 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 }
+
+

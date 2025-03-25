@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
@@ -9,20 +10,24 @@ class GoogleSignInProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<User?> signIn(String email, String password) async {
+  Future<User?> signIn(String email, String password,ProfileProvider profileProvider ) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return userCredential.user;
+      User? user = userCredential.user;
+    if (user != null) {
+      await profileProvider.loadProfileData();
+    }
+    return user;
     } catch (e) {
       throw Exception(e.toString());
     }
   }
 
   Future<User?> signUp(
-      String name, String phone, String email, String password) async {
+      String name, String phone, String email, String password,ProfileProvider profileProvider) async {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -39,10 +44,11 @@ class GoogleSignInProvider extends ChangeNotifier {
           email: email,
           phone: phone,
           photoURL: '',
-          aboutInfo:"Hey there! I'm using WhatsApp",
+          aboutInfo: "Hey there! I'm using WhatsApp",
           createdAt: DateTime.now(),
         );
         await _firestore.collection('users').doc(user.uid).set(newUser.toMap());
+        await profileProvider.loadProfileData();
       }
       return user;
     } catch (e) {
@@ -50,7 +56,7 @@ class GoogleSignInProvider extends ChangeNotifier {
     }
   }
 
-  Future<User?> signInWithGoogle() async {
+  Future<User?> signInWithGoogle(ProfileProvider profileProvider) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
@@ -77,13 +83,14 @@ class GoogleSignInProvider extends ChangeNotifier {
             email: user.email ?? '',
             phone: user.phoneNumber ?? '',
             photoURL: user.photoURL ?? '',
-            aboutInfo:"Hey there! I'm using WhatsApp",
+            aboutInfo: "Hey there! I'm using WhatsApp",
             createdAt: DateTime.now(),
           );
           await userDoc.set(newUser.toMap());
         }
+        await profileProvider.loadProfileData();
       }
-      //notifyListeners();
+      notifyListeners();
       return user;
     } catch (e) {
       throw Exception(e.toString());
@@ -93,19 +100,7 @@ class GoogleSignInProvider extends ChangeNotifier {
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
+    notifyListeners();
   }
 }
-//   Future<UserModel?> getUserDetails(String uid) async {
-//     try {
-//       DocumentSnapshot doc =
-//           await _firestore.collection('users').doc(uid).get();
-//       if (doc.exists) {
-//         return UserModel.fromMap(doc.data() as Map<String, dynamic>);
-//       }
-//       return null;
-//     } catch (e) {
-//       print("Error fetching user details: $e");
-//       return null;
-//     }
-//   }
-// }
+

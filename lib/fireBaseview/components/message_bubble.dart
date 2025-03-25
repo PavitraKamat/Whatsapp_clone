@@ -4,7 +4,7 @@ import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
-  final bool isSentByMe; // ID of the logged-in user
+  final bool isSentByMe; 
 
   const MessageBubble({
     Key? key,

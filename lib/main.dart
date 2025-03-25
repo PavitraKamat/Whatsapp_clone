@@ -16,7 +16,7 @@ import 'package:wtsp_clone/view/screens/splash/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); 
+  await Firebase.initializeApp();
   runApp(WhatsAppClone());
 }
 
@@ -27,7 +27,7 @@ class WhatsAppClone extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => FireBaseContactsProvider()),
-        ChangeNotifierProvider(create: (context)=>ContactsProvider()),
+        ChangeNotifierProvider(create: (context) => ContactsProvider()),
         ChangeNotifierProvider(create: (context) => HomeProvider()),
         ChangeNotifierProvider(
           create: (context) => OnetoonechatProvider(
@@ -39,15 +39,20 @@ class WhatsAppClone extends StatelessWidget {
           create: (context) {
             User? firebaseUser = FirebaseAuth.instance.currentUser;
             UserModel userModel = firebaseUser != null
-                ? UserModel.fromFirebaseUser(firebaseUser) 
-                : UserModel(uid: '', firstName: 'Guest', email: '', photoURL: '',phone: '');
-
+                ? UserModel.fromFirebaseUser(firebaseUser)
+                : UserModel(
+                    uid: '',
+                    firstName: 'Guest',
+                    email: '',
+                    photoURL: '',
+                    phone: '');
+            print('userdetails ${userModel.firstName}');
             return FireBaseOnetoonechatProvider(user: userModel);
           },
         ),
         ChangeNotifierProvider(create: (context) => ProfileProvider()),
         ChangeNotifierProvider(create: (context) => GoogleSignInProvider()),
-        ChangeNotifierProvider(create: (context)=>SelectContactProvider())
+        ChangeNotifierProvider(create: (context) => SelectContactProvider())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
