@@ -14,13 +14,13 @@ class ProfileProvider extends ChangeNotifier {
   String _name = "";
   String _about = "Hey there! I'm using WhatsApp";
   String _phoneNumber = "";
-  String? _imagePath;
+  String? _imageUrl;
 
   Uint8List? get image => _image;
   String get name => _name;
   String get about => _about;
   String get phoneNumber => _phoneNumber;
-  String? get imagePath => _imagePath;
+  String? get imageUrl => _imageUrl;
 
   ProfileProvider() {
     loadProfileData();
@@ -38,7 +38,7 @@ class ProfileProvider extends ChangeNotifier {
           _name = userDoc['firstName'] ?? _name;
           _about = userDoc['aboutInfo'] ?? _about;
           _phoneNumber = userDoc['phone'] ?? _phoneNumber;
-          _imagePath = userDoc['photoURL'];
+          _imageUrl = userDoc['photoURL'];
           notifyListeners();
         }
       } catch (e) {
@@ -103,7 +103,7 @@ class ProfileProvider extends ChangeNotifier {
     final filePath = '${directory.path}/profile_image.png';
     File file = File(filePath);
     await file.writeAsBytes(imageBytes);
-    _imagePath = filePath;
+    _imageUrl = filePath;
     _image = imageBytes;
 
     final user = FirebaseAuth.instance.currentUser;

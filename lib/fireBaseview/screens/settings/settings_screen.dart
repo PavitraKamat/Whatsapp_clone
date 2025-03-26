@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+
+    //print("profileProvider ${profileProvider.name}");
 
     return Scaffold(
       appBar: settingsAppBar(),
@@ -30,6 +33,8 @@ class SettingsScreen extends StatelessWidget {
           _buildSettingsOption(Icons.help_outline, "Help", () {}),
           _buildSettingsOption(Icons.info_outline, "About", () {}),
           _buildSettingsOption(
+              Icons.switch_access_shortcut_add, "Firebase View", () {}),
+          _buildSettingsOption(
               Icons.logout,
               "Logout",
               () => Provider.of<ProfileProvider>(context, listen: false)
@@ -48,7 +53,7 @@ AppBar settingsAppBar() {
       style: TextStyle(
         fontWeight: FontWeight.bold,
         fontSize: 22,
-        color:Color.fromARGB(255, 108, 193, 149),
+        color: Color.fromARGB(255, 108, 193, 149),
       ),
     ),
     backgroundColor: Colors.white,
@@ -69,8 +74,11 @@ Widget _buildProfileSection(ProfileProvider provider) {
         CircleAvatar(
           radius: 40,
           backgroundImage:
-              provider.image != null ? MemoryImage(provider.image!) : null,
-          child: provider.image == null ? Icon(Icons.person, size: 40) : null,
+              provider.imageUrl != null && provider.imageUrl!.isNotEmpty
+                  ? NetworkImage(provider.imageUrl!) as ImageProvider
+                  : AssetImage(
+                      ProfileImageHelper.getProfileImage(provider.phoneNumber)),
+          //child: provider.imageUrl == null ? Icon(Icons.person, size: 40) : null,
         ),
         SizedBox(width: 20),
         Column(
@@ -95,3 +103,49 @@ Widget _buildSettingsOption(IconData icon, String title, VoidCallback onTap) {
     onTap: onTap,
   );
 }
+
+
+
+      // body: FutureBuilder(
+      //   future:
+      //       profileProvider.loadProfileData(), // Load user data asynchronously
+      //   builder: (context, snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.waiting) {
+      //       return Center(
+      //           child: CircularProgressIndicator()); // Show loading indicator
+      //     } else if (snapshot.hasError) {
+      //       return Center(child: Text("Error loading profile"));
+      //     } else {
+      //       final profileProvider = Provider.of<ProfileProvider>(context);
+      //       return ListView(
+      //         children: [
+      //           GestureDetector(
+      //             onTap: () {
+      //               Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                   builder: (context) => ProfileEditScreen(),
+      //                 ),
+      //               );
+      //             },
+      //             child: _buildProfileSection(profileProvider),
+      //           ),
+      //           Divider(thickness: 1, color: Colors.grey[300]),
+      //           _buildSettingsOption(Icons.lock, "Privacy", () {}),
+      //           _buildSettingsOption(
+      //               Icons.notifications, "Notifications", () {}),
+      //           _buildSettingsOption(Icons.storage, "Storage and Data", () {}),
+      //           _buildSettingsOption(Icons.help_outline, "Help", () {}),
+      //           _buildSettingsOption(Icons.info_outline, "About", () {}),
+      //           _buildSettingsOption(
+      //             Icons.logout,
+      //             "Logout",
+      //             () => profileProvider.logout(context),
+      //           ),
+      //           SizedBox(height: 20),
+      //         ],
+      //       );
+      //     }
+      //   },
+      // ),
+    

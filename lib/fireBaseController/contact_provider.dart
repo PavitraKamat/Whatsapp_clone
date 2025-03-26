@@ -19,38 +19,82 @@ class FireBaseContactsProvider extends ChangeNotifier {
     fetchChatHistoryUsers();
   }
 
+  //USING GET() ONLY CALLS ONCE 
+  // Future<void> fetchChatHistoryUsers() async {
+  //   try {
+  //     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+  //     QuerySnapshot snapshot =
+  //         await FirebaseFirestore.instance.collection('users').get();
+
+  //     List<UserModel> allUsers =
+  //         snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
+
+  //     _contacts.clear();
+  //     _filteredContacts.clear();
+
+  //     for (var user in allUsers) {
+  //       if (user.uid == currentUserId) continue;
+  //       String chatId = _getChatId(user.uid);
+
+  //       DocumentSnapshot chatDoc = await FirebaseFirestore.instance
+  //           .collection("chats")
+  //           .doc(chatId)
+  //           .get();
+
+  //       if (chatDoc.exists) {
+  //         _contacts.add(user);
+  //         _filteredContacts.add(user);
+  //       }
+  //     }
+
+  //     _isLoading = false;
+  //     notifyListeners();
+
+  //     _fetchLastMessages();
+  //   } catch (e) {
+  //     print("Error fetching users: $e");
+  //     _isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
+
+  //USES SNAPSHOT FOR LIVE UPDATES
   Future<void> fetchChatHistoryUsers() async {
     try {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-      QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('users').get();
+      FirebaseFirestore.instance
+          .collection("chats")
+          .snapshots()
+          .listen((querySnapshot) async {
+        List<UserModel> allUsers = [];
+        QuerySnapshot userSnapshot =
+            await FirebaseFirestore.instance.collection('users').get();
 
-      List<UserModel> allUsers =
-          snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
+        List<UserModel> users = userSnapshot.docs
+            .map((doc) => UserModel.fromFirestore(doc))
+            .toList();
 
-      _contacts.clear();
-      _filteredContacts.clear();
+        for (var user in users) {
+          if (user.uid == currentUserId) continue;
 
-      for (var user in allUsers) {
-        if (user.uid == currentUserId) continue;
-        String chatId = _getChatId(user.uid);
+          String chatId = _getChatId(user.uid);
+          bool chatExists = querySnapshot.docs.any((doc) => doc.id == chatId);
 
-        DocumentSnapshot chatDoc = await FirebaseFirestore.instance
-            .collection("chats")
-            .doc(chatId)
-            .get();
-
-        if (chatDoc.exists) {
-          _contacts.add(user);
-          _filteredContacts.add(user);
+          if (chatExists) {
+            allUsers.add(user);
+          }
         }
-      }
 
-      _isLoading = false;
-      notifyListeners();
+        _contacts = allUsers;
+        _filteredContacts = List.from(_contacts);
 
-      _fetchLastMessages();
+        _isLoading = false;
+        notifyListeners();
+
+        _fetchLastMessages(); 
+      });
     } catch (e) {
       print("Error fetching users: $e");
       _isLoading = false;

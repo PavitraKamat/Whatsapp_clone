@@ -1,8 +1,12 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
+import 'package:wtsp_clone/model/models/profile_image_helper.dart';
 
 class ProfileAvatar extends StatelessWidget {
-  final Uint8List? image;
+  //final Uint8List? image;
+  final String? image;
   final double radius;
   final VoidCallback? onTap;
 
@@ -15,11 +19,16 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ProfileProvider>(context);
     return Stack(
       children: [
         CircleAvatar(
           radius: radius,
-          backgroundImage: image != null ? MemoryImage(image!) : null,
+          //backgroundImage: image != null ? NetworkImage(image!) : null,
+          backgroundImage: provider.imageUrl != null &&
+                  provider.imageUrl!.isNotEmpty
+              ? NetworkImage(provider.imageUrl!) as ImageProvider
+              : AssetImage(ProfileImageHelper.getProfileImage(provider.phoneNumber)),
           child: image == null ? Icon(Icons.person, size: radius) : null,
         ),
         if (onTap != null)

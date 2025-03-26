@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wtsp_clone/view/components/uihelper.dart';
-import 'package:wtsp_clone/view/screens/home/home_screen.dart';
-import 'package:wtsp_clone/view/screens/login/login_screen.dart';
-import 'package:wtsp_clone/view/screens/onboarding/onBoarding_screen.dart';
+import 'package:wtsp_clone/fireBaseview/components/uihelper.dart';
+import 'package:wtsp_clone/fireBaseview/screens/home/home_screen.dart';
+import 'package:wtsp_clone/fireBaseview/screens/login/login_screen.dart';
+import 'package:wtsp_clone/fireBaseview/screens/onboarding/onBoarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -19,20 +19,22 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNextScreen() async {
-    await Future.delayed(Duration(seconds: 2)); 
-    
+    await Future.delayed(Duration(seconds: 2));
+
     final prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
 
     if (isFirstTime) {
-      prefs.setBool('isFirstTime', false); 
+      prefs.setBool('isFirstTime', false);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => OnBoardingScreen()),
       );
     } else {
+      await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        print("userdetails  ${user!.displayName}");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),

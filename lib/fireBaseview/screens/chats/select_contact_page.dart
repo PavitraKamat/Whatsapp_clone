@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBaseController/select_contact_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
@@ -14,6 +15,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
   @override
   Widget build(BuildContext context) {
     final contactsProvider = Provider.of<SelectContactProvider>(context);
+    //final profileProvider = Provider.of<ProfileProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -79,16 +81,9 @@ class _SelectContactPageState extends State<SelectContactPage> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           final user = contactsProvider.filteredContacts[index];
-                          final userId = user.uid;
-                          final lastMessage = contactsProvider
-                                  .lastMessages[userId]?["message"] ??
-                              "No messages yet";
-                          final lastTime = contactsProvider.lastMessages[userId]
-                                  ?["time"] ??
-                              "";
-                          return _buildUserTile(
-                              user, lastTime, lastMessage, context);
+                          return _buildUserTile(user, context);
                         },
+                        //await  profileProvider.loadProfileData();
                         childCount: contactsProvider.filteredContacts.length,
                       ),
                     ),
@@ -97,8 +92,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
     );
   }
 
-  Widget _buildUserTile(UserModel user, String lastTime, String lastMessage,
-      BuildContext context) {
+  Widget _buildUserTile(UserModel user, BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
         radius: 20,
@@ -117,14 +111,14 @@ class _SelectContactPageState extends State<SelectContactPage> {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
-          Text(
-            lastTime,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
+          // Text(
+          //   lastTime,
+          //   style: const TextStyle(color: Colors.grey, fontSize: 12),
+          // ),
         ],
       ),
       subtitle: Text(
-        lastMessage,
+        user.aboutInfo,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(color: Colors.grey),
@@ -136,6 +130,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
             builder: (context) => FireBaseOnetooneChat(user: user),
           ),
         );
+        //Provider.of<FireBaseContactsProvider>(context, listen: false).fetchChatHistoryUsers();
       },
     );
   }

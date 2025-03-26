@@ -33,8 +33,8 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
-      print("userdetails  ${user!.displayName}");
       if (user != null) {
+        print("userdetails  ${user!.displayName}");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),

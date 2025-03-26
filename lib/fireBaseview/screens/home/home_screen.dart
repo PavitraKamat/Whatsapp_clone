@@ -10,8 +10,8 @@ import 'package:wtsp_clone/view/screens/updates/updates_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Widget> _pages = [
-    //ChatsScreen(),
     FirebaseChatsScreen(),
+    //ChatsScreen(),
     UpdatesScreen(),
     CommunitiesScreen(),
     CallsScreen(),

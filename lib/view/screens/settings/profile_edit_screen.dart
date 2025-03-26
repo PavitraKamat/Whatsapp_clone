@@ -181,7 +181,7 @@ class ProfileEditScreen extends StatelessWidget {
 
   ProfileAvatar editableProfileImage(ProfileProvider profileProvider) {
     return ProfileAvatar(
-      image: profileProvider.image,
+      image: profileProvider.imageUrl,
       radius: 60,
       onTap: () => profileProvider.selectImage(),
     );

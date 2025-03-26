@@ -26,7 +26,9 @@ class SelectContactProvider extends ChangeNotifier {
 
       _contacts =
           snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
-      _filteredContacts = _contacts;
+      _contacts.sort((a, b) =>
+          a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+      _filteredContacts = List.from(_contacts);
 
       _isLoading = false;
       notifyListeners();

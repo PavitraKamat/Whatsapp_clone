@@ -13,7 +13,7 @@ class FirebaseChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contactsProvider = Provider.of<FireBaseContactsProvider>(context);
-
+    
     return Scaffold(
       body: Column(
         children: [
@@ -47,7 +47,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                 ? Center(child: Text("No users found"))
                 : Consumer<FireBaseContactsProvider>(
                     builder: (context, contactsProvider, child) {
-                      final sortedContacts = contactsProvider.filteredContacts;
+                    final sortedContacts = contactsProvider.filteredContacts;
                     return ListView.builder(
                       itemCount: sortedContacts.length,
                       itemBuilder: (context, index) {
@@ -144,7 +144,3 @@ class FirebaseChatsScreen extends StatelessWidget {
     );
   }
 }
-
-
-
-

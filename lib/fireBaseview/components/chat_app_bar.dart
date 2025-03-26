@@ -8,7 +8,6 @@ import 'package:wtsp_clone/model/models/profile_image_helper.dart';
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final UserModel user;
 
-
   ChatAppBar({Key? key, required this.user}) : super(key: key);
 
   @override
@@ -28,16 +27,19 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        ContactProfileScreen(user: user),
+                    builder: (context) => ContactProfileScreen(user: user),
                   ),
                 );
               },
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.blueGrey,
-                backgroundImage: AssetImage(
-                    ProfileImageHelper.getProfileImage(user.phone)),
+                // backgroundImage: AssetImage(
+                //     ProfileImageHelper.getProfileImage(user.phone)),
+                backgroundImage: user.photoURL.isNotEmpty
+                    ? NetworkImage(user.photoURL)
+                    : AssetImage(
+                        ProfileImageHelper.getProfileImage(user.phone)),
               ),
             ),
           ],
@@ -60,10 +62,6 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                 );
               },
             ),
-            // Text(
-            //   contact.lastSeen,
-            //   style: TextStyle(fontSize: 13,),
-            // ),
           ],
         ),
       ),
