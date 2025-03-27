@@ -1,45 +1,37 @@
 {
   "project_info": {
-    "project_number": "1032460508637",
-    "project_id": "whatsapp-97a3f",
-    "storage_bucket": "whatsapp-97a3f.firebasestorage.app"
+    "project_number": "183806004172",
+    "project_id": "whatsappclone-75ae7",
+    "storage_bucket": "whatsappclone-75ae7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1032460508637:android:3f977822101632c778aa34",
+        "mobilesdk_app_id": "1:183806004172:android:754f51fb1db34b23d1ab69",
         "android_client_info": {
           "package_name": "com.example.wtsp_clone"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1032460508637-ngkkcte5auu9p1c3km37ld8raqkiiaif.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.wtsp_clone",
-            "certificate_hash": "096461705f1c8b7aedd24e021231c7ee85a91c2d"
-          }
-        },
-        {
-          "client_id": "1032460508637-olgp9tm9qb3rl3kpsjl1626q0h19ss3n.apps.googleusercontent.com",
+          "client_id": "183806004172-hlqklvukc7f2frodjhrocekr1bh4nlse.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBV6GBc6R6VZygScVVPNJFI9W_ElGvolG8"
+          "current_key": "AIzaSyCmHey75_6ijWDOraoZpV0L_F96l0t4yFQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1032460508637-olgp9tm9qb3rl3kpsjl1626q0h19ss3n.apps.googleusercontent.com",
+              "client_id": "183806004172-hlqklvukc7f2frodjhrocekr1bh4nlse.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "1032460508637-eqre5sj79bj64supi4vtl6dmtuusd3hp.apps.googleusercontent.com",
+              "client_id": "183806004172-7p6dk3ij4hrkalgne9nnpapgka0l1pjl.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "com.example.wtspClone"

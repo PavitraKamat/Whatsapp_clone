@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/view/components/bottom_navBar.dart';
@@ -10,42 +9,26 @@ import 'package:wtsp_clone/view/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/view/screens/communities/comunities_screen.dart';
 import 'package:wtsp_clone/view/screens/updates/updates_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool isFirebaseView = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPreference();
-  }
-
-  void _loadPreference() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isFirebaseView = prefs.getBool('isFirebaseView') ?? true;
-    });
-  }
+class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final homeProvider = Provider.of<HomeProvider>(context);
+    return Consumer<HomeProvider>(
+      builder: (context, homeProvider, child) {
+        final List<Widget> _pages = [
+          homeProvider.isFirebaseView ? FirebaseChatsScreen() : ChatsScreen(),
+          UpdatesScreen(),
+          CommunitiesScreen(),
+          CallsScreen(),
+        ];
 
-    final List<Widget> _pages = [
-    isFirebaseView ? FirebaseChatsScreen() : ChatsScreen(),
-    UpdatesScreen(),
-    CommunitiesScreen(),
-    CallsScreen(),
-  ];
-    return Scaffold(
-      appBar: homeProvider.selectedIndex == 0
-          ? _appBar(context, homeProvider)
-          : null,
-      body: _pages[homeProvider.selectedIndex],
-      bottomNavigationBar: BottomNavbar(),
+        return Scaffold(
+          appBar: homeProvider.selectedIndex == 0
+              ? _appBar(context, homeProvider)
+              : null,
+          body: _pages[homeProvider.selectedIndex],
+          bottomNavigationBar: BottomNavbar(),
+        );
+      },
     );
   }
 
@@ -55,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
         "WhatsApp",
         style: TextStyle(
           color: Color.fromARGB(255, 108, 193, 149),
-          //color:Color.fromARGB(255, 107, 200, 152),
           fontWeight: FontWeight.bold,
           fontSize: 24,
         ),
@@ -72,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           icon: Icon(Icons.camera_alt_outlined),
           onPressed: () {
-            //homeProvider.captureImageFromCamera();
             homeProvider.pickImageFromGallery();
           },
         ),

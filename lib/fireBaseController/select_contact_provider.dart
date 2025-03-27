@@ -21,17 +21,32 @@ class SelectContactProvider extends ChangeNotifier {
 
   Future<void> fetchUsersFromFirestore() async {
     try {
+      String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
       QuerySnapshot snapshot =
           await FirebaseFirestore.instance.collection('users').get();
 
-      _contacts =
+      List<UserModel> users =
           snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
-      _contacts.sort((a, b) =>
-          a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
-      _filteredContacts = List.from(_contacts);
 
+      UserModel? loggedInUser;
+      users.removeWhere((user) {
+        if (user.uid == currentUserId) {
+          loggedInUser = user;
+          return true;
+        }
+        return false;
+      });
+      users.sort((a, b) =>
+          a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase()));
+
+      if (loggedInUser != null) {
+        users.insert(0, loggedInUser!);
+      }
+      _contacts = users;
+      _filteredContacts = List.from(users);
       _isLoading = false;
       notifyListeners();
+
       _fetchLastMessages();
     } catch (e) {
       print("Error fetching users: $e");

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +14,7 @@ class FirebaseChatsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contactsProvider = Provider.of<FireBaseContactsProvider>(context);
-    
+
     return Scaffold(
       body: Column(
         children: [
@@ -74,10 +75,10 @@ class FirebaseChatsScreen extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              user.firstName,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.black),
-            ),
+            user.uid == FirebaseAuth.instance.currentUser?.uid
+                ? '${user.firstName} (You)'
+                : user.firstName,
+          )
           ),
           Text(
             lastTime,

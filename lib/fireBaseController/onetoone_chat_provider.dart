@@ -21,8 +21,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   FireBaseOnetoonechatProvider({required this.user}) {
-    _lastSeen = "Last seen at ${_getCurrentTime()}";
-
     messageController.addListener(() {
       _isTyping = messageController.text.isNotEmpty;
       notifyListeners();
@@ -65,28 +63,54 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .toList();
       notifyListeners();
     });
-    _updateLastSeenFromDatabase(chatId);
+
+    String receiverId = user1 == FirebaseAuth.instance.currentUser!.uid ? user2 : user1;
+    _updateReceiverLastSeen(receiverId);
     notifyListeners();
   }
 
-  Future<void> _updateLastSeenFromDatabase(String chatId) async {
-    var lastMessageDoc = await _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp', descending: true)
-        .limit(1)
+  Future<void> updateLastSeen(String userId) async {
+    await _firestore.collection('users').doc(userId).update({
+      'lastMessageTime': Timestamp.now(),
+    });
+  }
+
+Future<void> _updateReceiverLastSeen(String receiverId) async {
+  try {
+    var receiverDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(receiverId)
         .get();
 
-    if (lastMessageDoc.docs.isNotEmpty) {
-      var lastMessage = lastMessageDoc.docs.first.data();
-      _lastSeen =
-          "Last seen at ${DateFormat('hh:mm a').format((lastMessage['timestamp'] as Timestamp).toDate())}";
+    if (!receiverDoc.exists) {
+      print("Document does not exist");
+      _lastSeen = "Last seen recently";
+      notifyListeners();
+      return;
+    }
+
+    var data = receiverDoc.data();
+    print("Firestore Data: $data"); // Debugging line
+
+    Timestamp? lastSeenTimestamp = data?['lastMessageTime']; // Extract Timestamp
+
+    if (lastSeenTimestamp != null) {
+      _lastSeen = "Last seen at ${DateFormat('hh:mm a').format(lastSeenTimestamp.toDate())}";
+      print("Updated Last Seen: $_lastSeen"); // Debugging line
     } else {
+      print("lastMessageTime is null or missing");
       _lastSeen = "Last seen recently";
     }
+
+    notifyListeners();
+  } catch (e) {
+    print("Error fetching last seen time: $e");
+    _lastSeen = "Last seen recently"; // Fallback value
     notifyListeners();
   }
+}
+
+
 
   Future<void> sendMessage(String user1, String user2, String text) async {
     String chatId = await getOrCreateChatId(user1, user2);
@@ -95,9 +119,9 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   Future<void> _sendMessage(String chatId, String text) async {
     String senderId = FirebaseAuth.instance.currentUser!.uid;
-    if (text.trim().isNotEmpty) {
-      _lastSeen = "online";
-      notifyListeners();
+    // if (text.trim().isNotEmpty) {
+    //   _lastSeen = "online";
+    //   notifyListeners();
       //print("Sending message: '$text' to user: ${chatId}");
 
       String messageId = _firestore
@@ -122,57 +146,25 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .set(newMessage.toMap());
       notifyListeners();
 
-      // Future.delayed(Duration(seconds: 3), () async {
-      //   MessageModel receivedMessage = MessageModel(
-      //     id: _firestore.collection('messages').doc().id,
-      //     content: text,
-      //     userId: user.uid,
-      //     isFromCurrentUser: false,
-      //     timestamp: DateTime.now(),
-      //   );
+      await updateLastSeen(senderId);
 
-      //   await _firestore
-      //       .collection('chats')
-      //       .doc(chatId)
-      //       .collection('messages')
-      //       .doc(receivedMessage.id)
-      //       .set(receivedMessage.toMap());
-      //   notifyListeners();
-      // });
-
-      // messageController.clear();
-
-      // Future.delayed(Duration(seconds: 7), () async {
-      //   await _updateLastSeenFromDatabase(chatId);
-      // });
-
-      // _simulateReceiverTyping();
       messageController.clear();
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage': text,
         'lastMessageTime': Timestamp.now(),
       });
-      _updateLastSeenFromDatabase(chatId);
+      _updateReceiverLastSeen(chatId);
     }
   }
 
-  // void _simulateReceiverTyping() {
-  //   _isReceiverTyping = true;
-  //   notifyListeners();
-  //   Future.delayed(Duration(seconds: 3), () {
-  //     _isReceiverTyping = false;
-  //     notifyListeners();
-  //   });
+  // String _getCurrentTime() {
+  //   return DateFormat('hh:mm a').format(DateTime.now());
   // }
-
-  String _getCurrentTime() {
-    return DateFormat('hh:mm a').format(DateTime.now());
-  }
 
   @override
   void dispose() {
-    _lastSeen = "Last seen at ${_getCurrentTime()}";
-    messageController.dispose();
-    super.dispose();
+    // _lastSeen = "Last seen at ${_getCurrentTime()}";
+    // messageController.dispose();
+    //super.dispose();
   }
-}
+

@@ -18,51 +18,10 @@ class FireBaseContactsProvider extends ChangeNotifier {
   FireBaseContactsProvider() {
     fetchChatHistoryUsers();
   }
-
-  //USING GET() ONLY CALLS ONCE 
-  // Future<void> fetchChatHistoryUsers() async {
-  //   try {
-  //     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-  //     QuerySnapshot snapshot =
-  //         await FirebaseFirestore.instance.collection('users').get();
-
-  //     List<UserModel> allUsers =
-  //         snapshot.docs.map((doc) => UserModel.fromFirestore(doc)).toList();
-
-  //     _contacts.clear();
-  //     _filteredContacts.clear();
-
-  //     for (var user in allUsers) {
-  //       if (user.uid == currentUserId) continue;
-  //       String chatId = _getChatId(user.uid);
-
-  //       DocumentSnapshot chatDoc = await FirebaseFirestore.instance
-  //           .collection("chats")
-  //           .doc(chatId)
-  //           .get();
-
-  //       if (chatDoc.exists) {
-  //         _contacts.add(user);
-  //         _filteredContacts.add(user);
-  //       }
-  //     }
-
-  //     _isLoading = false;
-  //     notifyListeners();
-
-  //     _fetchLastMessages();
-  //   } catch (e) {
-  //     print("Error fetching users: $e");
-  //     _isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
-
   //USES SNAPSHOT FOR LIVE UPDATES
   Future<void> fetchChatHistoryUsers() async {
     try {
-      String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      //String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
       FirebaseFirestore.instance
           .collection("chats")
@@ -77,7 +36,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
             .toList();
 
         for (var user in users) {
-          if (user.uid == currentUserId) continue;
+          //if (user.uid == currentUserId) continue;
 
           String chatId = _getChatId(user.uid);
           bool chatExists = querySnapshot.docs.any((doc) => doc.id == chatId);
@@ -91,9 +50,11 @@ class FireBaseContactsProvider extends ChangeNotifier {
         _filteredContacts = List.from(_contacts);
 
         _isLoading = false;
+        sortContacts(_contacts);
+        sortContacts(_filteredContacts);
         notifyListeners();
 
-        _fetchLastMessages(); 
+        _fetchLastMessages();
       });
     } catch (e) {
       print("Error fetching users: $e");
@@ -154,20 +115,14 @@ class FireBaseContactsProvider extends ChangeNotifier {
       "time": time,
       "timestamp": timestamp,
     };
+  }
 
-    void sortContacts(List<UserModel> list) {
-      list.sort((a, b) {
-        Timestamp timeA = _lastMessages[a.uid]?['timestamp'] ?? Timestamp(0, 0);
-        Timestamp timeB = _lastMessages[b.uid]?['timestamp'] ?? Timestamp(0, 0);
-        return timeB
-            .compareTo(timeA); // Sort in descending order (latest first)
-      });
-    }
-
-    sortContacts(_contacts);
-    sortContacts(_filteredContacts);
-
-    notifyListeners();
+  void sortContacts(List<UserModel> list) {
+    list.sort((a, b) {
+      Timestamp timeA = _lastMessages[a.uid]?['timestamp'] ?? Timestamp(0, 0);
+      Timestamp timeB = _lastMessages[b.uid]?['timestamp'] ?? Timestamp(0, 0);
+      return timeB.compareTo(timeA); // Sort in descending order (latest first)
+    });
   }
 
   String formatTimestamp(Timestamp timestamp) {

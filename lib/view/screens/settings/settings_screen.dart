@@ -1,49 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'profile_edit_screen.dart';
 
-class SettingsScreen extends StatefulWidget {
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  bool isFirebaseView = true;
-
-   @override
-  void initState() {
-    super.initState();
-    _loadPreference();
-  }
-
-  void _loadPreference() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isFirebaseView = prefs.getBool('isFirebaseView') ?? true;
-    });
-  }
-
-  // Toggle between Firebase and Local DB
-  void _toggleView(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isFirebaseView', value);
-    setState(() {
-      isFirebaseView = value;
-    });
-
-    // Refresh HomeScreen when switching
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(value ? "Switched to Firebase View" : "Switched to Local DB View")),
-    );
-  }
-
-
+class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
+    final homeProvider = Provider.of<HomeProvider>(context);
 
     //print("profileProvider ${profileProvider.name}");
 
@@ -69,10 +35,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingsOption(Icons.help_outline, "Help", () {}),
           _buildSettingsOption(Icons.info_outline, "About", () {}),
           SwitchListTile(
-            title: Text("Use Firebase View"),
-            secondary: Icon(Icons.switch_access_shortcut_add),
-            value: isFirebaseView,
-            onChanged: _toggleView,
+            title: Text("Toggle View"),
+            subtitle: Text(
+                homeProvider.isFirebaseView ? "Using Firebase" : "Using Local Database"),
+            secondary: Icon(Icons.storage),
+            value: homeProvider.isFirebaseView,
+            onChanged:(value) => homeProvider.toggleView(value),
           ),
           _buildSettingsOption(
               Icons.logout,

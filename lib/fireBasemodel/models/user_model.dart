@@ -123,37 +123,27 @@ class UserModel {
           : null,
     );
   }
-
+  
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>?;
 
-    if (data == null) {
-      return UserModel(
-        uid: doc.id,
-        firstName: '',
-        email: '',
-        phone: '',
-        photoURL: '',
-        aboutInfo: "Hey there! I'm using WhatsApp",
-      );
-    }
-
     return UserModel(
       uid: doc.id,
-      firstName: data['firstName'] ?? '',
-      email: data['email'] ?? '',
-      phone: data['phone'] ?? '',
-      photoURL: data['photoURL'] ?? '',
-      aboutInfo: data['aboutInfo'] ?? "Hey there! I'm using WhatsApp",
-      createdAt: data['createdAt'] is Timestamp
-          ? (data['createdAt'] as Timestamp).toDate()
+      firstName: data?['firstName'] ?? '',
+      email: data?['email'] ?? '',
+      phone: data?['phone'] ?? '',
+      photoURL: data?['photoURL'] ?? '',
+      aboutInfo: data?['aboutInfo'] ?? "Hey there! I'm using WhatsApp",
+      createdAt: data?['createdAt'] is Timestamp
+          ? (data?['createdAt'] as Timestamp).toDate()
           : null,
-      lastMessage: data['lastMessage'] ?? '',
-      lastMessageTime: data['lastMessageTime'] is Timestamp
-          ? (data['lastMessageTime'] as Timestamp).toDate()
+      lastMessage: data?['lastMessage'] ?? '',
+      lastMessageTime: data?['lastMessageTime'] is Timestamp
+          ? (data?['lastMessageTime'] as Timestamp).toDate()
           : null,
     );
   }
+
   factory UserModel.fromFirebaseUser(User firebaseUser) {
     return UserModel(
       uid: firebaseUser.uid,
