@@ -1,43 +1,26 @@
 {
   "project_info": {
-    "project_number": "183806004172",
-    "project_id": "whatsappclone-75ae7",
-    "storage_bucket": "whatsappclone-75ae7.firebasestorage.app"
+    "project_number": "804001688268",
+    "project_id": "whatsapp-2e364",
+    "storage_bucket": "whatsapp-2e364.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:183806004172:android:754f51fb1db34b23d1ab69",
+        "mobilesdk_app_id": "1:804001688268:android:a89f3814d3506a2c36f069",
         "android_client_info": {
           "package_name": "com.example.wtsp_clone"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "183806004172-hlqklvukc7f2frodjhrocekr1bh4nlse.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCmHey75_6ijWDOraoZpV0L_F96l0t4yFQ"
+          "current_key": "AIzaSyBVJEt2q2jydKZFlyjGpse1sdTVWJTn-EA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "183806004172-hlqklvukc7f2frodjhrocekr1bh4nlse.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "183806004172-7p6dk3ij4hrkalgne9nnpapgka0l1pjl.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.wtspClone"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

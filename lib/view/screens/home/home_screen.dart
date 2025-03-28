@@ -20,7 +20,6 @@ class HomeScreen extends StatelessWidget {
           CommunitiesScreen(),
           CallsScreen(),
         ];
-
         return Scaffold(
           appBar: homeProvider.selectedIndex == 0
               ? _appBar(context, homeProvider)

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
@@ -17,6 +18,8 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
       scrolledUnderElevation: 0,
       leadingWidth: 80,
       leading: InkWell(
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
         onTap: () => Navigator.pop(context),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -50,7 +53,9 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              user.firstName,
+              user.uid == FirebaseAuth.instance.currentUser?.uid
+                  ? '${user.firstName} (You)'
+                  : user.firstName,
               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
             ),
             Consumer<FireBaseOnetoonechatProvider>(

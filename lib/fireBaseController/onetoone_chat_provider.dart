@@ -90,13 +90,13 @@ Future<void> _updateReceiverLastSeen(String receiverId) async {
     }
 
     var data = receiverDoc.data();
-    print("Firestore Data: $data"); // Debugging line
+    print("Firestore Data: $data"); 
 
     Timestamp? lastSeenTimestamp = data?['lastMessageTime']; // Extract Timestamp
 
     if (lastSeenTimestamp != null) {
       _lastSeen = "Last seen at ${DateFormat('hh:mm a').format(lastSeenTimestamp.toDate())}";
-      print("Updated Last Seen: $_lastSeen"); // Debugging line
+      print("Updated Last Seen: $_lastSeen"); 
     } else {
       print("lastMessageTime is null or missing");
       _lastSeen = "Last seen recently";

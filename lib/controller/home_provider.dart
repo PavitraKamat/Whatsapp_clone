@@ -17,7 +17,7 @@ class HomeProvider extends ChangeNotifier {
   void _loadPreference() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _isFirebaseView = prefs.getBool('isFirebaseView') ?? true;
-    notifyListeners();  // Ensure UI updates when preference loads
+    notifyListeners();
   }
 
   void updateIndex(int index) {
@@ -29,7 +29,7 @@ class HomeProvider extends ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isFirebaseView', value);
     _isFirebaseView = value;
-    notifyListeners(); // This triggers automatic rebuilds
+    notifyListeners();
   }
 
   Future<void> pickImageFromGallery() async {
