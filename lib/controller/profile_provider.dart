@@ -1,22 +1,19 @@
-import 'dart:typed_data';
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/view/screens/login/login_screen.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  Uint8List? _image;
   String _name = "";
   String _about = "Hey there! I'm using WhatsApp";
   String _phoneNumber = "";
   String? _imageUrl;
 
-  Uint8List? get image => _image;
   String get name => _name;
   String get about => _about;
   String get phoneNumber => _phoneNumber;
@@ -88,36 +85,48 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
   Future<void> selectImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      Uint8List imgBytes = await pickedFile.readAsBytes();
-      await _saveImage(imgBytes);
+      File imageFile = File(pickedFile.path); // Convert to File
+      await _uploadImage(imageFile);
     }
   }
 
-  Future<void> _saveImage(Uint8List imageBytes) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/profile_image.png';
-    File file = File(filePath);
-    await file.writeAsBytes(imageBytes);
-    _imageUrl = filePath;
-    _image = imageBytes;
-
+  Future<void> _uploadImage(File imageFile) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    if (user == null) return;
+
+    try {
+      // Reference to Firebase Storage
+      Reference ref = FirebaseStorage.instance
+          .ref()
+          .child('profile_pictures')
+          .child('${user.uid}.jpg');
+
+      // Upload file directly
+      UploadTask uploadTask = ref.putFile(imageFile);
+      TaskSnapshot snapshot = await uploadTask;
+
+      // Get Download URL
+      String downloadUrl = await snapshot.ref.getDownloadURL();
+      _imageUrl = downloadUrl;
+
+      // Save URL in Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .update({
-        'photoURL': filePath,
+        'photoURL': downloadUrl,
       });
-    }
-    notifyListeners();
-  }
 
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error uploading image: $e");
+    }
+  }
   void logout(BuildContext context) async {
     try {
       final provider =
@@ -142,5 +151,3 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 }
-
-

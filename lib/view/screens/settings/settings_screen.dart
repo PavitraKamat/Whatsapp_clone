@@ -83,7 +83,7 @@ Widget _buildProfileSection(ProfileProvider provider) {
           radius: 40,
           backgroundImage:
               provider.imageUrl != null && provider.imageUrl!.isNotEmpty
-                  ? NetworkImage(provider.imageUrl!) as ImageProvider
+                  ? NetworkImage(provider.imageUrl!) 
                   : AssetImage(
                       ProfileImageHelper.getProfileImage(provider.phoneNumber)),
           //child: provider.imageUrl == null ? Icon(Icons.person, size: 40) : null,

@@ -1,62 +1,3 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class MessageModel {
-//   final String id;
-//   final String content;
-//   final String userId;
-//   final bool isFromCurrentUser;
-//   final DateTime timestamp;
-//   final bool isRead;
-
-//   MessageModel({
-//     required this.id,
-//     required this.content,
-//     required this.userId,
-//     required this.isFromCurrentUser,
-//     required this.timestamp,
-//     this.isRead = false,
-//   });
-
-//   // Convert the object to a Map for Firestore
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'id': id,
-//       'content': content,
-//       'userId': userId,
-//       'isFromCurrentUser': isFromCurrentUser,
-//       'timestamp': Timestamp.fromDate(timestamp),
-//       'isRead': isRead,
-//     };
-//   }
-
-//   // Create an object from Firestore DocumentSnapshot
-//   // factory MessageModel.fromFirestore(DocumentSnapshot doc) {
-//   //   Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-//   //   return MessageModel(
-//   //     id: doc.id,
-//   //     content: data['content'] ?? '',
-//   //     userId: data['userId'] ?? '',
-//   //     isFromCurrentUser: data['isFromCurrentUser'] ?? false,
-//   //     timestamp: (data['timestamp'] as Timestamp).toDate(),
-//   //     isRead: data['isRead']?? 'false',
-//   //   );
-//   // }
-
-//   factory MessageModel.fromMap(String id, Map<String, dynamic> data) {
-//     return MessageModel(
-//       id: id,
-//       content: data['content'] ?? '',
-//       userId: data['userId'] ?? '',
-//       isFromCurrentUser: data['isFromCurrentUser'] ?? false,
-//       //timestamp: (data['timestamp'] as Timestamp).toDate(),
-//       timestamp: (data['timestamp'] as Timestamp).toDate(),
-//       isRead: data['isRead'] ?? false,
-//     );
-//   }
-
-// }
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MessageModel {
@@ -94,3 +35,66 @@ class MessageModel {
     };
   }
 }
+
+// class MessageModel {
+//   String messageId; 
+//   String chatId; 
+//   String senderId; 
+//   String receiverId;
+//   String messageType; 
+//   String messageContent; 
+//   DateTime timestamp; 
+//   bool isRead;
+//   bool isDelivered;
+//   List<String> seenBy; 
+//   bool isDeleted; 
+  
+//   MessageModel({
+//     required this.messageId,
+//     required this.chatId,
+//     required this.senderId,
+//     required this.receiverId,
+//     required this.messageType,
+//     required this.messageContent,
+//     required this.timestamp,
+//     required this.isRead,
+//     required this.isDelivered,
+//     required this.seenBy,
+//     required this.isDeleted,
+//   });
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       "messageId": messageId,
+//       "chatId": chatId,
+//       "senderId": senderId,
+//       "receiverId" :receiverId,
+//       "messageType": messageType,
+//       "messageContent": messageContent,
+//       "timestamp": timestamp.toIso8601String(),
+//       "isRead":isRead,
+//       "isDelivered":isDelivered,
+//       "seenBy": seenBy,
+//       "isDeleted": isDeleted,
+//     };
+//   }
+
+//   factory MessageModel.fromMap(String id,Map<String, dynamic> map) {
+//     return MessageModel(
+//       messageId:id,
+//       chatId: map["chatId"],
+//       senderId: map["senderId"],
+//       receiverId: map["receiverId"],
+//       messageType: map["messageType"],
+//       messageContent: map["messageContent"],
+//       timestamp: DateTime.parse(map["timestamp"]),
+//       isRead: map["isRead"],
+//       isDelivered: map["isDelivered"],
+//       seenBy: List<String>.from(map["seenBy"]),
+//       isDeleted: map["isDeleted"],
+//     );
+//   }
+// }
+
+
+

@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
         MaterialPageRoute(builder: (context) => OnBoardingScreen()),
       );
     } else {
-      //await FirebaseAuth.instance.currentUser?.reload();
+      await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         //print("userdetails  ${user!.displayName}");

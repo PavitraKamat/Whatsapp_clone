@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
+import 'package:wtsp_clone/fireBaseview/components/attachment_bottom_sheet.dart';
 
 class MessageInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -43,7 +45,13 @@ class MessageInputField extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                            onPressed: () {}, icon: Icon(Icons.attach_file)),
+                            onPressed: () {
+                              showModalBottomSheet(
+                                backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (builder) => AttachmentBottomSheet());
+                            },
+                            icon: Icon(Icons.attach_file)),
                         IconButton(
                             onPressed: () {}, icon: Icon(Icons.camera_alt)),
                       ],
