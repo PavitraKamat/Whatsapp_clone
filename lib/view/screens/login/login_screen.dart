@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/view/screens/home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -26,8 +27,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => isLogin = !isLogin);
   }
 
-  void handleAuth(ProfileProvider profileProvider,
-      FireBaseContactsProvider contactsProvider) async {
+  void handleAuth(
+      ProfileProvider profileProvider,
+      FireBaseContactsProvider contactsProvider,
+      FireBaseOnetoonechatProvider chatProvider) async {
     if (!_formKey.currentState!.validate()) return;
 
     String email = emailController.text.trim();
@@ -40,10 +43,10 @@ class _LoginScreenState extends State<LoginScreen> {
           Provider.of<GoogleSignInProvider>(context, listen: false);
       if (isLogin) {
         await authService.signIn(
-            email, password, profileProvider, contactsProvider);
+            email, password, profileProvider, contactsProvider, chatProvider);
       } else {
-        await authService.signUp(
-            name, phone, email, password, profileProvider, contactsProvider);
+        await authService.signUp(name, phone, email, password, profileProvider,
+            contactsProvider, chatProvider);
       }
       Navigator.pushReplacement(
         context,
@@ -54,12 +57,14 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void handleGoogleSignIn(ProfileProvider profileProvider,
-      FireBaseContactsProvider contactsProvider) async {
+  void handleGoogleSignIn(
+      ProfileProvider profileProvider,
+      FireBaseContactsProvider contactsProvider,
+      FireBaseOnetoonechatProvider chatProvider) async {
     final authService =
         Provider.of<GoogleSignInProvider>(context, listen: false);
-    User? user =
-        await authService.signInWithGoogle(profileProvider, contactsProvider);
+    User? user = await authService.signInWithGoogle(
+        profileProvider, contactsProvider, chatProvider);
     if (user != null) {
       Navigator.pushReplacement(
         context,
@@ -103,13 +108,14 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final contactsProvider = Provider.of<FireBaseContactsProvider>(context);
+    final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context);
 
     return Stack(
       children: [
         _backGroundImage(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          body: _loginForm(profileProvider, contactsProvider),
+          body: _loginForm(profileProvider, contactsProvider, chatProvider),
         ),
       ],
     );
@@ -125,8 +131,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  SafeArea _loginForm(ProfileProvider profileProvider,
-      FireBaseContactsProvider contactsProvider) {
+  SafeArea _loginForm(
+      ProfileProvider profileProvider,
+      FireBaseContactsProvider contactsProvider,
+      FireBaseOnetoonechatProvider chatProvider) {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -185,8 +193,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   }),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () =>
-                        handleAuth(profileProvider, contactsProvider),
+                    onPressed: () => handleAuth(
+                        profileProvider, contactsProvider, chatProvider),
                     child: Text(isLogin ? "Sign In" : "Sign Up"),
                   ),
                   TextButton(
@@ -207,8 +215,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 10),
                   GestureDetector(
-                    onTap: () =>
-                        handleGoogleSignIn(profileProvider, contactsProvider),
+                    onTap: () => handleGoogleSignIn(
+                        profileProvider, contactsProvider, chatProvider),
                     child: Image.asset('assets/images/google.png', height: 30),
                   ),
                 ],

@@ -43,12 +43,13 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
         Scaffold(
             backgroundColor: Colors.transparent,
             appBar: ChatAppBar(user: user),
-            body: messageTiles(chatProvider,currentUserId)),
+            body: messageTiles(chatProvider, currentUserId)),
       ],
     );
   }
 
-  Column messageTiles(FireBaseOnetoonechatProvider chatProvider,String currentUserId) {
+  Column messageTiles(
+      FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
     ScrollController _scrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,29 +78,44 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
                 );
               }
               final message = chatProvider.messages[index];
-              final isSentByMe = message.userId == currentUserId;
+              final isSentByMe = message.senderId == currentUserId;
               return Align(
-                alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-                child: MessageBubble(message: message, isSentByMe: isSentByMe), // Fix parameter
+                alignment:
+                    isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: MessageBubble(
+                    message: message, isSentByMe: isSentByMe), // Fix parameter
               );
             },
           ),
         ),
         MessageInputField(
           controller: chatProvider.messageController,
-          onSend: () {
-            String user1 =
-                FirebaseAuth.instance.currentUser!.uid; // Current User
-            String user2 = user.uid; // The other user in the chat
+          onSend: () async {
+            String senderId =
+                FirebaseAuth.instance.currentUser!.uid; // Current user
+            String receiverId = user.uid; // Chat partner
 
-            chatProvider.sendMessage(
-                user1, user2, chatProvider.messageController.text);
+            String messageText = chatProvider.messageController.text.trim();
 
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
+            if (messageText.isNotEmpty) {
+              await chatProvider.sendMessage(
+                senderId: senderId,
+                receiverId: receiverId,
+                text: messageText,
+              );
+
+              chatProvider.messageController.clear();
+
+              Future.delayed(Duration(milliseconds: 300), () {
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                  );
+                }
+              });
+            }
           },
           isTyping: chatProvider.isTyping,
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class GoogleSignInProvider extends ChangeNotifier {
@@ -15,7 +16,8 @@ class GoogleSignInProvider extends ChangeNotifier {
       String email,
       String password,
       ProfileProvider profileProvider,
-      FireBaseContactsProvider contactsProvider) async {
+      FireBaseContactsProvider contactsProvider,
+      FireBaseOnetoonechatProvider chatProvider) async {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -23,6 +25,7 @@ class GoogleSignInProvider extends ChangeNotifier {
       );
       User? user = userCredential.user;
       if (user != null) {
+        await chatProvider.updateLastSeen(user.uid, isOnline: true);
         await profileProvider.loadProfileData();
         await contactsProvider.fetchChatHistoryUsers();
       }
@@ -32,8 +35,14 @@ class GoogleSignInProvider extends ChangeNotifier {
     }
   }
 
-  Future<User?> signUp(String name, String phone, String email, String password,
-      ProfileProvider profileProvider,FireBaseContactsProvider contactsProvider) async {
+  Future<User?> signUp(
+      String name,
+      String phone,
+      String email,
+      String password,
+      ProfileProvider profileProvider,
+      FireBaseContactsProvider contactsProvider,
+      FireBaseOnetoonechatProvider chatProvider) async {
     try {
       UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
@@ -54,6 +63,7 @@ class GoogleSignInProvider extends ChangeNotifier {
           createdAt: DateTime.now(),
         );
         await _firestore.collection('users').doc(user.uid).set(newUser.toMap());
+        await chatProvider.updateLastSeen(user.uid, isOnline: true);
         await profileProvider.loadProfileData();
         await contactsProvider.fetchChatHistoryUsers();
       }
@@ -63,7 +73,10 @@ class GoogleSignInProvider extends ChangeNotifier {
     }
   }
 
-  Future<User?> signInWithGoogle(ProfileProvider profileProvider,FireBaseContactsProvider contactsProvider) async {
+  Future<User?> signInWithGoogle(
+      ProfileProvider profileProvider,
+      FireBaseContactsProvider contactsProvider,
+      FireBaseOnetoonechatProvider chatProvider) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
@@ -95,6 +108,7 @@ class GoogleSignInProvider extends ChangeNotifier {
           );
           await userDoc.set(newUser.toMap());
         }
+        await chatProvider.updateLastSeen(user.uid, isOnline: true);
         await profileProvider.loadProfileData();
         await contactsProvider.fetchChatHistoryUsers();
       }

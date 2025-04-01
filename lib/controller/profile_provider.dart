@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/view/screens/login/login_screen.dart';
 
 class ProfileProvider extends ChangeNotifier {
@@ -85,6 +86,7 @@ class ProfileProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   Future<void> selectImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -127,10 +129,17 @@ class ProfileProvider extends ChangeNotifier {
       debugPrint("Error uploading image: $e");
     }
   }
+
   void logout(BuildContext context) async {
     try {
       final provider =
           Provider.of<GoogleSignInProvider>(context, listen: false);
+      final chatProvider =
+          Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
+
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      await chatProvider.updateLastSeen(userId, isOnline: false);
+
       await provider.signOut();
       if (context.mounted) {
         Navigator.pushAndRemoveUntil(

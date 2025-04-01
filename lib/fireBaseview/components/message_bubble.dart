@@ -52,7 +52,7 @@ class MessageBubble extends StatelessWidget {
         children: [
           Flexible(
             child: Text(
-              message.content,
+              message.messageContent,
               style: const TextStyle(fontSize: 16),
             ),
           ),
