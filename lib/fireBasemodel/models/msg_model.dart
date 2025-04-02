@@ -43,6 +43,7 @@ class MessageModel {
   String receiverId;
   MessageType messageType;
   String messageContent;
+  String? mediaUrl;
   DateTime timestamp;
   bool isRead;
   bool isDelivered;
@@ -56,6 +57,7 @@ class MessageModel {
     required this.receiverId,
     required this.messageType,
     required this.messageContent,
+    this.mediaUrl,
     required this.timestamp,
     required this.isRead,
     required this.isDelivered,
@@ -70,8 +72,9 @@ class MessageModel {
       "chatId": chatId,
       "senderId": senderId,
       "receiverId": receiverId,
-      "messageType": messageType.name, 
+      "messageType": messageType.name,
       "messageContent": messageContent,
+      "mediaUrl": mediaUrl,
       "timestamp": timestamp.toIso8601String(),
       "isRead": isRead,
       "isDelivered": isDelivered,
@@ -87,12 +90,13 @@ class MessageModel {
       chatId: map["chatId"],
       senderId: map["senderId"],
       receiverId: map["receiverId"],
-      messageType: (map["messageType"] as String).toMessageType(), 
+      messageType: (map["messageType"] as String).toMessageType(),
       messageContent: map["messageContent"],
+      mediaUrl: map["mediaUrl"],
       timestamp: DateTime.parse(map["timestamp"]),
-      isRead: map["isRead"] ?? false, 
+      isRead: map["isRead"] ?? false,
       isDelivered: map["isDelivered"] ?? false,
-      seenBy: List<String>.from(map["seenBy"] ?? []), 
+      seenBy: List<String>.from(map["seenBy"] ?? []),
       isDeleted: map["isDeleted"] ?? false,
     );
   }
@@ -111,7 +115,7 @@ extension MessageTypeExtension on String {
   MessageType toMessageType() {
     return MessageType.values.firstWhere(
       (e) => e.name == this,
-      orElse: () => MessageType.text, 
+      orElse: () => MessageType.text,
     );
   }
 }

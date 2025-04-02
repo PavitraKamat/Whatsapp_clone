@@ -83,10 +83,18 @@
 // }
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart'; // Import image_picker
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
+import 'package:wtsp_clone/fireBaseview/components/image_preview_screen.dart'; // Import image_picker
 
 class AttachmentBottomSheet extends StatelessWidget {
+  final String senderId;
+  final String receiverId;
   final ImagePicker _picker = ImagePicker();
+
+
+AttachmentBottomSheet({Key? key, required this.senderId, required this.receiverId}) : super(key: key);
 
   // Function to pick an image from gallery or camera
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
@@ -95,8 +103,17 @@ class AttachmentBottomSheet extends StatelessWidget {
     if (pickedFile != null) {
       // Handle the picked image
       // You can call a method to send the image here or upload it to Firebase
+      final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
       print("Picked image: ${pickedFile.path}");
-      
+      Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImagePreviewScreen(senderId: senderId,
+          receiverId: receiverId,
+          imagePath: pickedFile.path,
+          chatProvider: chatProvider, ),
+      ),
+    );
       // You can now send the image as a message, upload it to Firebase, etc.
     }
   }
@@ -127,11 +144,11 @@ class AttachmentBottomSheet extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  iconCreation(Icons.headset, Colors.orange, "Audio", context, ImageSource.gallery), // Modify as needed
+                  iconCreation(Icons.headset, Colors.orange, "Audio", context, null), // Modify as needed
                   SizedBox(width: 40),
-                  iconCreation(Icons.location_pin, Colors.teal, "Location", context, ImageSource.gallery), // Modify as needed
+                  iconCreation(Icons.location_pin, Colors.teal, "Location", context, null), // Modify as needed
                   SizedBox(width: 40),
-                  iconCreation(Icons.person, Colors.blue, "Contact", context, ImageSource.gallery), // Modify as needed
+                  iconCreation(Icons.person, Colors.blue, "Contact", context, null), // Modify as needed
                 ],
               ),
             ],

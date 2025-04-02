@@ -29,13 +29,19 @@ class FireBaseOnetooneChat extends StatelessWidget {
 
 class _FireBaseOnetooneChatScreen extends StatelessWidget {
   final UserModel user;
-
-  const _FireBaseOnetooneChatScreen({required this.user});
+  final ScrollController _scrollController = ScrollController();
+  _FireBaseOnetooneChatScreen({required this.user});
 
   @override
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context);
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
 
     return Stack(
       children: [
@@ -49,17 +55,9 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
   }
 
   Column messageTiles(
-      FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
-    ScrollController _scrollController = ScrollController();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
-
+    FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
     return Column(
-      children: [
+      children: [  
         Expanded(
           child: ListView.builder(
             controller: _scrollController,
@@ -90,23 +88,22 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
         ),
         MessageInputField(
           controller: chatProvider.messageController,
+          //isTyping: chatProvider.isTyping,
+          senderId: currentUserId,
+          receiverId: user.uid,
           onSend: () async {
-            String senderId =
-                FirebaseAuth.instance.currentUser!.uid; // Current user
-            String receiverId = user.uid; // Chat partner
-
             String messageText = chatProvider.messageController.text.trim();
 
             if (messageText.isNotEmpty) {
               await chatProvider.sendMessage(
-                senderId: senderId,
-                receiverId: receiverId,
+                senderId: currentUserId,
+                receiverId: user.uid,
                 text: messageText,
               );
 
               chatProvider.messageController.clear();
 
-              Future.delayed(Duration(milliseconds: 300), () {
+              Future.microtask( () {
                 if (_scrollController.hasClients) {
                   _scrollController.animateTo(
                     _scrollController.position.maxScrollExtent,
@@ -117,7 +114,7 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
               });
             }
           },
-          isTyping: chatProvider.isTyping,
+          
         ),
       ],
     );

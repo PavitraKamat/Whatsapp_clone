@@ -12,6 +12,7 @@ class MessageBubble extends StatelessWidget {
     required this.isSentByMe,
   }) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
     bool isRead = message.isRead;
@@ -19,8 +20,12 @@ class MessageBubble extends StatelessWidget {
 
     return Align(
       alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: messageLayout(maxWidth, isSentByMe, isRead),
-    );
+      //child: messageLayout(maxWidth, isSentByMe, isRead),
+      child: message.messageType == MessageType.image
+        ? imageMessageBubble(message)
+        : messageLayout(maxWidth,isSentByMe,isRead),
+  );
+    //);
   }
 
   Widget messageLayout(double maxWidth, bool isSentByUser, bool isRead) {
@@ -65,13 +70,14 @@ class MessageBubble extends StatelessWidget {
               ),
               if (isSentByUser) ...[
                 const SizedBox(width: 5),
-                Icon(
-                  Icons.done_all,
-                  size: 12,
-                  color: isRead
-                      ? const Color.fromARGB(255, 77, 149, 63)
-                      : Colors.grey,
-                ),
+                // Icon(
+                //   Icons.done_all,
+                //   size: 12,
+                //   color: isRead
+                //       ? const Color.fromARGB(255, 77, 149, 63)
+                //       : Colors.grey,
+                // ),
+                messageStatusIcon(message),
               ],
             ],
           ),
@@ -79,4 +85,48 @@ class MessageBubble extends StatelessWidget {
       ),
     );
   }
+  Widget imageMessageBubble(MessageModel message) {
+  if (message.mediaUrl == null || message.mediaUrl!.isEmpty) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        "Image not available",
+        style: TextStyle(color: Colors.white),
+      ),
+    );
+  }
+
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+    padding: const EdgeInsets.all(5),
+    decoration: BoxDecoration(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Image.network(
+        message.mediaUrl!,
+        width: 250,
+        height: 250,
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+}
+
+Widget messageStatusIcon(MessageModel message) {
+  if (message.isRead) {
+    return Icon(Icons.done_all, color: Colors.blue, size: 12); 
+  } else if (message.isDelivered) {
+    return Icon(Icons.done_all, color: Colors.grey, size: 12); 
+  } else {
+    return Icon(Icons.done, color: Colors.grey, size: 12); 
+  }
+}
 }

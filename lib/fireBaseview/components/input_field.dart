@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:wtsp_clone/fireBaseview/components/attachment_bottom_sheet.dart';
 
-class MessageInputField extends StatelessWidget {
+class MessageInputField extends StatefulWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
-  final bool isTyping;
+  //final bool isTyping;
+  final String senderId;
+  final String receiverId;
 
   const MessageInputField({
     Key? key,
     required this.controller,
     required this.onSend,
-    required this.isTyping,
+    //required this.isTyping,
+    required this.senderId,
+    required this.receiverId,
   }) : super(key: key);
 
+  @override
+  State<MessageInputField> createState() => _MessageInputFieldState();
+}
+
+class _MessageInputFieldState extends State<MessageInputField> {
+  bool isTyping = false;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -29,10 +38,15 @@ class MessageInputField extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10),
                 child: TextFormField(
-                  controller: controller,
+                  controller: widget.controller,
                   textAlignVertical: TextAlignVertical.center,
                   //keyboardType: TextInputType.multiline,
                   maxLines: null,
+                  onChanged: (text) {
+                    setState(() {
+                      isTyping = text.isNotEmpty; // Set isTyping based on input
+                    });
+                  },
                   decoration: InputDecoration(
                     hintText: "Type a message",
                     border: InputBorder.none,
@@ -47,9 +61,12 @@ class MessageInputField extends StatelessWidget {
                         IconButton(
                             onPressed: () {
                               showModalBottomSheet(
-                                backgroundColor: Colors.transparent,
+                                  backgroundColor: Colors.transparent,
                                   context: context,
-                                  builder: (builder) => AttachmentBottomSheet());
+                                  builder: (builder) => AttachmentBottomSheet(
+                                        senderId: widget.senderId,
+                                        receiverId: widget.receiverId,
+                                      ));
                             },
                             icon: Icon(Icons.attach_file)),
                         IconButton(
@@ -69,10 +86,15 @@ class MessageInputField extends StatelessWidget {
               radius: 25,
               backgroundColor: Colors.teal,
               child: IconButton(
-                icon: Icon(isTyping ? Icons.send : Icons.mic,
-                    color: Colors.white),
-                onPressed: onSend,
-              ),
+                  icon: Icon(isTyping ? Icons.send : Icons.mic,
+                      color: Colors.white),
+                  onPressed: () {
+                    widget.onSend();
+                    setState(() {
+                      isTyping = false; // Reset isTyping after sending
+                      widget.controller.clear();
+                    });
+                  }),
             ),
           ),
         ],
