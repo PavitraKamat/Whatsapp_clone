@@ -43,9 +43,11 @@ class _MessageInputFieldState extends State<MessageInputField> {
                   //keyboardType: TextInputType.multiline,
                   maxLines: null,
                   onChanged: (text) {
-                    setState(() {
-                      isTyping = text.isNotEmpty; // Set isTyping based on input
-                    });
+                    if (isTyping != text.isNotEmpty) {
+                      setState(() {
+                        isTyping = text.isNotEmpty;
+                      });
+                    }
                   },
                   decoration: InputDecoration(
                     hintText: "Type a message",
@@ -89,11 +91,13 @@ class _MessageInputFieldState extends State<MessageInputField> {
                   icon: Icon(isTyping ? Icons.send : Icons.mic,
                       color: Colors.white),
                   onPressed: () {
+                    if (isTyping) {
                     widget.onSend();
+                    widget.controller.clear();
                     setState(() {
-                      isTyping = false; // Reset isTyping after sending
-                      widget.controller.clear();
+                      isTyping = false; // Reset after clearing text field
                     });
+                  }
                   }),
             ),
           ),
