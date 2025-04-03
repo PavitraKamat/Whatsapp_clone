@@ -24,6 +24,9 @@ class FireBaseOnetooneChat extends StatelessWidget {
       lazy: false,
       child: _FireBaseOnetooneChatScreen(user: user),
     );
+    // final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
+    // chatProvider.openChat(FirebaseAuth.instance.currentUser!.uid, user.uid);
+    // return _FireBaseOnetooneChatScreen(user: user);
   }
 }
 
@@ -105,7 +108,7 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
 
               Future.microtask( () {
                 if (_scrollController.hasClients) {
-                  _scrollController.animateTo(
+                 _scrollController.animateTo(
                     _scrollController.position.maxScrollExtent,
                     duration: Duration(milliseconds: 300),
                     curve: Curves.easeOut,

@@ -52,9 +52,9 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 <string>App needs permission to save photos</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera usage</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone usage</string>
+<string>your usage description here</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>your usage description here</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

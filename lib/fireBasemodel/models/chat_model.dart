@@ -74,7 +74,7 @@ class ChatModel {
       "adminId": adminId,
       "members": users,
       "lastMessage": lastMessage,
-      "lastMessageTime": lastMessageTime.toIso8601String(),
+      "lastMessageTime": Timestamp.fromDate(lastMessageTime),
       "seenBy": seenBy,
       'createdAt': createdAt != null
           ? Timestamp.fromDate(createdAt!)
@@ -93,7 +93,7 @@ class ChatModel {
       adminId: map["adminId"],
       users: List<String>.from(map["members"]),
       lastMessage: map["lastMessage"],
-      lastMessageTime: DateTime.parse(map["lastMessageTime"]),
+      lastMessageTime: (map['lastMessageTime'] as Timestamp).toDate(),
       seenBy: List<String>.from(map["seenBy"]),
       createdAt: map['createdAt'] is Timestamp
           ? (map['createdAt'] as Timestamp).toDate()
@@ -102,5 +102,3 @@ class ChatModel {
     );
   }
 }
-
-

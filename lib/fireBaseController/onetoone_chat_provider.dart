@@ -14,6 +14,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   bool _isReceiverTyping = false;
   String _lastSeen = "";
   TextEditingController messageController = TextEditingController();
+  //ScrollController scrollController = ScrollController();
 
   List<MessageModel> get messages => _messages;
   bool get isTyping => _isTyping;
@@ -22,7 +23,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  
+
   FireBaseOnetoonechatProvider({required this.user}) {
     messageController.addListener(() async {
       bool currentlyTyping = messageController.text.isNotEmpty;
@@ -37,42 +38,49 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   }
 
   Future<String> getOrCreateChatId(String senderId, String receiverId) async {
-    String chatId = (senderId.hashCode <= receiverId.hashCode)
-        ? "$senderId\_$receiverId"
-        : "$receiverId\_$senderId";
+    try {
+      String chatId = (senderId.hashCode <= receiverId.hashCode)
+          ? "$senderId\_$receiverId"
+          : "$receiverId\_$senderId";
 
-    DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
-    DocumentSnapshot chatDoc = await chatRef.get();
+      DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
+      DocumentSnapshot chatDoc = await chatRef.get();
 
-    if (!chatDoc.exists) {
-      await chatRef.set({
-        "chatId": chatId,
-        "isGroup": false,
-        "users": [senderId, receiverId],
-        "lastMessage": "",
-        "lastMessageTime": DateTime.now(),
-        "seenBy": [],
-        "typingUsers": [],
-        "createdAt": DateTime.now(),
-      }, SetOptions(merge: true));
+      if (!chatDoc.exists) {
+        await chatRef.set({
+          "chatId": chatId,
+          "isGroup": false,
+          //"users": List<String>.from([senderId, receiverId]),
+          "users": [senderId, receiverId],
+          "lastMessage": "",
+          "lastMessageTime": DateTime.now(),
+          "seenBy": [],
+          "typingUsers": [],
+          "createdAt": DateTime.now(),
+        }, SetOptions(merge: true));
+      }
+
+      return chatId;
+    } catch (e, stacktrace) {
+      print("Error in getOrCreateChatId: $e");
+      print(stacktrace);
+      return "";
     }
-
-    return chatId;
   }
 
   void openChat(String senderId, String receiverId) async {
     String chatId = await getOrCreateChatId(senderId, receiverId);
-    _firestore
-      .collection("chats")
-      .doc(chatId)
-      .snapshots()
-      .listen((snapshot) {
-    if (snapshot.exists) {
-      List<dynamic> typingUsers = snapshot.data()?['typingUsers'] ?? [];
-      _isReceiverTyping = typingUsers.contains(receiverId);
-      notifyListeners();
+    if (chatId.isEmpty) {
+      print("Error: chatId is empty");
+      return;
     }
-  });
+    _firestore.collection("chats").doc(chatId).snapshots().listen((snapshot) {
+      if (snapshot.exists) {
+        List<dynamic> typingUsers = snapshot.data()?['typingUsers'] ?? [];
+        _isReceiverTyping = typingUsers.contains(receiverId);
+        notifyListeners();
+      }
+    });
     _firestore
         .collection("chats")
         .doc(chatId)
@@ -96,8 +104,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       }
       notifyListeners();
     });
-
-    _updateReceiverLastSeen(receiverId);
+    await _updateReceiverLastSeen(receiverId);
   }
 
   Future<void> updateLastSeen(String userId, {bool isOnline = false}) async {
@@ -130,21 +137,35 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           Timestamp lastSeenTimestamp = data['lastSeen'];
           DateTime lastSeenDateTime = lastSeenTimestamp.toDate();
           DateTime now = DateTime.now();
-          if (now.difference(lastSeenDateTime).inDays == 0) {
-          _lastSeen = "Last seen today at ${DateFormat('hh:mm a').format(lastSeenDateTime)}";
-        } else if (now.difference(lastSeenDateTime).inDays == 1) {
-          _lastSeen = "Last seen yesterday at ${DateFormat('hh:mm a').format(lastSeenDateTime)}";
-        } else {
-          _lastSeen = "Last seen on ${DateFormat('dd/MM/yyyy hh:mm a').format(lastSeenDateTime)}";
-        }
+
+          // Extracting only date components
+          DateTime lastSeenDate = DateTime(
+            lastSeenDateTime.year,
+            lastSeenDateTime.month,
+            lastSeenDateTime.day,
+          );
+
+          DateTime todayDate = DateTime(now.year, now.month, now.day);
+          DateTime yesterdayDate = todayDate.subtract(Duration(days: 1));
+
+          if (lastSeenDate == todayDate) {
+            _lastSeen =
+                "Last seen today at ${DateFormat('hh:mm a').format(lastSeenDateTime)}";
+          } else if (lastSeenDate == yesterdayDate) {
+            _lastSeen =
+                "Last seen yesterday at ${DateFormat('hh:mm a').format(lastSeenDateTime)}";
+          } else {
+            _lastSeen =
+                "Last seen on ${DateFormat('dd/MM/yyyy').format(lastSeenDateTime)}";
+          }
         } else {
           _lastSeen = "Last seen recently";
         }
       }
       notifyListeners();
-    } catch (e) {
-      _lastSeen = "Last seen recently"; 
-      notifyListeners();
+    } catch (e, stacktrace) {
+      _lastSeen = "Last seen recently";
+      print(stacktrace);
     }
   }
 
@@ -157,6 +178,10 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   }) async {
     try {
       String chatId = await getOrCreateChatId(senderId, receiverId);
+      if (chatId.isEmpty) {
+        print("Error: chatId is empty");
+        return;
+      }
       String messageId = _firestore
           .collection('chats')
           .doc(chatId)
@@ -178,7 +203,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         timestamp: DateTime.now(),
         isRead: false,
         isDelivered: isReceiverOnline,
-        seenBy: [], 
+        seenBy: [],
         isDeleted: false,
       );
       await _firestore
@@ -187,24 +212,23 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .collection('messages')
           .doc(messageId)
           .set(newMessage.toMap());
-
+      print("Message sent successfully!");
       await updateLastSeen(senderId, isOnline: true);
-
+      await _updateReceiverLastSeen(receiverId);
       // Update chat list with last message details
       await _firestore.collection('chats').doc(chatId).update({
-        'lastMessage': mediaUrl ?? text, 
+        'lastMessage': mediaUrl ?? text,
         'lastMessageTime': Timestamp.now(),
         'seenBy': [senderId],
       });
-      //await updateLastSeen(senderId, isOnline: true);
-      await _updateReceiverLastSeen(receiverId);
       notifyListeners();
     } catch (e) {
       print("Error sending message: $e");
     }
   }
 
-  Future<void> sendImageMessage(String senderId, String receiverId, String imagePath) async {
+  Future<void> sendImageMessage(
+      String senderId, String receiverId, String imagePath) async {
     try {
       File imageFile = File(imagePath);
       String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
@@ -216,32 +240,37 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       await sendMessage(
         senderId: senderId,
         receiverId: receiverId,
-        text: "[Image]" ,
+        text: "[Image]",
         mediaUrl: downloadUrl,
         messageType: MessageType.image,
       );
+      await updateLastSeen(senderId, isOnline: true);
+      
     } catch (e) {
       print("Error sending image: $e");
     }
   }
-  void updateTypingStatus(String chatId, String userId, bool isTyping) async {
-  try {
-    _isTyping = isTyping;
-    notifyListeners();
 
-    await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
-      'typingUsers': isTyping
-          ? FieldValue.arrayUnion([userId])
-          : FieldValue.arrayRemove([userId])
-    });
-  } catch (e) {
-    print("Error updating typing status: $e");
+  void updateTypingStatus(String chatId, String userId, bool isTyping) async {
+    try {
+      _isTyping = isTyping;
+      notifyListeners();
+
+      await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
+        'typingUsers': isTyping
+            ? FieldValue.arrayUnion([userId])
+            : FieldValue.arrayRemove([userId])
+      });
+      print("Typing status updated: $_isTyping for chatId: $chatId");
+    } catch (e) {
+      print("Error updating typing status: $e");
+    }
   }
-}
 
   @override
   void dispose() {
     messageController.dispose();
+    //scrollController.dispose();
     super.dispose();
   }
 }

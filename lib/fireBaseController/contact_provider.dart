@@ -22,7 +22,6 @@ class FireBaseContactsProvider extends ChangeNotifier {
   Future<void> fetchChatHistoryUsers() async {
     try {
       //String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
       FirebaseFirestore.instance
           .collection("chats")
           .snapshots()

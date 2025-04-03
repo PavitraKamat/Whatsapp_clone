@@ -36,6 +36,8 @@
 //   }
 // }
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class MessageModel {
   String messageId;
   String chatId;
@@ -75,7 +77,9 @@ class MessageModel {
       "messageType": messageType.name,
       "messageContent": messageContent,
       "mediaUrl": mediaUrl,
-      "timestamp": timestamp.toIso8601String(),
+      "timestamp": Timestamp is DateTime
+          ? Timestamp.fromDate(timestamp)
+          : timestamp.toIso8601String(),
       "isRead": isRead,
       "isDelivered": isDelivered,
       "seenBy": seenBy,
@@ -93,7 +97,9 @@ class MessageModel {
       messageType: (map["messageType"] as String).toMessageType(),
       messageContent: map["messageContent"],
       mediaUrl: map["mediaUrl"],
-      timestamp: DateTime.parse(map["timestamp"]),
+      timestamp: map["timestamp"] is Timestamp
+          ? (map["timestamp"] as Timestamp).toDate()
+          : DateTime.parse(map["timestamp"]),
       isRead: map["isRead"] ?? false,
       isDelivered: map["isDelivered"] ?? false,
       seenBy: List<String>.from(map["seenBy"] ?? []),

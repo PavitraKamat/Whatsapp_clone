@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 
 class ImagePreviewScreen extends StatelessWidget {
- final String senderId;
+  final String senderId;
   final String receiverId;
   final String imagePath;
   final FireBaseOnetoonechatProvider chatProvider;
 
- const ImagePreviewScreen({
+  const ImagePreviewScreen({
     Key? key,
     required this.senderId,
     required this.receiverId,
@@ -26,39 +26,118 @@ class ImagePreviewScreen extends StatelessWidget {
           icon: Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.crop_rotate, size: 27),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.emoji_emotions_outlined, size: 27),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.title, size: 27),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.edit, size: 27),
+            onPressed: () {},
+          ),
+        ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Expanded(
+          Positioned.fill(
             child: Center(
               child: Image.file(
                 File(imagePath),
-                fit: BoxFit.contain,
+                fit: BoxFit.cover,
               ),
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.white, size: 28),
-                  onPressed: () {
-                    // Add edit functionality (optional)
-                  },
-                ),
-                FloatingActionButton(
-                  backgroundColor: Colors.teal,
-                  child: Icon(Icons.send, color: Colors.white),
-                  onPressed: () async {
-                    await chatProvider.sendImageMessage(senderId, receiverId, imagePath);
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+          Positioned(
+            bottom: 0,
+            child: Container(
+              height: 70,
+              color: const Color.fromARGB(123, 100, 100, 100),
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.symmetric(vertical:4, horizontal:13),
+              child: Row(
+                children: [
+                  /// Add photo icon
+                  const Icon(Icons.add_photo_alternate, color: Colors.white, size: 26),
+
+                  /// Text input field
+                  Expanded(
+                    child: TextFormField(
+                      style: const TextStyle(color: Colors.white, fontSize: 17),
+                      maxLines: 6,
+                      minLines: 1,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Add Caption....",
+                        hintStyle: TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ),
+                  ),
+
+                  /// Send button (now clickable)
+                  GestureDetector(
+                      onTap: () async {
+                        await chatProvider.sendImageMessage(
+                            senderId, receiverId, imagePath);
+                        Navigator.pop(context);
+                      },
+                      child: CircleAvatar(
+                          radius: 25,
+                          backgroundColor: Colors.tealAccent[700],
+                          child: const Icon(Icons.send, color: Colors.white, size: 24),
+                        ),
+                    )
+                ],
+              ),
             ),
           ),
+          // Container(
+          //   padding: EdgeInsets.all(10),
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Row(
+          //         children: [
+          //           IconButton(
+          //             icon: Icon(Icons.add_photo_alternate, color: Colors.white, size: 27),
+          //             onPressed: () {
+          //               // Add photo functionality (optional)
+          //             },
+          //           ),
+          //           // FloatingActionButton(
+          //           //   backgroundColor: Colors.teal,
+          //           //   child: Icon(Icons.send, color: Colors.white,size:10,),
+          //           //   onPressed: () async {
+          //           //     await chatProvider.sendImageMessage(
+          //           //         senderId, receiverId, imagePath);
+          //           //     Navigator.pop(context);
+          //           //   },
+          //           // ),
+                    
+          //           GestureDetector(
+          //             onTap: () async {
+          //               await chatProvider.sendImageMessage(
+          //                   senderId, receiverId, imagePath);
+          //               Navigator.pop(context);
+          //             },
+          //             child: CircleAvatar(
+          //                 radius: 27,
+          //                 backgroundColor: Colors.tealAccent[700],
+          //                 child: const Icon(Icons.check, color: Colors.white, size: 27),
+          //               ),
+          //           )
+          //         ],
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

@@ -17,7 +17,6 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     _navigateToNextScreen();
   }
-
   void _navigateToNextScreen() async {
     await Future.delayed(Duration(seconds: 2));
 
@@ -47,7 +46,6 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
