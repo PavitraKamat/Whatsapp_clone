@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
+import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/contact_profile_screen.dart';
-import 'package:wtsp_clone/model/models/profile_image_helper.dart';
 
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final UserModel user;

@@ -14,7 +14,8 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   bool _isReceiverTyping = false;
   String _lastSeen = "";
   TextEditingController messageController = TextEditingController();
-  //ScrollController scrollController = ScrollController();
+  ScrollController scrollController = ScrollController();
+  bool _isActive = true;
 
   List<MessageModel> get messages => _messages;
   bool get isTyping => _isTyping;
@@ -26,6 +27,8 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   FireBaseOnetoonechatProvider({required this.user}) {
     messageController.addListener(() async {
+      if (!_isActive) return;
+
       bool currentlyTyping = messageController.text.isNotEmpty;
       if (currentlyTyping != _isTyping) {
         _isTyping = currentlyTyping;
@@ -35,6 +38,22 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       }
       notifyListeners();
     });
+  }
+
+  void scrollToBottom() {
+    if (!_isActive) return;
+
+    if (scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (_isActive && scrollController.hasClients) {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   Future<String> getOrCreateChatId(String senderId, String receiverId) async {
@@ -69,12 +88,15 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   }
 
   void openChat(String senderId, String receiverId) async {
+    if (!_isActive) return;
     String chatId = await getOrCreateChatId(senderId, receiverId);
     if (chatId.isEmpty) {
       print("Error: chatId is empty");
       return;
     }
     _firestore.collection("chats").doc(chatId).snapshots().listen((snapshot) {
+      if (!_isActive) return;
+
       if (snapshot.exists) {
         List<dynamic> typingUsers = snapshot.data()?['typingUsers'] ?? [];
         _isReceiverTyping = typingUsers.contains(receiverId);
@@ -88,6 +110,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         .orderBy('timestamp', descending: false)
         .snapshots()
         .listen((snapshot) async {
+      if (!_isActive) return;
       _messages = snapshot.docs
           .map((doc) => MessageModel.fromMap(doc.id, doc.data()))
           .toList();
@@ -103,11 +126,13 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         }
       }
       notifyListeners();
+      scrollToBottom();
     });
     await _updateReceiverLastSeen(receiverId);
   }
 
   Future<void> updateLastSeen(String userId, {bool isOnline = false}) async {
+    if (!_isActive) return;
     try {
       await _firestore.collection('users').doc(userId).update({
         'isOnline': isOnline,
@@ -120,6 +145,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   }
 
   Future<void> _updateReceiverLastSeen(String receiverId) async {
+    if (!_isActive) return;
     try {
       DocumentSnapshot receiverDoc =
           await _firestore.collection('users').doc(receiverId).get();
@@ -217,7 +243,8 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       await _updateReceiverLastSeen(receiverId);
       // Update chat list with last message details
       await _firestore.collection('chats').doc(chatId).update({
-        'lastMessage': mediaUrl ?? text,
+        'lastMessage': text,
+        'lastMessageType': messageType.name,
         'lastMessageTime': Timestamp.now(),
         'seenBy': [senderId],
       });
@@ -229,6 +256,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   Future<void> sendImageMessage(
       String senderId, String receiverId, String imagePath) async {
+    if (!_isActive) return;
     try {
       File imageFile = File(imagePath);
       String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
@@ -240,18 +268,18 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       await sendMessage(
         senderId: senderId,
         receiverId: receiverId,
-        text: "[Image]",
+        text: "📷 Photo",
         mediaUrl: downloadUrl,
         messageType: MessageType.image,
       );
       await updateLastSeen(senderId, isOnline: true);
-      
     } catch (e) {
       print("Error sending image: $e");
     }
   }
 
   void updateTypingStatus(String chatId, String userId, bool isTyping) async {
+    if (!_isActive) return;
     try {
       _isTyping = isTyping;
       notifyListeners();
@@ -269,8 +297,9 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isActive = false;
     messageController.dispose();
-    //scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 }

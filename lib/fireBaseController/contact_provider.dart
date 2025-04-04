@@ -114,6 +114,9 @@ class FireBaseContactsProvider extends ChangeNotifier {
       "time": time,
       "timestamp": timestamp,
     };
+    sortContacts(_contacts);
+    sortContacts(_filteredContacts);
+    notifyListeners();
   }
 
   void sortContacts(List<UserModel> list) {

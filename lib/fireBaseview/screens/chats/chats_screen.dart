@@ -74,12 +74,11 @@ class FirebaseChatsScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Text(
+              child: Text(
             user.uid == FirebaseAuth.instance.currentUser?.uid
                 ? '${user.firstName} (You)'
                 : user.firstName,
-          )
-          ),
+          )),
           Text(
             lastTime,
             style: TextStyle(

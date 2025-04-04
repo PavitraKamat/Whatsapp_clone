@@ -11,7 +11,7 @@ import 'package:wtsp_clone/fireBaseview/components/type_indicator.dart';
 class FireBaseOnetooneChat extends StatelessWidget {
   final UserModel user;
 
-  const FireBaseOnetooneChat({super.key, required this.user});
+  const FireBaseOnetooneChat({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,10 +19,15 @@ class FireBaseOnetooneChat extends StatelessWidget {
       create: (_) {
         var provider = FireBaseOnetoonechatProvider(user: user);
         provider.openChat(FirebaseAuth.instance.currentUser!.uid, user.uid);
+        WidgetsBinding.instance
+            .addPostFrameCallback((_) => provider.scrollToBottom());
         return provider;
       },
-      lazy: false,
-      child: _FireBaseOnetooneChatScreen(user: user),
+      //lazy: false,
+      //child: _FireBaseOnetooneChatScreen(user: user),
+      child: Builder(builder: (context) {
+        return _FireBaseOnetooneChatScreen(user: user);
+      }),
     );
     // final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
     // chatProvider.openChat(FirebaseAuth.instance.currentUser!.uid, user.uid);
@@ -32,7 +37,7 @@ class FireBaseOnetooneChat extends StatelessWidget {
 
 class _FireBaseOnetooneChatScreen extends StatelessWidget {
   final UserModel user;
-  final ScrollController _scrollController = ScrollController();
+  //final ScrollController _scrollController = ScrollController();
   _FireBaseOnetooneChatScreen({required this.user});
 
   @override
@@ -40,11 +45,11 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
     final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context);
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     if (_scrollController.hasClients) {
+    //       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    //     }
+    //   });
 
     return Stack(
       children: [
@@ -58,12 +63,12 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
   }
 
   Column messageTiles(
-    FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
+      FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
     return Column(
-      children: [  
+      children: [
         Expanded(
           child: ListView.builder(
-            controller: _scrollController,
+            controller: chatProvider.scrollController,
             padding: EdgeInsets.symmetric(vertical: 8),
             itemCount: chatProvider.messages.length +
                 (chatProvider.isReceiverTyping ? 1 : 0),
@@ -105,19 +110,18 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
               );
 
               chatProvider.messageController.clear();
-
-              Future.microtask( () {
-                if (_scrollController.hasClients) {
-                 _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeOut,
-                  );
-                }
-              });
+              chatProvider.scrollToBottom();
+              // Future.microtask( () {
+              //   if (_scrollController.hasClients) {
+              //    _scrollController.animateTo(
+              //       _scrollController.position.maxScrollExtent,
+              //       duration: Duration(milliseconds: 300),
+              //       curve: Curves.easeOut,
+              //     );
+              //   }
+              // });
             }
           },
-          
         ),
       ],
     );

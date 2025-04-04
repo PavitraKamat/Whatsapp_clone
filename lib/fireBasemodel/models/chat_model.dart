@@ -45,6 +45,7 @@ class ChatModel {
   String? adminId;
   List<String> users;
   String lastMessage;
+  String lastMessageType;
   DateTime lastMessageTime;
   List<String> seenBy;
   List<String> typingUsers;
@@ -58,6 +59,7 @@ class ChatModel {
     this.adminId,
     required this.users,
     required this.lastMessage,
+    required this.lastMessageType,
     required this.lastMessageTime,
     required this.seenBy,
     this.createdAt,
@@ -74,6 +76,7 @@ class ChatModel {
       "adminId": adminId,
       "members": users,
       "lastMessage": lastMessage,
+      "lastMessageType": lastMessageType,
       "lastMessageTime": Timestamp.fromDate(lastMessageTime),
       "seenBy": seenBy,
       'createdAt': createdAt != null
@@ -93,6 +96,7 @@ class ChatModel {
       adminId: map["adminId"],
       users: List<String>.from(map["members"]),
       lastMessage: map["lastMessage"],
+      lastMessageType: map["lastMessageType"] ?? "text",
       lastMessageTime: (map['lastMessageTime'] as Timestamp).toDate(),
       seenBy: List<String>.from(map["seenBy"]),
       createdAt: map['createdAt'] is Timestamp
