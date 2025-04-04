@@ -56,7 +56,12 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
         chatScreenBackgroundImage(context),
         Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: ChatAppBar(user: user),
+            appBar: ChatAppBar(
+              user: user,
+              onCancelSelection: () {
+                chatProvider.clearSelection();
+              },
+            ),
             body: messageTiles(chatProvider, currentUserId)),
       ],
     );

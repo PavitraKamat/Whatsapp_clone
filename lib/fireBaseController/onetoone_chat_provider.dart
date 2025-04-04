@@ -16,11 +16,16 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   TextEditingController messageController = TextEditingController();
   ScrollController scrollController = ScrollController();
   bool _isActive = true;
+  bool _isSelectionMode = false;
+  List<String> _selectedMessageIds = [];
 
   List<MessageModel> get messages => _messages;
   bool get isTyping => _isTyping;
   bool get isReceiverTyping => _isReceiverTyping;
   String get lastSeen => _lastSeen;
+  bool get isSelectionMode => _isSelectionMode;
+  List<String> get selectedMessageIds => _selectedMessageIds;
+
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -55,6 +60,28 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       });
     }
   }
+
+  void toggleSelectionMode(bool value) {
+    _isSelectionMode = value;
+    if (!value) _selectedMessageIds.clear(); 
+    notifyListeners();
+  }
+
+  void toggleMessageSelection(String messageId) {
+    if (_selectedMessageIds.contains(messageId)) {
+      _selectedMessageIds.remove(messageId);
+    } else {
+      _selectedMessageIds.add(messageId);
+    }
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedMessageIds.clear();
+    _isSelectionMode = false;
+    notifyListeners();
+  }
+
 
   Future<String> getOrCreateChatId(String senderId, String receiverId) async {
     try {
