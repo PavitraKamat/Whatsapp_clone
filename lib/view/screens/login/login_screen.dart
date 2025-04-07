@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
@@ -152,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 25),
                   if (!isLogin)
-                    _buildTextField("Full Name", nameController, Icons.person,
+                    _buildTextField("Full Name", nameController, CupertinoIcons.person,
                         validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Full Name is required";
@@ -161,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     }),
                   if (!isLogin)
                     _buildTextField(
-                        "Phone Number", phoneController, Icons.phone,
+                        "Phone Number", phoneController, CupertinoIcons.phone,
                         isNumber: true, maxLength: 10, validator: (value) {
                       if (value == null || value.isEmpty) {
                         return "Phone Number is required";
@@ -170,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                       return null;
                     }),
-                  _buildTextField("Email", emailController, Icons.email,
+                  _buildTextField("Email", emailController, CupertinoIcons.mail,
                       validator: (value) {
                     if (value == null || value.isEmpty) {
                       return "Email is required";
@@ -181,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     return null;
                   }),
-                  _buildTextField("Password", passwordController, Icons.lock,
+                  _buildTextField("Password", passwordController, CupertinoIcons.lock,
                       isObscure: !isPasswordVisible,
                       isPassword: true, validator: (value) {
                     if (value == null || value.isEmpty) {

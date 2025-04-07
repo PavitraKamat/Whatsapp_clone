@@ -36,8 +36,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
 
         for (var user in users) {
           //if (user.uid == currentUserId) continue;
-
-          String chatId = _getChatId(user.uid);
+          String chatId = getChatId(user.uid);
           bool chatExists = querySnapshot.docs.any((doc) => doc.id == chatId);
 
           if (chatExists) {
@@ -47,7 +46,6 @@ class FireBaseContactsProvider extends ChangeNotifier {
 
         _contacts = allUsers;
         _filteredContacts = List.from(_contacts);
-
         _isLoading = false;
         sortContacts(_contacts);
         sortContacts(_filteredContacts);
@@ -76,7 +74,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
 
   void _fetchLastMessages() {
     for (var contact in _contacts) {
-      String chatId = _getChatId(contact.uid);
+      String chatId = getChatId(contact.uid);
 
       FirebaseFirestore.instance
           .collection("chats")
@@ -99,7 +97,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
     }
   }
 
-  String _getChatId(String otherUserId) {
+  String getChatId(String otherUserId) {
     String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
     if (currentUserId == null) return "";
     return (currentUserId.hashCode <= otherUserId.hashCode)

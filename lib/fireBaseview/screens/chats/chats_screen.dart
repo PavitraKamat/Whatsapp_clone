@@ -33,7 +33,7 @@ class FirebaseChatsScreen extends StatelessWidget {
         },
         backgroundColor: Color.fromARGB(255, 108, 193, 149),
         child: Icon(
-          Icons.chat,
+          Icons.add_box,
           color: Colors.white,
         ),
       ),
@@ -60,8 +60,22 @@ class FirebaseChatsScreen extends StatelessWidget {
                         final lastTime = contactsProvider.lastMessages[userId]
                                 ?["time"] ??
                             "";
-                        return _buildUserTile(
-                            user, lastTime, lastMessage, context);
+                        return Column(
+                          children: [
+                            _buildUserTile(
+                                user, lastTime, lastMessage, context),
+                            Divider(
+                              height: 0.5,
+                              thickness: 0.3,
+                              indent:
+                                  12, // Aligns the divider with the text (after the avatar)
+                              endIndent: 12,
+                              color: Colors.grey[300],
+                            ),
+                          ],
+                        );
+                        // return _buildUserTile(
+                        //     user, lastTime, lastMessage, context);
                       },
                     );
                   }));

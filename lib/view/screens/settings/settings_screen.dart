@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
@@ -10,7 +11,6 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final homeProvider = Provider.of<HomeProvider>(context);
-
     //print("profileProvider ${profileProvider.name}");
 
     return Scaffold(
@@ -29,21 +29,23 @@ class SettingsScreen extends StatelessWidget {
             child: _buildProfileSection(profileProvider),
           ),
           Divider(thickness: 1, color: Colors.grey[300]),
-          _buildSettingsOption(Icons.lock, "Privacy", () {}),
-          _buildSettingsOption(Icons.notifications, "Notifications", () {}),
-          _buildSettingsOption(Icons.storage, "Storage and Data", () {}),
-          _buildSettingsOption(Icons.help_outline, "Help", () {}),
-          _buildSettingsOption(Icons.info_outline, "About", () {}),
+          _buildSettingsOption(CupertinoIcons.lock, "Privacy", () {}),
+          _buildSettingsOption(CupertinoIcons.bell, "Notifications", () {}),
+          _buildSettingsOption(
+              CupertinoIcons.archivebox, "Storage and Data", () {}),
+          _buildSettingsOption(CupertinoIcons.question_circle, "Help", () {}),
+          _buildSettingsOption(CupertinoIcons.info, "About", () {}),
           SwitchListTile(
             title: Text("Toggle View"),
-            subtitle: Text(
-                homeProvider.isFirebaseView ? "Using Firebase" : "Using Local Database"),
+            subtitle: Text(homeProvider.isFirebaseView
+                ? "Using Firebase"
+                : "Using Local Database"),
             secondary: Icon(Icons.storage),
             value: homeProvider.isFirebaseView,
-            onChanged:(value) => homeProvider.toggleView(value),
+            onChanged: (value) => homeProvider.toggleView(value),
           ),
           _buildSettingsOption(
-              Icons.logout,
+              CupertinoIcons.square_arrow_right,
               "Logout",
               () => Provider.of<ProfileProvider>(context, listen: false)
                   .logout(context)),
@@ -62,6 +64,7 @@ AppBar settingsAppBar() {
         fontWeight: FontWeight.bold,
         fontSize: 22,
         color: Color.fromARGB(255, 108, 193, 149),
+        //color: Colors.teal,
       ),
     ),
     backgroundColor: Colors.white,
@@ -83,7 +86,7 @@ Widget _buildProfileSection(ProfileProvider provider) {
           radius: 40,
           backgroundImage:
               provider.imageUrl != null && provider.imageUrl!.isNotEmpty
-                  ? NetworkImage(provider.imageUrl!) 
+                  ? NetworkImage(provider.imageUrl!)
                   : AssetImage(
                       ProfileImageHelper.getProfileImage(provider.phoneNumber)),
           //child: provider.imageUrl == null ? Icon(Icons.person, size: 40) : null,

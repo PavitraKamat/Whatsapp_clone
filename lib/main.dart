@@ -30,11 +30,7 @@ class WhatsAppClone extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => ContactsProvider()),
         ChangeNotifierProvider(create: (context) => HomeProvider()),
         ChangeNotifierProvider(
-          create: (context) => OnetoonechatProvider(
-            contactId: "123",
-            //chatController: ChatController(),
-          ),
-        ),
+            create: (context) => OnetoonechatProvider(contactId: "123")),
         ChangeNotifierProvider(
           create: (context) {
             User? firebaseUser = FirebaseAuth.instance.currentUser;

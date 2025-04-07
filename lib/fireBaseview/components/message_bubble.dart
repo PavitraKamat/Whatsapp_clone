@@ -19,7 +19,6 @@ class MessageBubble extends StatefulWidget {
 }
 
 class _MessageBubbleState extends State<MessageBubble> {
-  ValueNotifier<bool> isImageLoaded = ValueNotifier(false);
   @override
   Widget build(BuildContext context) {
     bool isRead = widget.message.isRead;
@@ -54,14 +53,13 @@ class _MessageBubbleState extends State<MessageBubble> {
               widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
           child: widget.message.messageType == MessageType.image
               ? imageMessageBubble(
-                  widget.message, maxWidth, widget.isSentByMe, isRead)
+                  widget.message, maxWidth, widget.isSentByMe,isRead)
               : messageLayout(maxWidth, widget.isSentByMe, isRead),
         ),
       ),
     );
   }
 
-  //);
   Widget messageLayout(double maxWidth, bool isSentByUser, bool isRead) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -149,18 +147,14 @@ class _MessageBubbleState extends State<MessageBubble> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Background placeholder with transparent grey color
                 Container(
                   width: 250,
                   height: 250,
                   decoration: BoxDecoration(
-                    color:
-                        Colors.grey.withOpacity(0.3), // Semi-transparent grey
+                    color: Colors.grey.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-
-                // Image Network with loading indicator
                 Image.network(
                   message.mediaUrl!,
                   width: 250,
@@ -229,17 +223,3 @@ class _MessageBubbleState extends State<MessageBubble> {
     }
   }
 }
-
-
-// GestureDetector(
-//   onLongPress: () {
-//     isSelectionMode.value = true;
-//     selectedMessageIds.value = [widget.message.id]; // start selection
-//   },
-//   child: Container(
-//     color: selectedMessageIds.value.contains(widget.message.id)
-//         ? Colors.blue.shade100
-//         : Colors.transparent,
-//     child: ... // Your message bubble here
-//   ),
-// )

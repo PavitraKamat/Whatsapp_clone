@@ -257,7 +257,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         isRead: false,
         isDelivered: isReceiverOnline,
         seenBy: [],
-        isDeleted: false,
+        deletedFor: [],
       );
       await _firestore
           .collection('chats')
@@ -268,6 +268,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       print("Message sent successfully!");
       await updateLastSeen(senderId, isOnline: true);
       await _updateReceiverLastSeen(receiverId);
+      
       // Update chat list with last message details
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage': text,
@@ -321,6 +322,45 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       print("Error updating typing status: $e");
     }
   }
+
+  Future<void> deleteMessagesForMe(List<String> messageIds, String chatId) async {
+  try {
+    for (String messageId in messageIds) {
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .doc(messageId)
+          .update({'deletedFor': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])});
+    }
+
+    _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
+    clearSelection();
+    notifyListeners();
+  } catch (e) {
+    print("Error in deleteMessagesForMe: $e");
+  }
+}
+
+Future<void> deleteMessagesForEveryone(List<String> messageIds, String chatId) async {
+  try {
+    for (String messageId in messageIds) {
+      await _firestore
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .doc(messageId)
+          .delete();
+    }
+
+    _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
+    clearSelection();
+    notifyListeners();
+  } catch (e) {
+    print("Error in deleteMessagesForEveryone: $e");
+  }
+}
+
 
   @override
   void dispose() {

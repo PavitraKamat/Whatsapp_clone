@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
@@ -112,9 +113,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final chatProvider = Provider.of<FireBaseContactsProvider>(context);
     return Consumer<FireBaseOnetoonechatProvider>(
       builder: (context, provider, _) {
         final selectionActive = provider.isSelectionMode;
+        String chatId = chatProvider.getChatId(user.uid);
         return AppBar(
           titleSpacing: 0,
           scrolledUnderElevation: 0,
@@ -183,7 +186,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   IconButton(
                       icon: Icon(Icons.forward, color: Colors.black),
                       onPressed: () {}),
-                  deleteIconButton(context),
+                  deleteIconButton(
+                      context,
+                      Provider.of<FireBaseOnetoonechatProvider>(context,
+                          listen: false),
+                      chatId),
                 ]
               : [
                   IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
@@ -196,46 +203,50 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  IconButton deleteIconButton(BuildContext context) {
+  IconButton deleteIconButton(BuildContext context,
+      FireBaseOnetoonechatProvider provider, String chatId) {
     return IconButton(
       icon: Icon(Icons.delete, color: Colors.black),
       onPressed: () {
         showDialog(
           context: context,
-          //barrierColor: Colors.transparent,
           builder: (context) => AlertDialog(
             title: Text("Delete Messages"),
             actions: [
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context); 
-                  print("Delete for Everyone");
+                onPressed: () async {
+                  Navigator.pop(context); // Close dialog
+                  await provider.deleteMessagesForEveryone(
+                    provider.selectedMessageIds, // List<String>
+                    chatId,
+                  );
                 },
                 child: Text(
                   "Delete for Everyone",
-                  style:
-                      TextStyle(color: const Color.fromARGB(255, 69, 169, 94)),
+                  style: TextStyle(color: Color.fromARGB(255, 69, 169, 94)),
                 ),
               ),
               TextButton(
-                onPressed: () {
-                  Navigator.pop(context); 
-                  print("Delete for me");
+                onPressed: () async {
+                  Navigator.pop(context); // Close dialog
+
+                  await provider.deleteMessagesForMe(
+                    provider.selectedMessageIds, // List<String>
+                    chatId,
+                  );
                 },
                 child: Text(
                   "Delete for Me",
-                  style:
-                      TextStyle(color: const Color.fromARGB(255, 69, 169, 94)),
+                  style: TextStyle(color: Color.fromARGB(255, 69, 169, 94)),
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); 
+                  Navigator.pop(context); // Close dialog
                 },
                 child: Text(
                   "Cancel",
-                  style:
-                      TextStyle(color: const Color.fromARGB(255, 69, 169, 94)),
+                  style: TextStyle(color: Color.fromARGB(255, 69, 169, 94)),
                 ),
               ),
             ],
@@ -260,10 +271,3 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
-
-/// --- Changes in MessageBubble ---
-/// Wrap the top container in GestureDetector and call onLongPress to trigger selection.
-/// Assume message has `id` or unique identifier.
-
-/// In your ChatScreen or wherever you manage state:
-/// Pass the `isSelectionMode` and `selectedMessageIds` as ValueNotifiers to ChatAppBar and MessageBubble

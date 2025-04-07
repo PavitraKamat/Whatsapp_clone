@@ -9,14 +9,14 @@ import 'package:wtsp_clone/view/components/floating_actions.dart';
 import 'package:wtsp_clone/view/components/utils.dart';
 
 class UpdatesScreen extends StatefulWidget {
-  const UpdatesScreen({Key? key}) : super(key: key);
+  const UpdatesScreen({super.key});
   @override
   _UpdatesScreenState createState() => _UpdatesScreenState();
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
   Uint8List? _image;
-  List<Map<String, dynamic>> _statuses = [];
+  final List<Map<String, dynamic>> _statuses = [];
   //String? _imagePath;
   void selectImage() async {
     Uint8List img = await pickImage(ImageSource.gallery);
@@ -91,8 +91,9 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
         onTextStatus: () async {
           final result = await Navigator.push(context,
               MaterialPageRoute(builder: (context) => TextStatusScreen()));
-          if (result != null && result is Map<String, dynamic>)
+          if (result != null && result is Map<String, dynamic>) {
             _uploadTextStatus(result);
+          }
         },
         onImageStatus: selectImage,
       ),

@@ -50,7 +50,7 @@ class MessageModel {
   bool isRead;
   bool isDelivered;
   List<String> seenBy;
-  bool isDeleted;
+  List<String> deletedFor;
 
   MessageModel({
     required this.messageId,
@@ -64,7 +64,7 @@ class MessageModel {
     required this.isRead,
     required this.isDelivered,
     required this.seenBy,
-    required this.isDeleted,
+    required this.deletedFor,
   });
 
   /// Convert `MessageModel` to a `Map<String, dynamic>` for Firestore
@@ -83,7 +83,7 @@ class MessageModel {
       "isRead": isRead,
       "isDelivered": isDelivered,
       "seenBy": seenBy,
-      "isDeleted": isDeleted,
+      "deletedFor": deletedFor,
     };
   }
 
@@ -103,7 +103,7 @@ class MessageModel {
       isRead: map["isRead"] ?? false,
       isDelivered: map["isDelivered"] ?? false,
       seenBy: List<String>.from(map["seenBy"] ?? []),
-      isDeleted: map["isDeleted"] ?? false,
+      deletedFor: List<String>.from(map['deletedFor'] ?? []),
     );
   }
 }

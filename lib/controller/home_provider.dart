@@ -14,13 +14,13 @@ class HomeProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   HomeProvider() {
     _loadPreference();
-    WidgetsBinding.instance.addObserver(this);  // Adding observer
+    WidgetsBinding.instance.addObserver(this); // Adding observer
     _updateOnlineStatus(true);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);  // Removing observer
+    WidgetsBinding.instance.removeObserver(this); // Removing observer
     _updateOnlineStatus(false);
     super.dispose();
   }
@@ -37,8 +37,13 @@ class HomeProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _updateOnlineStatus(bool isOnline) async {
-    final String userId = FirebaseAuth.instance.currentUser!.uid;
-    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No logged in user, cannot update online status");
+      return;
+    }
+
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
       'isOnline': isOnline,
       'lastSeen': isOnline ? 'online' : Timestamp.now(),
     });
@@ -50,15 +55,15 @@ class HomeProvider extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  void updateIndex(int index) {
-    _selectedIndex = index;
-    notifyListeners();
-  }
-
   Future<void> toggleView(bool value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isFirebaseView', value);
     _isFirebaseView = value;
+    notifyListeners();
+  }
+
+  void updateIndex(int index) {
+    _selectedIndex = index;
     notifyListeners();
   }
 
@@ -69,4 +74,3 @@ class HomeProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 }
-

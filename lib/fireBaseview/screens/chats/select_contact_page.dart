@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/select_contact_provider.dart';
@@ -238,7 +239,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
       scrolledUnderElevation: 0,
       actions: [
         IconButton(
-          icon: Icon(Icons.search),
+          icon: Icon(CupertinoIcons.search),
           onPressed: () {
             setState(() {
               _isSearching = true;
@@ -304,7 +305,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
   Widget buildOption(IconData icon, String title, {IconData? trailingIcon}) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromARGB(255, 108, 193, 149),
         child: Icon(icon, color: Colors.white),
       ),
       title: Text(title, style: const TextStyle(fontSize: 16)),

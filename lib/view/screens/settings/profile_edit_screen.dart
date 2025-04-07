@@ -110,7 +110,7 @@
 //   }
 // }
 
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
@@ -139,8 +139,7 @@ class ProfileEditScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final nameController = TextEditingController(text: profileProvider.name);
-    final statusController =
-        TextEditingController(text: profileProvider.about);
+    final statusController = TextEditingController(text: profileProvider.about);
 
     return Scaffold(
       appBar: profileEditingAppBar(),
@@ -153,7 +152,7 @@ class ProfileEditScreen extends StatelessWidget {
           SizedBox(height: 30),
           _editableListTile(
             context: context,
-            icon: Icons.person,
+            icon: CupertinoIcons.person,
             title: "Name",
             subTitle: profileProvider.name,
             controller: nameController,
@@ -161,7 +160,7 @@ class ProfileEditScreen extends StatelessWidget {
           ),
           _editableListTile(
             context: context,
-            icon: Icons.info,
+            icon: CupertinoIcons.info,
             title: "About",
             subTitle: profileProvider.about,
             controller: statusController,
@@ -169,7 +168,7 @@ class ProfileEditScreen extends StatelessWidget {
           ),
           _editableListTile(
             context: context,
-            icon: Icons.phone,
+            icon: CupertinoIcons.phone,
             title: "Phone Number",
             subTitle: profileProvider.phoneNumber,
             onSave: profileProvider.updatePhone,
@@ -194,6 +193,7 @@ class ProfileEditScreen extends StatelessWidget {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 22,
+          //color:Colors.teal,
           color: Color.fromARGB(255, 108, 193, 149),
         ),
       ),
@@ -211,7 +211,9 @@ class ProfileEditScreen extends StatelessWidget {
     Function(String)? onSave,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.teal),
+      leading: Icon(icon, 
+      //color: Colors.teal
+      color: Color.fromARGB(255, 108, 193, 149),),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(subTitle),
       onTap: () => _showEditBottomSheet(

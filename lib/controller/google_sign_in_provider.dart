@@ -24,11 +24,16 @@ class GoogleSignInProvider extends ChangeNotifier {
         password: password,
       );
       User? user = userCredential.user;
+      // if (user != null) {
+      //   await chatProvider.updateLastSeen(user.uid, isOnline: true);
+      //   await profileProvider.loadProfileData();
+      //   await contactsProvider.fetchChatHistoryUsers();
+      // }
       if (user != null) {
-        await chatProvider.updateLastSeen(user.uid, isOnline: true);
-        await profileProvider.loadProfileData();
-        await contactsProvider.fetchChatHistoryUsers();
+        await _postAuthSetup(
+            user.uid, profileProvider, contactsProvider, chatProvider);
       }
+      notifyListeners();
       return user;
     } catch (e) {
       throw Exception(e.toString());
@@ -63,10 +68,13 @@ class GoogleSignInProvider extends ChangeNotifier {
           createdAt: DateTime.now(),
         );
         await _firestore.collection('users').doc(user.uid).set(newUser.toMap());
-        await chatProvider.updateLastSeen(user.uid, isOnline: true);
-        await profileProvider.loadProfileData();
-        await contactsProvider.fetchChatHistoryUsers();
+        // await chatProvider.updateLastSeen(user.uid, isOnline: true);
+        // await profileProvider.loadProfileData();
+        // await contactsProvider.fetchChatHistoryUsers();
+        await _postAuthSetup(
+            user.uid, profileProvider, contactsProvider, chatProvider);
       }
+      notifyListeners();
       return user;
     } catch (e) {
       throw Exception(e.toString());
@@ -108,9 +116,11 @@ class GoogleSignInProvider extends ChangeNotifier {
           );
           await userDoc.set(newUser.toMap());
         }
-        await chatProvider.updateLastSeen(user.uid, isOnline: true);
-        await profileProvider.loadProfileData();
-        await contactsProvider.fetchChatHistoryUsers();
+        // await chatProvider.updateLastSeen(user.uid, isOnline: true);
+        // await profileProvider.loadProfileData();
+        // await contactsProvider.fetchChatHistoryUsers();
+        await _postAuthSetup(
+            user.uid, profileProvider, contactsProvider, chatProvider);
       }
       notifyListeners();
       return user;
@@ -123,5 +133,16 @@ class GoogleSignInProvider extends ChangeNotifier {
     await _googleSignIn.signOut();
     await _auth.signOut();
     notifyListeners();
+  }
+
+  Future<void> _postAuthSetup(
+    String uid,
+    ProfileProvider profileProvider,
+    FireBaseContactsProvider contactsProvider,
+    FireBaseOnetoonechatProvider chatProvider,
+  ) async {
+    await chatProvider.updateLastSeen(uid, isOnline: true);
+    await profileProvider.loadProfileData();
+    await contactsProvider.fetchChatHistoryUsers();
   }
 }

@@ -11,7 +11,7 @@ import 'package:wtsp_clone/fireBaseview/components/type_indicator.dart';
 class FireBaseOnetooneChat extends StatelessWidget {
   final UserModel user;
 
-  const FireBaseOnetooneChat({Key? key, required this.user}) : super(key: key);
+  const FireBaseOnetooneChat({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -23,34 +23,21 @@ class FireBaseOnetooneChat extends StatelessWidget {
             .addPostFrameCallback((_) => provider.scrollToBottom());
         return provider;
       },
-      //lazy: false,
-      //child: _FireBaseOnetooneChatScreen(user: user),
       child: Builder(builder: (context) {
         return _FireBaseOnetooneChatScreen(user: user);
       }),
     );
-    // final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
-    // chatProvider.openChat(FirebaseAuth.instance.currentUser!.uid, user.uid);
-    // return _FireBaseOnetooneChatScreen(user: user);
   }
 }
 
 class _FireBaseOnetooneChatScreen extends StatelessWidget {
   final UserModel user;
-  //final ScrollController _scrollController = ScrollController();
-  _FireBaseOnetooneChatScreen({required this.user});
+  const _FireBaseOnetooneChatScreen({required this.user});
 
   @override
   Widget build(BuildContext context) {
     final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context);
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //     if (_scrollController.hasClients) {
-    //       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    //     }
-    //   });
-
     return Stack(
       children: [
         chatScreenBackgroundImage(context),
@@ -94,14 +81,13 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
                 alignment:
                     isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
                 child: MessageBubble(
-                    message: message, isSentByMe: isSentByMe), // Fix parameter
+                    message: message, isSentByMe: isSentByMe), 
               );
             },
           ),
         ),
         MessageInputField(
           controller: chatProvider.messageController,
-          //isTyping: chatProvider.isTyping,
           senderId: currentUserId,
           receiverId: user.uid,
           onSend: () async {
@@ -116,15 +102,6 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
 
               chatProvider.messageController.clear();
               chatProvider.scrollToBottom();
-              // Future.microtask( () {
-              //   if (_scrollController.hasClients) {
-              //    _scrollController.animateTo(
-              //       _scrollController.position.maxScrollExtent,
-              //       duration: Duration(milliseconds: 300),
-              //       curve: Curves.easeOut,
-              //     );
-              //   }
-              // });
             }
           },
         ),

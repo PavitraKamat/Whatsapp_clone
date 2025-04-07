@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
@@ -13,17 +14,18 @@ class BottomNavbar extends StatelessWidget {
       onTap: (index) => homeProvider.updateIndex(index),
       type: BottomNavigationBarType.fixed,
       backgroundColor: Colors.white,
-      selectedItemColor: Color(0xFF0D4D3E), 
+      selectedItemColor: Color(0xFF0D4D3E),
       unselectedItemColor: Colors.black,
       showUnselectedLabels: true,
       showSelectedLabels: true,
       selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
       unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal),
       items: [
-        _buildNavItem(Icons.chat, "Chats", 0, selectedIndex),
-        _buildNavItem(Icons.update, "Updates", 1, selectedIndex),
-        _buildNavItem(Icons.groups, "Communities", 2, selectedIndex),
-        _buildNavItem(Icons.call, "Calls", 3, selectedIndex),
+        _buildNavItem(
+            CupertinoIcons.chat_bubble_text, "Chats", 0, selectedIndex),
+        _buildNavItem(CupertinoIcons.refresh_circled, "Updates", 1, selectedIndex),
+        _buildNavItem(CupertinoIcons.group, "Communities", 2, selectedIndex),
+        _buildNavItem(CupertinoIcons.phone, "Calls", 3, selectedIndex),
       ],
     );
   }
@@ -42,7 +44,7 @@ class BottomNavbar extends StatelessWidget {
               width: 50,
               height: 35,
               decoration: BoxDecoration(
-                color: Color(0xFFDFF7DF), 
+                color: Color(0xFFDFF7DF),
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
