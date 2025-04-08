@@ -51,6 +51,7 @@ class MessageModel {
   bool isDelivered;
   List<String> seenBy;
   List<String> deletedFor;
+  bool isDeletedForEveryone;
 
   MessageModel({
     required this.messageId,
@@ -65,6 +66,7 @@ class MessageModel {
     required this.isDelivered,
     required this.seenBy,
     required this.deletedFor,
+    required this.isDeletedForEveryone,
   });
 
   /// Convert `MessageModel` to a `Map<String, dynamic>` for Firestore
@@ -84,6 +86,7 @@ class MessageModel {
       "isDelivered": isDelivered,
       "seenBy": seenBy,
       "deletedFor": deletedFor,
+      "isDeletedForEveryone": isDeletedForEveryone,
     };
   }
 
@@ -104,6 +107,7 @@ class MessageModel {
       isDelivered: map["isDelivered"] ?? false,
       seenBy: List<String>.from(map["seenBy"] ?? []),
       deletedFor: List<String>.from(map['deletedFor'] ?? []),
+      isDeletedForEveryone: map["isDeletedForEveryone"] ?? false,
     );
   }
 }

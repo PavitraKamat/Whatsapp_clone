@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
@@ -58,34 +59,42 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
       FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
     return Column(
       children: [
-        Expanded(
-          child: ListView.builder(
-            controller: chatProvider.scrollController,
-            padding: EdgeInsets.symmetric(vertical: 8),
-            itemCount: chatProvider.messages.length +
-                (chatProvider.isReceiverTyping ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (chatProvider.isReceiverTyping &&
-                  index == chatProvider.messages.length) {
+        Expanded(child: KeyboardVisibilityBuilder(
+          builder: (context, isKeyboardVisible) {
+            if (isKeyboardVisible) {
+              // Delay to allow keyboard animation
+              Future.delayed(Duration(milliseconds: 200), () {
+                chatProvider.scrollToBottom();
+              });
+            }
+            return ListView.builder(
+              controller: chatProvider.scrollController,
+              padding: EdgeInsets.symmetric(vertical: 8),
+              itemCount: chatProvider.messages.length +
+                  (chatProvider.isReceiverTyping ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (chatProvider.isReceiverTyping &&
+                    index == chatProvider.messages.length) {
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      child: TypeIndicator(),
+                    ),
+                  );
+                }
+                final message = chatProvider.messages[index];
+                final isSentByMe = message.senderId == currentUserId;
                 return Align(
-                  alignment: Alignment.centerLeft,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: TypeIndicator(),
-                  ),
+                  alignment:
+                      isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child:
+                      MessageBubble(message: message, isSentByMe: isSentByMe),
                 );
-              }
-              final message = chatProvider.messages[index];
-              final isSentByMe = message.senderId == currentUserId;
-              return Align(
-                alignment:
-                    isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-                child: MessageBubble(
-                    message: message, isSentByMe: isSentByMe), 
-              );
-            },
-          ),
-        ),
+              },
+            );
+          },
+        )),
         MessageInputField(
           controller: chatProvider.messageController,
           senderId: currentUserId,

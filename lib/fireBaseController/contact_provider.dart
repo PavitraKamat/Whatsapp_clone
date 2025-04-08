@@ -61,7 +61,7 @@ class FireBaseContactsProvider extends ChangeNotifier {
   }
 
   void filterContacts(String query) {
-    query = query.toLowerCase();
+    query = query.toLowerCase().trim();
     _filteredContacts = _contacts.where((user) {
       bool matchesName = user.firstName.toLowerCase().contains(query);
       bool matchesNumber =

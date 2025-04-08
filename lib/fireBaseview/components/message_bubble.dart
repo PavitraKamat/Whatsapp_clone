@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -26,13 +27,6 @@ class _MessageBubbleState extends State<MessageBubble> {
     final provider = Provider.of<FireBaseOnetoonechatProvider>(context);
     final isSelected =
         provider.selectedMessageIds.contains(widget.message.messageId);
-    // return Align(
-    //   alignment: widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-    //   //child: messageLayout(maxWidth, isSentByMe, isRead),
-    //   child: widget.message.messageType == MessageType.image
-    //       ? imageMessageBubble(widget.message, maxWidth, widget.isSentByMe, isRead)
-    //       : messageLayout(maxWidth, widget.isSentByMe, isRead),
-    // );;
 
     return GestureDetector(
       onLongPress: () {
@@ -53,7 +47,7 @@ class _MessageBubbleState extends State<MessageBubble> {
               widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
           child: widget.message.messageType == MessageType.image
               ? imageMessageBubble(
-                  widget.message, maxWidth, widget.isSentByMe,isRead)
+                  widget.message, maxWidth, widget.isSentByMe, isRead)
               : messageLayout(maxWidth, widget.isSentByMe, isRead),
         ),
       ),
@@ -61,6 +55,15 @@ class _MessageBubbleState extends State<MessageBubble> {
   }
 
   Widget messageLayout(double maxWidth, bool isSentByUser, bool isRead) {
+    //final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    final isDeletedForEveryone = widget.message.isDeletedForEveryone;
+    if (isDeletedForEveryone) {
+      return deletedMessageBubble(
+        isDeletedForEveryone: true,
+        isSentByUser: widget.isSentByMe,
+      );
+    }
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -115,6 +118,13 @@ class _MessageBubbleState extends State<MessageBubble> {
 
   Widget imageMessageBubble(
       MessageModel message, double maxWidth, bool isSentByUser, bool isRead) {
+    final isDeletedForEveryone = widget.message.isDeletedForEveryone;
+    if (isDeletedForEveryone) {
+      return deletedMessageBubble(
+        isDeletedForEveryone: true,
+        isSentByUser: widget.isSentByMe,
+      );
+    }
     if (message.mediaUrl == null || message.mediaUrl!.isEmpty) {
       return Container(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -134,9 +144,9 @@ class _MessageBubbleState extends State<MessageBubble> {
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
       constraints: BoxConstraints(maxWidth: maxWidth),
       decoration: BoxDecoration(
-        color: isSentByUser
-            ? const Color.fromARGB(255, 169, 230, 174) // Sent (Greenish)
-            : Colors.white, // Received (White)
+        // color: isSentByUser
+        //     ? const Color.fromARGB(255, 169, 230, 174) // Sent (Greenish)
+        //     : Colors.white, // Received (White)
         borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(
@@ -221,5 +231,38 @@ class _MessageBubbleState extends State<MessageBubble> {
     } else {
       return Icon(Icons.done, color: Colors.grey, size: 12);
     }
+  }
+
+  Widget deletedMessageBubble(
+      {required bool isDeletedForEveryone, required bool isSentByUser}) {
+    String text = isDeletedForEveryone
+        ? "You deleted this message"
+        : "This message was deleted";
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: isSentByUser
+            ? const Color.fromARGB(255, 169, 230, 174)
+            : Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(10),
+          topRight: const Radius.circular(10),
+          bottomLeft:
+              widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
+          bottomRight:
+              widget.isSentByMe ? Radius.zero : const Radius.circular(10),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontStyle: FontStyle.italic,
+          fontSize: 14,
+          color: Colors.black54,
+        ),
+      ),
+    );
   }
 }

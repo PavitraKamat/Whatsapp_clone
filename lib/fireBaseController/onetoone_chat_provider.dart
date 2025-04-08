@@ -26,7 +26,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   bool get isSelectionMode => _isSelectionMode;
   List<String> get selectedMessageIds => _selectedMessageIds;
 
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
@@ -63,7 +62,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
   void toggleSelectionMode(bool value) {
     _isSelectionMode = value;
-    if (!value) _selectedMessageIds.clear(); 
+    if (!value) _selectedMessageIds.clear();
     notifyListeners();
   }
 
@@ -81,7 +80,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     _isSelectionMode = false;
     notifyListeners();
   }
-
 
   Future<String> getOrCreateChatId(String senderId, String receiverId) async {
     try {
@@ -138,8 +136,10 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         .snapshots()
         .listen((snapshot) async {
       if (!_isActive) return;
+      String currentUserId = FirebaseAuth.instance.currentUser!.uid;
       _messages = snapshot.docs
           .map((doc) => MessageModel.fromMap(doc.id, doc.data()))
+          .where((message) => !(message.deletedFor.contains(currentUserId) ?? false))
           .toList();
 
       for (var message in _messages) {
@@ -258,6 +258,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         isDelivered: isReceiverOnline,
         seenBy: [],
         deletedFor: [],
+        isDeletedForEveryone: false,
       );
       await _firestore
           .collection('chats')
@@ -268,7 +269,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       print("Message sent successfully!");
       await updateLastSeen(senderId, isOnline: true);
       await _updateReceiverLastSeen(receiverId);
-      
+
       // Update chat list with last message details
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage': text,
@@ -323,44 +324,49 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> deleteMessagesForMe(List<String> messageIds, String chatId) async {
-  try {
-    for (String messageId in messageIds) {
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .doc(messageId)
-          .update({'deletedFor': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])});
+  Future<void> deleteMessagesForMe(
+      List<String> messageIds, String chatId) async {
+    try {
+      for (String messageId in messageIds) {
+        await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .doc(messageId)
+            .update({
+          'deletedFor':
+              FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+        });
+      }
+
+      _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
+      clearSelection();
+      notifyListeners();
+    } catch (e) {
+      print("Error in deleteMessagesForMe: $e");
     }
-
-    _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
-    clearSelection();
-    notifyListeners();
-  } catch (e) {
-    print("Error in deleteMessagesForMe: $e");
   }
-}
 
-Future<void> deleteMessagesForEveryone(List<String> messageIds, String chatId) async {
-  try {
-    for (String messageId in messageIds) {
-      await _firestore
-          .collection('chats')
-          .doc(chatId)
-          .collection('messages')
-          .doc(messageId)
-          .delete();
+  Future<void> deleteMessagesForEveryone(
+      List<String> messageIds, String chatId) async {
+    try {
+      for (String messageId in messageIds) {
+        await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .doc(messageId)
+            .update({
+            'isDeletedForEveryone': true,
+            'messageContent': '', // Optional: clear message
+            'mediaUrl': null       // Optional: remove image if any
+          });
+      }
+      notifyListeners();
+    } catch (e) {
+      print("Error in deleteMessagesForEveryone: $e");
     }
-
-    _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
-    clearSelection();
-    notifyListeners();
-  } catch (e) {
-    print("Error in deleteMessagesForEveryone: $e");
   }
-}
-
 
   @override
   void dispose() {
