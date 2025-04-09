@@ -40,7 +40,7 @@ class _MessageInputFieldState extends State<MessageInputField> {
                 child: TextFormField(
                   controller: widget.controller,
                   textAlignVertical: TextAlignVertical.center,
-                  //keyboardType: TextInputType.multiline,
+                  keyboardType: TextInputType.multiline,
                   maxLines: null,
                   onChanged: (text) {
                     if (isTyping != text.isNotEmpty) {
@@ -92,12 +92,12 @@ class _MessageInputFieldState extends State<MessageInputField> {
                       color: Colors.white),
                   onPressed: () {
                     if (isTyping) {
-                    widget.onSend();
-                    widget.controller.clear();
-                    setState(() {
-                      isTyping = false; // Reset after clearing text field
-                    });
-                  }
+                      widget.onSend();
+                      widget.controller.clear();
+                      setState(() {
+                        isTyping = false;
+                      });
+                    }
                   }),
             ),
           ),

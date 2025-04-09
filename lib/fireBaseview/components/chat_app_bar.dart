@@ -7,109 +7,15 @@ import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/contact_profile_screen.dart';
 
-// class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
-//   final UserModel user;
-
-//   ChatAppBar({Key? key, required this.user}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return AppBar(
-//       titleSpacing: 0,
-//       scrolledUnderElevation: 0,
-//       leadingWidth: 80,
-//       leading: InkWell(
-//         splashColor: Colors.transparent,
-//         highlightColor: Colors.transparent,
-//         onTap: () => Navigator.pop(context),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Icon(Icons.arrow_back, size: 24, color: Colors.black),
-//             GestureDetector(
-//               onTap: () {
-//                 Navigator.push(
-//                   context,
-//                   MaterialPageRoute(
-//                     builder: (context) => ContactProfileScreen(user: user),
-//                   ),
-//                 );
-//               },
-//               child: CircleAvatar(
-//                 radius: 20,
-//                 backgroundColor: Colors.blueGrey,
-//                 // backgroundImage: AssetImage(
-//                 //     ProfileImageHelper.getProfileImage(user.phone)),
-//                 backgroundImage: user.photoURL.isNotEmpty
-//                     ? NetworkImage(user.photoURL)
-//                     : AssetImage(
-//                         ProfileImageHelper.getProfileImage(user.phone)),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//       title: InkWell(
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               user.uid == FirebaseAuth.instance.currentUser?.uid
-//                   ? '${user.firstName} (You)'
-//                   : user.firstName,
-//               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
-//             ),
-//             Consumer<FireBaseOnetoonechatProvider>(
-//               builder: (context, chatProvider, child) {
-//                 //print("UI Rebuilt - Last Seen: ${chatProvider.lastSeen}");
-//                 return Text(
-//                   chatProvider.lastSeen,
-//                   style: TextStyle(fontSize: 13),
-//                 );
-//               },
-//             ),
-//           ],
-//         ),
-//       ),
-//       actions: [
-//         IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
-//         IconButton(onPressed: () {}, icon: Icon(Icons.call)),
-//         popUpMenu(),
-//       ],
-//       backgroundColor: Colors.white,
-//     );
-//   }
-
-//   PopupMenuButton<String> popUpMenu() {
-//     return PopupMenuButton<String>(
-//       icon: Icon(Icons.more_vert),
-//       onSelected: (value) => print(value),
-//       itemBuilder: (context) => [
-//         PopupMenuItem(child: Text("Search"), value: "Search"),
-//         PopupMenuItem(child: Text("Add to List"), value: "Add to List"),
-//         PopupMenuItem(child: Text("Media, Links, and Docs"), value: "Media"),
-//       ],
-//     );
-//   }
-
-//   @override
-//   Size get preferredSize => Size.fromHeight(kToolbarHeight);
-// }
-
-// /// Step 1: Add a ValueNotifier in your main chat screen to track selection state
-// ValueNotifier<bool> isSelectionMode = ValueNotifier(false);
-// ValueNotifier<List<String>> selectedMessageIds = ValueNotifier([]);
-
-/// --- Modified ChatAppBar ---
 class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   final UserModel user;
   final VoidCallback onCancelSelection;
 
-  ChatAppBar({
-    Key? key,
+  const ChatAppBar({
+    super.key,
     required this.user,
     required this.onCancelSelection,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +87,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                       icon: Icon(Icons.star_border, color: Colors.black),
                       onPressed: () {}),
                   IconButton(
-                      icon: Icon(Icons.reply, color: Colors.black),
+                      icon: Icon(Icons.reply_outlined, color: Colors.black),
                       onPressed: () {}),
                   IconButton(
                       icon: Icon(Icons.forward, color: Colors.black),
@@ -259,11 +165,11 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   PopupMenuButton<String> popUpMenu() {
     return PopupMenuButton<String>(
       icon: Icon(Icons.more_vert),
-      onSelected: (value) => print(value),
+      onSelected: (value) => (),
       itemBuilder: (context) => [
-        PopupMenuItem(child: Text("Search"), value: "Search"),
-        PopupMenuItem(child: Text("Add to List"), value: "Add to List"),
-        PopupMenuItem(child: Text("Media, Links, and Docs"), value: "Media"),
+        PopupMenuItem(value: "Search", child: Text("Search")),
+        PopupMenuItem(value: "Add to List", child: Text("Add to List")),
+        PopupMenuItem(value: "Media", child: Text("Media, Links, and Docs")),
       ],
     );
   }

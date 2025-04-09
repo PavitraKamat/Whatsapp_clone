@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
@@ -18,28 +17,13 @@ class FirebaseChatsScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          _buildSearchBar(contactsProvider),
+          _buildSearchBar(contactsProvider,context),
           _buildContactsList(contactsProvider),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SelectContactPage(),
-            ),
-          );
-        },
-        backgroundColor: Color.fromARGB(255, 108, 193, 149),
-        child: Icon(
-          Icons.add_box,
-          color: Colors.white,
-        ),
-      ),
+      floatingActionButton: selectContactButton(context),
     );
   }
-
   Expanded _buildContactsList(FireBaseContactsProvider contactsProvider) {
     return Expanded(
         child: contactsProvider.isLoading
@@ -68,7 +52,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                               height: 0.5,
                               thickness: 0.3,
                               indent:
-                                  12, // Aligns the divider with the text (after the avatar)
+                                  12, 
                               endIndent: 12,
                               color: Colors.grey[300],
                             ),
@@ -121,7 +105,7 @@ class FirebaseChatsScreen extends StatelessWidget {
     );
   }
 
-  Container _buildSearchBar(FireBaseContactsProvider contactsProvider) {
+  Container _buildSearchBar(FireBaseContactsProvider contactsProvider,BuildContext context) {
     return Container(
       height: 60.0,
       child: Padding(
@@ -140,7 +124,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                     onPressed: () {
                       _searchController.clear();
                       contactsProvider.filterContacts('');
-                      FocusScope.of(context as BuildContext).unfocus();
+                      FocusScope.of(context).unfocus();
                     },
                   )
                 : null,
@@ -157,4 +141,22 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
     );
   }
+  FloatingActionButton selectContactButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => SelectContactPage(),
+          ),
+        );
+      },
+      backgroundColor: Color.fromARGB(255, 108, 193, 149),
+      child: Icon(
+        Icons.add_box,
+        color: Colors.white,
+      ),
+    );
+  }
+
 }

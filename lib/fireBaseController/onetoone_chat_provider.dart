@@ -139,7 +139,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       String currentUserId = FirebaseAuth.instance.currentUser!.uid;
       _messages = snapshot.docs
           .map((doc) => MessageModel.fromMap(doc.id, doc.data()))
-          .where((message) => !(message.deletedFor.contains(currentUserId) ?? false))
+          .where((message) => !(message.deletedFor.contains(currentUserId)))
           .toList();
 
       for (var message in _messages) {
@@ -357,10 +357,10 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
             .collection('messages')
             .doc(messageId)
             .update({
-            'isDeletedForEveryone': true,
-            'messageContent': '', // Optional: clear message
-            'mediaUrl': null       // Optional: remove image if any
-          });
+          'isDeletedForEveryone': true,
+          'messageContent': '', // Optional: clear message
+          'mediaUrl': null // Optional: remove image if any
+        });
       }
       notifyListeners();
     } catch (e) {

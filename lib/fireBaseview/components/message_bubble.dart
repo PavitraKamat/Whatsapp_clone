@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +63,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         isSentByUser: widget.isSentByMe,
       );
     }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
@@ -235,7 +235,7 @@ class _MessageBubbleState extends State<MessageBubble> {
 
   Widget deletedMessageBubble(
       {required bool isDeletedForEveryone, required bool isSentByUser}) {
-    String text = isDeletedForEveryone
+    String text = isSentByUser
         ? "You deleted this message"
         : "This message was deleted";
 

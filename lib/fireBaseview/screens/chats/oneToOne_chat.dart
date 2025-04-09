@@ -57,13 +57,19 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
 
   Column messageTiles(
       FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (chatProvider.scrollController.hasClients) {
+        chatProvider.scrollController
+            .jumpTo(chatProvider.scrollController.position.maxScrollExtent);
+      }
+    });
     return Column(
       children: [
         Expanded(child: KeyboardVisibilityBuilder(
           builder: (context, isKeyboardVisible) {
             if (isKeyboardVisible) {
               // Delay to allow keyboard animation
-              Future.delayed(Duration(milliseconds: 200), () {
+              Future.delayed(Duration(milliseconds: 100), () {
                 chatProvider.scrollToBottom();
               });
             }

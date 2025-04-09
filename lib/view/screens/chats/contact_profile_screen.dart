@@ -98,17 +98,17 @@ class ContactProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _iconButton(IconData icon, String label) {
-    return Column(
-      children: [
-        IconButton(
-          icon: Icon(icon, size: 30, color: Colors.green),
-          onPressed: () {},
-        ),
-        Text(label, style: TextStyle(fontSize: 12)),
-      ],
-    );
-  }
+  // Widget _iconButton(IconData icon, String label) {
+  //   return Column(
+  //     children: [
+  //       IconButton(
+  //         icon: Icon(icon, size: 30, color: Colors.green),
+  //         onPressed: () {},
+  //       ),
+  //       Text(label, style: TextStyle(fontSize: 12)),
+  //     ],
+  //   );
+  // }
 
   Widget _mediaPreview() {
     return Padding(

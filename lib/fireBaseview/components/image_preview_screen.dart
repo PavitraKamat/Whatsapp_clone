@@ -9,135 +9,106 @@ class ImagePreviewScreen extends StatelessWidget {
   final FireBaseOnetoonechatProvider chatProvider;
 
   const ImagePreviewScreen({
-    Key? key,
+    super.key,
     required this.senderId,
     required this.receiverId,
     required this.imagePath,
     required this.chatProvider,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
+    final textController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: Colors.white),
+          icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.crop_rotate, size: 27),
+            icon: const Icon(Icons.crop_rotate, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.emoji_emotions_outlined, size: 27),
+            icon:
+                const Icon(Icons.emoji_emotions_outlined, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.title, size: 27),
+            icon: const Icon(Icons.title, color: Colors.white),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.edit, size: 27),
+            icon: const Icon(Icons.edit, color: Colors.white),
             onPressed: () {},
           ),
         ],
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Positioned.fill(
-            child: Center(
-              child: Image.file(
-                File(imagePath),
-                fit: BoxFit.cover,
+          Expanded(
+            child: Container(
+              color: Colors.black,
+              width: double.infinity,
+              child: Hero(
+                tag: 'imagePreview',
+                child: Image.file(
+                  File(imagePath),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            child: Container(
-              height: 70,
-              color: const Color.fromARGB(123, 100, 100, 100),
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.symmetric(vertical:4, horizontal:13),
-              child: Row(
-                children: [
-                  /// Add photo icon
-                  const Icon(Icons.add_photo_alternate, color: Colors.white, size: 26),
-
-                  /// Text input field
-                  Expanded(
-                    child: TextFormField(
-                      style: const TextStyle(color: Colors.white, fontSize: 17),
-                      maxLines: 6,
-                      minLines: 1,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: "Add Caption....",
-                        hintStyle: TextStyle(color: Colors.white, fontSize: 17),
-                      ),
+          // Caption input section
+          Container(
+            margin: const EdgeInsets.all(10),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 122, 122, 122).withOpacity(0.4),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.add_photo_alternate, color: Colors.white70),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: TextFormField(
+                    controller: textController,
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: const InputDecoration(
+                      hintText: "Add Caption...",
+                      hintStyle: TextStyle(color: Colors.white70),
+                      border: InputBorder.none,
                     ),
                   ),
-
-                  /// Send button (now clickable)
-                  GestureDetector(
-                      onTap: () async {
-                        await chatProvider.sendImageMessage(
-                            senderId, receiverId, imagePath);
-                        Navigator.pop(context);
-                      },
-                      child: CircleAvatar(
-                          radius: 25,
-                          backgroundColor: Colors.tealAccent[700],
-                          child: const Icon(Icons.send, color: Colors.white, size: 24),
-                        ),
-                    )
-                ],
-              ),
+                ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Future.delayed(const Duration(milliseconds: 100), () async {
+                      await chatProvider.sendImageMessage(
+                        senderId,
+                        receiverId,
+                        imagePath,
+                        // caption: textController.text.trim(),
+                      );
+                    });
+                  },
+                  child: CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.tealAccent[700],
+                    child: const Icon(Icons.send, color: Colors.black),
+                  ),
+                ),
+              ],
             ),
           ),
-          // Container(
-          //   padding: EdgeInsets.all(10),
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //     children: [
-          //       Row(
-          //         children: [
-          //           IconButton(
-          //             icon: Icon(Icons.add_photo_alternate, color: Colors.white, size: 27),
-          //             onPressed: () {
-          //               // Add photo functionality (optional)
-          //             },
-          //           ),
-          //           // FloatingActionButton(
-          //           //   backgroundColor: Colors.teal,
-          //           //   child: Icon(Icons.send, color: Colors.white,size:10,),
-          //           //   onPressed: () async {
-          //           //     await chatProvider.sendImageMessage(
-          //           //         senderId, receiverId, imagePath);
-          //           //     Navigator.pop(context);
-          //           //   },
-          //           // ),
-                    
-          //           GestureDetector(
-          //             onTap: () async {
-          //               await chatProvider.sendImageMessage(
-          //                   senderId, receiverId, imagePath);
-          //               Navigator.pop(context);
-          //             },
-          //             child: CircleAvatar(
-          //                 radius: 27,
-          //                 backgroundColor: Colors.tealAccent[700],
-          //                 child: const Icon(Icons.check, color: Colors.white, size: 27),
-          //               ),
-          //           )
-          //         ],
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );
