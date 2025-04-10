@@ -86,6 +86,7 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
       subtitle: Text(
         lastMessage,
+        
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
@@ -158,5 +159,5 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
     );
   }
-
+  
 }

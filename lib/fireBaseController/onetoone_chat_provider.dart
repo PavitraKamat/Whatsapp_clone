@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -246,20 +248,24 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       bool isReceiverOnline = receiverDoc.exists &&
           (receiverDoc.data() as Map<String, dynamic>)['isOnline'] == true;
       MessageModel newMessage = MessageModel(
-        messageId: messageId,
-        chatId: chatId,
-        senderId: senderId,
-        receiverId: receiverId,
-        messageType: messageType,
-        messageContent: text,
-        mediaUrl: mediaUrl,
-        timestamp: DateTime.now(),
-        isRead: false,
-        isDelivered: isReceiverOnline,
-        seenBy: [],
-        deletedFor: [],
-        isDeletedForEveryone: false,
-      );
+          messageId: messageId,
+          chatId: chatId,
+          senderId: senderId,
+          receiverId: receiverId,
+          messageType: messageType,
+          messageContent: text,
+          mediaUrl: mediaUrl,
+          timestamp: DateTime.now(),
+          isRead: false,
+          isDelivered: isReceiverOnline,
+          seenBy: [],
+          deletedFor: [],
+          isDeletedForEveryone: false,
+          audioDuration: messageType == MessageType.audio
+              ? await _getAudioDuration(File(mediaUrl!))
+              : 0,
+          //audioDuration: 0,
+          isPlayed: false);
       await _firestore
           .collection('chats')
           .doc(chatId)
@@ -307,6 +313,73 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> sendVoiceMessage(
+      String senderId, String receiverId, String path) async {
+    if (!_isActive) return;
+
+    try {
+      final file = File(path);
+      final fileName = "${DateTime.now().millisecondsSinceEpoch}.m4a";
+
+      final ref = _storage
+          .ref()
+          .child('voice_messages')
+          .child(senderId)
+          .child(fileName);
+
+      final uploadTask = await ref.putFile(file);
+      final audioUrl = await uploadTask.ref.getDownloadURL();
+
+      final audioDuration = await _getAudioDuration(file); // Get duration
+
+      // Send as audio message
+      await sendMessage(
+        senderId: senderId,
+        receiverId: receiverId,
+        text: "🎤 Voice message",
+        mediaUrl: audioUrl,
+        messageType: MessageType.audio,
+      );
+
+      // Optionally update last seen
+      await updateLastSeen(senderId, isOnline: true);
+
+      print("Voice message sent: $audioUrl, duration: $audioDuration sec");
+    } catch (e) {
+      print("Error sending voice message: $e");
+    }
+  }
+
+  Future<int> _getAudioDuration(File file) async {
+  final player = AudioPlayer();
+  int durationInSeconds = 0;
+
+  try {
+    await player.setSourceDeviceFile(file.path);
+
+    // Wait for duration to be available
+    final completer = Completer<int>();
+    late StreamSubscription<Duration> sub;
+
+    sub = player.onDurationChanged.listen((duration) {
+      durationInSeconds = duration.inSeconds;
+      completer.complete(durationInSeconds);
+      sub.cancel(); // Don't forget to cancel after we get the duration
+    });
+
+    await player.resume(); // Start playback to trigger duration (required hack)
+    await Future.delayed(Duration(milliseconds: 200));
+    await player.pause();
+
+    return await completer.future;
+  } catch (e) {
+    print("Failed to get duration: $e");
+    return 0;
+  } finally {
+    await player.dispose();
+  }
+}
+
   void updateTypingStatus(String chatId, String userId, bool isTyping) async {
     if (!_isActive) return;
     try {
@@ -325,8 +398,12 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   }
 
   Future<void> deleteMessagesForMe(
-      List<String> messageIds, String chatId) async {
+    List<String> messageIds,
+    String chatId,
+  ) async {
     try {
+      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
       for (String messageId in messageIds) {
         await _firestore
             .collection('chats')
@@ -334,9 +411,55 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
             .collection('messages')
             .doc(messageId)
             .update({
-          'deletedFor':
-              FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+          'deletedFor': FieldValue.arrayUnion([currentUserId])
         });
+      }
+
+      // Check if the deleted message was the last message
+      DocumentSnapshot chatDoc =
+          await _firestore.collection('chats').doc(chatId).get();
+
+      if (chatDoc.exists) {
+        var data = chatDoc.data() as Map<String, dynamic>;
+        String? lastMessage = data['lastMessage'];
+        Timestamp? lastMessageTime = data['lastMessageTime'];
+
+        // Fetch the last visible (non-deleted) message for this user
+        QuerySnapshot newLastMessagesSnapshot = await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .orderBy('timestamp', descending: true)
+            .get();
+
+        MessageModel? newLastMessage;
+
+        for (var doc in newLastMessagesSnapshot.docs) {
+          var messageData = doc.data() as Map<String, dynamic>;
+
+          List<dynamic> deletedFor = messageData['deletedFor'] ?? [];
+          if (!deletedFor.contains(currentUserId)) {
+            newLastMessage = MessageModel.fromMap(doc.id, messageData);
+            break;
+          }
+        }
+
+        if (newLastMessage != null) {
+          await _firestore.collection('chats').doc(chatId).update({
+            'lastMessage': newLastMessage.messageContent,
+            'lastMessageType': newLastMessage.messageType.name,
+            'lastMessageTime': Timestamp.fromDate(newLastMessage.timestamp),
+            'seenBy': [currentUserId], // or update accordingly
+          });
+        } else {
+          // If no visible messages remain, you can clear lastMessage
+          await _firestore.collection('chats').doc(chatId).update({
+            'lastMessage': '',
+            'lastMessageType': 'text',
+            'lastMessageTime': null,
+            'seenBy': [],
+          });
+        }
       }
 
       _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
@@ -358,7 +481,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
             .doc(messageId)
             .update({
           'isDeletedForEveryone': true,
-          'messageContent': '', // Optional: clear message
+          //'messageContent': '', // Optional: clear message
           'mediaUrl': null // Optional: remove image if any
         });
       }

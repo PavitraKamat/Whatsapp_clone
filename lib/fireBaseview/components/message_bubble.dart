@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -44,14 +45,27 @@ class _MessageBubbleState extends State<MessageBubble> {
         child: Align(
           alignment:
               widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-          child: widget.message.messageType == MessageType.image
-              ? imageMessageBubble(
-                  widget.message, maxWidth, widget.isSentByMe, isRead)
-              : messageLayout(maxWidth, widget.isSentByMe, isRead),
+          // child: widget.message.messageType == MessageType.image
+          //     ? imageMessageBubble(
+          //         widget.message, maxWidth, widget.isSentByMe, isRead)
+          //     : messageLayout(maxWidth, widget.isSentByMe, isRead),
+          child: _buildMessageContent(maxWidth, isRead),
+
         ),
       ),
     );
   }
+
+  Widget _buildMessageContent(double maxWidth, bool isRead) {
+  switch (widget.message.messageType) {
+    case MessageType.image:
+      return imageMessageBubble(widget.message, maxWidth, widget.isSentByMe, isRead);
+    case MessageType.audio:
+      return audioMessageBubble(widget.message, maxWidth, widget.isSentByMe, isRead);
+    default:
+      return messageLayout(maxWidth, widget.isSentByMe, isRead);
+  }
+}
 
   Widget messageLayout(double maxWidth, bool isSentByUser, bool isRead) {
     //final currentUserId = FirebaseAuth.instance.currentUser!.uid;
@@ -222,6 +236,71 @@ class _MessageBubbleState extends State<MessageBubble> {
       ),
     );
   }
+
+Widget audioMessageBubble(MessageModel message, double maxWidth, bool isSentByUser, bool isRead) {
+  final audioPlayer = AudioPlayer();
+  bool isPlaying = false;
+
+  return StatefulBuilder(
+    builder: (context, setState) {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        decoration: BoxDecoration(
+          color: isSentByUser
+              ? const Color.fromARGB(255, 169, 230, 174)
+              : Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(10),
+            topRight: const Radius.circular(10),
+            bottomLeft: isSentByUser ? const Radius.circular(10) : Radius.zero,
+            bottomRight: isSentByUser ? Radius.zero : const Radius.circular(10),
+          ),
+        ),
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+              onPressed: () async {
+                if (!isPlaying) {
+                  await audioPlayer.play(UrlSource(message.mediaUrl!));
+                } else {
+                  await audioPlayer.pause();
+                }
+                setState(() => isPlaying = !isPlaying);
+              },
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${message.audioDuration ?? 0}s",
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        DateFormat.jm().format(message.timestamp),
+                        style: const TextStyle(
+                            fontSize: 10, color: Colors.black54),
+                      ),
+                      if (isSentByUser) messageStatusIcon(message),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 
   Widget messageStatusIcon(MessageModel message) {
     if (message.isRead) {

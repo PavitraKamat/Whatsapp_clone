@@ -52,6 +52,8 @@ class MessageModel {
   List<String> seenBy;
   List<String> deletedFor;
   bool isDeletedForEveryone;
+  int? audioDuration; // in seconds
+  bool isPlayed;
 
   MessageModel({
     required this.messageId,
@@ -67,6 +69,8 @@ class MessageModel {
     required this.seenBy,
     required this.deletedFor,
     required this.isDeletedForEveryone,
+    required this.audioDuration,
+    required this.isPlayed,
   });
 
   /// Convert `MessageModel` to a `Map<String, dynamic>` for Firestore
@@ -87,6 +91,8 @@ class MessageModel {
       "seenBy": seenBy,
       "deletedFor": deletedFor,
       "isDeletedForEveryone": isDeletedForEveryone,
+      "audioDuration":audioDuration,
+      "isPlayed":isPlayed,
     };
   }
 
@@ -108,6 +114,8 @@ class MessageModel {
       seenBy: List<String>.from(map["seenBy"] ?? []),
       deletedFor: List<String>.from(map['deletedFor'] ?? []),
       isDeletedForEveryone: map["isDeletedForEveryone"] ?? false,
+      audioDuration: map["audioDuration"]?? 0,
+      isPlayed: map["isPlayed"]?? false,
     );
   }
 }
@@ -116,6 +124,7 @@ class MessageModel {
 enum MessageType {
   text,
   image,
+  voice,
   audio,
   video,
 }
