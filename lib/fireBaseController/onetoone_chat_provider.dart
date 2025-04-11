@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
@@ -20,6 +22,12 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   bool _isActive = true;
   bool _isSelectionMode = false;
   List<String> _selectedMessageIds = [];
+  bool isRecording = false;
+  bool isCancelled = false;
+  int recordDuration = 0;
+  FlutterSoundRecorder? _recorder;
+  String? recordedFilePath;
+  Timer? _timer;
 
   List<MessageModel> get messages => _messages;
   bool get isTyping => _isTyping;
@@ -230,6 +238,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     required String text,
     String? mediaUrl,
     MessageType messageType = MessageType.text,
+    int audioDuration = 0,
   }) async {
     try {
       String chatId = await getOrCreateChatId(senderId, receiverId);
@@ -261,9 +270,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           seenBy: [],
           deletedFor: [],
           isDeletedForEveryone: false,
-          audioDuration: messageType == MessageType.audio
-              ? await _getAudioDuration(File(mediaUrl!))
-              : 0,
+          audioDuration: audioDuration,
           //audioDuration: 0,
           isPlayed: false);
       await _firestore
@@ -327,7 +334,8 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .child(senderId)
           .child(fileName);
 
-      final uploadTask = await ref.putFile(file);
+      final metadata = SettableMetadata(contentType: 'audio/m4a');
+      final uploadTask = await ref.putFile(file, metadata);
       final audioUrl = await uploadTask.ref.getDownloadURL();
 
       final audioDuration = await _getAudioDuration(file); // Get duration
@@ -339,6 +347,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         text: "🎤 Voice message",
         mediaUrl: audioUrl,
         messageType: MessageType.audio,
+        audioDuration: audioDuration,
       );
 
       // Optionally update last seen
@@ -351,34 +360,78 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   }
 
   Future<int> _getAudioDuration(File file) async {
-  final player = AudioPlayer();
-  int durationInSeconds = 0;
-
-  try {
-    await player.setSourceDeviceFile(file.path);
-
-    // Wait for duration to be available
-    final completer = Completer<int>();
-    late StreamSubscription<Duration> sub;
-
-    sub = player.onDurationChanged.listen((duration) {
-      durationInSeconds = duration.inSeconds;
-      completer.complete(durationInSeconds);
-      sub.cancel(); // Don't forget to cancel after we get the duration
-    });
-
-    await player.resume(); // Start playback to trigger duration (required hack)
-    await Future.delayed(Duration(milliseconds: 200));
-    await player.pause();
-
-    return await completer.future;
-  } catch (e) {
-    print("Failed to get duration: $e");
-    return 0;
-  } finally {
-    await player.dispose();
+    final player = AudioPlayer();
+    try {
+      await player.setFilePath(file.path);
+      await Future.delayed(Duration(milliseconds: 500)); // allow loading
+      final duration = player.duration;
+      return duration?.inSeconds ?? 0;
+    } catch (e) {
+      print("Failed to get duration: $e");
+      return 0;
+    } finally {
+      await player.dispose();
+    }
   }
-}
+
+  Future<void> startRecording() async {
+    try {
+      isRecording = true;
+      isCancelled = false;
+      recordDuration = 0;
+      notifyListeners();
+
+      final dir = await getApplicationDocumentsDirectory();
+      final filePath =
+          "${dir.path}/recorded_${DateTime.now().millisecondsSinceEpoch}.m4a";
+
+      _recorder = FlutterSoundRecorder();
+      await _recorder!.openRecorder();
+      await _recorder!.startRecorder(toFile: filePath, codec: Codec.aacMP4);
+
+      recordedFilePath = filePath;
+
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        recordDuration++;
+        notifyListeners();
+      });
+    } catch (e) {
+      print("Error starting recorder: $e");
+    }
+  }
+
+  Future<void> stopRecordingAndSend(String senderId, String receiverId) async {
+    try {
+      _timer?.cancel();
+      final path = await _recorder?.stopRecorder();
+      await _recorder?.closeRecorder();
+      isRecording = false;
+      notifyListeners();
+
+      if (!isCancelled && recordedFilePath != null) {
+        await sendVoiceMessage(senderId, receiverId, recordedFilePath!);
+      }
+
+      recordedFilePath = null;
+      recordDuration = 0;
+    } catch (e) {
+      print("Error stopping recorder: $e");
+    }
+  }
+
+  Future<void> cancelRecording() async {
+    try {
+      isCancelled = true;
+      _timer?.cancel();
+      await _recorder?.stopRecorder();
+      await _recorder?.closeRecorder();
+      recordedFilePath = null;
+      isRecording = false;
+      notifyListeners();
+    } catch (e) {
+      print("Error canceling recorder: $e");
+    }
+  }
 
   void updateTypingStatus(String chatId, String userId, bool isTyping) async {
     if (!_isActive) return;

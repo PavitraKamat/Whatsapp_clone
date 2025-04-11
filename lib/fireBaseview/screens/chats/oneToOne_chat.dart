@@ -119,10 +119,10 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
               chatProvider.scrollToBottom();
             }
           },
-          onVoiceMsgSend: (path) async {
-            await chatProvider.sendVoiceMessage(currentUserId, user.uid, path);
-            chatProvider.scrollToBottom();
-          },
+          // onVoiceMsgSend: (path) async {
+          //   await chatProvider.sendVoiceMessage(currentUserId, user.uid, path);
+          //   chatProvider.scrollToBottom();
+          // },
         ),
       ],
     );
