@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/chats_screen.dart';
+import 'package:wtsp_clone/fireBaseview/screens/updates/updates_screen.dart';
 import 'package:wtsp_clone/view/components/bottom_navBar.dart';
 import 'package:wtsp_clone/view/components/pop_up_menu.dart';
 import 'package:wtsp_clone/view/screens/calls/call_screen.dart';
 import 'package:wtsp_clone/view/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/view/screens/communities/comunities_screen.dart';
-import 'package:wtsp_clone/view/screens/updates/updates_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -16,6 +16,7 @@ class HomeScreen extends StatelessWidget {
       builder: (context, homeProvider, child) {
         final List<Widget> _pages = [
           homeProvider.isFirebaseView ? FirebaseChatsScreen() : ChatsScreen(),
+          //homeProvider.isFirebaseView ? FireBaseUpdatesScreen(): UpdatesScreen(),
           UpdatesScreen(),
           CommunitiesScreen(),
           CallsScreen(),

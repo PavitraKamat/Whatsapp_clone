@@ -15,7 +15,6 @@ class UpdatesScreen extends StatefulWidget {
 }
 
 class _UpdatesScreenState extends State<UpdatesScreen> {
-  Uint8List? _image;
   final List<Map<String, dynamic>> _statuses = [];
   //String? _imagePath;
   void selectImage() async {
@@ -55,7 +54,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
           children: [
             ListTile(
               leading: ProfileAvataar(
-                  image: _image,
+                  //image: _image,
                   onSelectImage: selectImage,
                   hasStatus: _statuses.isNotEmpty),
               title: const Text("My Status",

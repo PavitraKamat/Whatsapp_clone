@@ -17,13 +17,14 @@ class FirebaseChatsScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          _buildSearchBar(contactsProvider,context),
+          _buildSearchBar(contactsProvider, context),
           _buildContactsList(contactsProvider),
         ],
       ),
       floatingActionButton: selectContactButton(context),
     );
   }
+
   Expanded _buildContactsList(FireBaseContactsProvider contactsProvider) {
     return Expanded(
         child: contactsProvider.isLoading
@@ -51,8 +52,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                             Divider(
                               height: 0.5,
                               thickness: 0.3,
-                              indent:
-                                  12, 
+                              indent: 12,
                               endIndent: 12,
                               color: Colors.grey[300],
                             ),
@@ -86,15 +86,57 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
       subtitle: Text(
         lastMessage,
-        
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
+      // leading: CircleAvatar(
+      //   backgroundImage: user.photoURL.isNotEmpty
+      //       ? NetworkImage(user.photoURL)
+      //       : AssetImage(ProfileImageHelper.getProfileImage(user.phone)),
+      // ),
       leading: CircleAvatar(
-        backgroundImage: user.photoURL.isNotEmpty
-            ? NetworkImage(user.photoURL)
-            : AssetImage(ProfileImageHelper.getProfileImage(user.phone)),
+        backgroundColor: Colors.grey[200],
+        child: ClipOval(
+          child: user.photoURL.isNotEmpty
+              ? Image.network(
+                  user.photoURL,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      ProfileImageHelper.getProfileImage(user.phone),
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                )
+              : Image.asset(
+                  ProfileImageHelper.getProfileImage(user.phone),
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+        ),
       ),
+
       onTap: () {
         Navigator.push(
           context,
@@ -106,7 +148,8 @@ class FirebaseChatsScreen extends StatelessWidget {
     );
   }
 
-  Container _buildSearchBar(FireBaseContactsProvider contactsProvider,BuildContext context) {
+  Container _buildSearchBar(
+      FireBaseContactsProvider contactsProvider, BuildContext context) {
     return Container(
       height: 60.0,
       child: Padding(
@@ -142,6 +185,7 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
     );
   }
+
   FloatingActionButton selectContactButton(BuildContext context) {
     return FloatingActionButton(
       onPressed: () {
@@ -159,5 +203,4 @@ class FirebaseChatsScreen extends StatelessWidget {
       ),
     );
   }
-  
 }

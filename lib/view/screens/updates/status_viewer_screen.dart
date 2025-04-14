@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 
 class StatusViewerScreen extends StatefulWidget {
@@ -68,3 +67,4 @@ class _StatusViewerScreenState extends State<StatusViewerScreen> {
     );
   }
 }
+

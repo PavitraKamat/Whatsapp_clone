@@ -4,7 +4,6 @@ import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/model/models/profile_image_helper.dart';
 
 class ProfileAvatar extends StatelessWidget {
-  //final Uint8List? image;
   final String? image;
   final double radius;
   final VoidCallback? onTap;
@@ -23,12 +22,46 @@ class ProfileAvatar extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: radius,
-          //backgroundImage: image != null ? NetworkImage(image!) : null,
-          backgroundImage: provider.imageUrl != null &&
-                  provider.imageUrl!.isNotEmpty
-              ? NetworkImage(provider.imageUrl!) as ImageProvider
-              : AssetImage(ProfileImageHelper.getProfileImage(provider.phoneNumber)),
-          child: image == null ? Icon(Icons.person, size: radius) : null,
+          backgroundColor: Colors.grey[300],
+          child: ClipOval(
+            child: SizedBox(
+              width: radius * 2,
+              height: radius * 2,
+              child: provider.imageUrl != null && provider.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      provider.imageUrl!,
+                      fit: BoxFit.cover,
+                      width: radius * 2,
+                      height: radius * 2,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.teal),
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      loadingProgress.expectedTotalBytes!
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          ProfileImageHelper.getProfileImage(
+                              provider.phoneNumber),
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Icon(Icons.person, size: radius, color: Colors.grey[700]),
+            ),
+          ),
         ),
         if (onTap != null)
           Positioned(

@@ -48,7 +48,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
   Future<void> _initAudioPlayer() async {
     try {
       // Setup basic audio player
-      final url = widget.message.mediaUrl!;
+      final url = widget.message.mediaUrl;
+      if (url == null) return;
       await _player.setUrl(url);
 
       // Listen to player state changes
@@ -82,16 +83,17 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
         }
       });
     } catch (e) {
-      debugPrint("Error initializing audio player: $e");
+      //debugPrint("Error initializing audio player: $e");
     }
   }
 
   Future<void> _tryInitWaveform() async {
     // Optional waveform setup - we'll show fallback UI if this fails
     try {
-      _waveController = PlayerController();
+      final url = widget.message.mediaUrl;
+      if (url == null|| !url.startsWith("http")) return;
 
-      final url = widget.message.mediaUrl!;
+      _waveController = PlayerController();
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
@@ -111,7 +113,7 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
         }
       }
     } catch (e) {
-      debugPrint("Waveform initialization failed: $e");
+      //debugPrint("Waveform initialization failed: $e");
       // We'll use fallback UI, so no need to handle this error
     }
   }

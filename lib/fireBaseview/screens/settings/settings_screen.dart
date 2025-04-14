@@ -78,7 +78,6 @@ Widget _buildProfileSection(ProfileProvider provider) {
                   ? NetworkImage(provider.imageUrl!) as ImageProvider
                   : AssetImage(
                       ProfileImageHelper.getProfileImage(provider.phoneNumber)),
-          //child: provider.imageUrl == null ? Icon(Icons.person, size: 40) : null,
         ),
         SizedBox(width: 20),
         Column(
@@ -103,49 +102,3 @@ Widget _buildSettingsOption(IconData icon, String title, VoidCallback onTap) {
     onTap: onTap,
   );
 }
-
-
-
-      // body: FutureBuilder(
-      //   future:
-      //       profileProvider.loadProfileData(), // Load user data asynchronously
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return Center(
-      //           child: CircularProgressIndicator()); // Show loading indicator
-      //     } else if (snapshot.hasError) {
-      //       return Center(child: Text("Error loading profile"));
-      //     } else {
-      //       final profileProvider = Provider.of<ProfileProvider>(context);
-      //       return ListView(
-      //         children: [
-      //           GestureDetector(
-      //             onTap: () {
-      //               Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                   builder: (context) => ProfileEditScreen(),
-      //                 ),
-      //               );
-      //             },
-      //             child: _buildProfileSection(profileProvider),
-      //           ),
-      //           Divider(thickness: 1, color: Colors.grey[300]),
-      //           _buildSettingsOption(Icons.lock, "Privacy", () {}),
-      //           _buildSettingsOption(
-      //               Icons.notifications, "Notifications", () {}),
-      //           _buildSettingsOption(Icons.storage, "Storage and Data", () {}),
-      //           _buildSettingsOption(Icons.help_outline, "Help", () {}),
-      //           _buildSettingsOption(Icons.info_outline, "About", () {}),
-      //           _buildSettingsOption(
-      //             Icons.logout,
-      //             "Logout",
-      //             () => profileProvider.logout(context),
-      //           ),
-      //           SizedBox(height: 20),
-      //         ],
-      //       );
-      //     }
-      //   },
-      // ),
-    
