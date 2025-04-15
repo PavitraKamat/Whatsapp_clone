@@ -21,23 +21,23 @@ class StatusModel {
     required this.timestamp,
     required this.viewedBy,
   });
-
   factory StatusModel.fromMap(Map<String, dynamic> map) {
-    return StatusModel(
-      statusId: map['statusId'] ?? '',
-      userId: map['userId'] ?? '',
-      username: map['username'] ?? 'User',
-      statusType: (map['StatusType'] as String).toStatusType(),
-      mediaUrl: map['mediaUrl'] as String?,
-      textContent: map['textContent'],
-      color: map['color'] as String?,
-      timestamp: map['timestamp'] is Timestamp
-          ? (map['timestamp'] as Timestamp).toDate()
-          : null,
-      viewedBy: List<String>.from(map['viewedBy'] ?? []),
-    );
-  }
-
+  return StatusModel(
+    statusId: map['statusId'] ?? '',
+    userId: map['userId'] ?? '',
+    username: map['username'] ?? 'User',
+    statusType: map['statusType'] != null
+        ? (map['statusType'] as String).toStatusType()  // Fix lowercase 's'
+        : StatusType.text,
+    mediaUrl: map['mediaUrl'],
+    textContent: map['textContent'],
+    color: map['color'],
+    timestamp: map['timestamp'] is Timestamp
+        ? (map['timestamp'] as Timestamp).toDate()
+        : DateTime.now(),
+    viewedBy: List<String>.from(map['viewedBy'] ?? []),
+  );
+}
   Map<String, dynamic> toMap() {
     return {
       'statusId': statusId,
@@ -65,3 +65,20 @@ extension StatusTypeExtension on String {
     );
   }
 }
+
+  // factory StatusModel.fromMap(Map<String, dynamic> map) {
+  //   return StatusModel(
+  //     statusId: map['statusId'] ?? '',
+  //     userId: map['userId'] ?? '',
+  //     username: map['username'] ?? 'User',
+  //     statusType: (map['statusType'] as String).toStatusType(),
+  //     mediaUrl: map['mediaUrl'] as String?,
+  //     textContent: map['textContent'],
+  //     color: map['color'] as String?,
+  //     timestamp: map['timestamp'] is Timestamp
+  //         ? (map['timestamp'] as Timestamp).toDate()
+  //         : null,
+  //     viewedBy: List<String>.from(map['viewedBy'] ?? []),
+  //   );
+  // }
+

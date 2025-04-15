@@ -252,10 +252,12 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .collection('messages')
           .doc()
           .id;
+          
       DocumentSnapshot receiverDoc =
           await _firestore.collection('users').doc(receiverId).get();
       bool isReceiverOnline = receiverDoc.exists &&
           (receiverDoc.data() as Map<String, dynamic>)['isOnline'] == true;
+
       MessageModel newMessage = MessageModel(
           messageId: messageId,
           chatId: chatId,

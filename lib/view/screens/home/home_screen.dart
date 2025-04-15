@@ -8,6 +8,7 @@ import 'package:wtsp_clone/view/components/pop_up_menu.dart';
 import 'package:wtsp_clone/view/screens/calls/call_screen.dart';
 import 'package:wtsp_clone/view/screens/chats/chats_screen.dart';
 import 'package:wtsp_clone/view/screens/communities/comunities_screen.dart';
+import 'package:wtsp_clone/view/screens/updates/updates_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -16,8 +17,8 @@ class HomeScreen extends StatelessWidget {
       builder: (context, homeProvider, child) {
         final List<Widget> _pages = [
           homeProvider.isFirebaseView ? FirebaseChatsScreen() : ChatsScreen(),
-          //homeProvider.isFirebaseView ? FireBaseUpdatesScreen(): UpdatesScreen(),
-          UpdatesScreen(),
+          homeProvider.isFirebaseView ? FireBaseUpdatesScreen(): UpdatesScreen(),
+          //UpdatesScreen(),
           CommunitiesScreen(),
           CallsScreen(),
         ];
