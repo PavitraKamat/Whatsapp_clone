@@ -290,7 +290,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         'lastMessage': text,
         'lastMessageType': messageType.name,
         'lastMessageTime': Timestamp.now(),
-        'seenBy': [senderId],
+        'seenBy': [senderId,receiverId],
       });
       notifyListeners();
     } catch (e) {

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -64,12 +63,12 @@ class _MessageBubbleState extends State<MessageBubble> {
       case MessageType.audio:
         // return audioMessageBubble(
         //     widget.message, maxWidth, widget.isSentByMe, isRead);
-      return AudioMessageBubble(
-        message: widget.message,
-        maxWidth: maxWidth,
-        isSentByUser: widget.isSentByMe,
-        isRead: isRead,
-      );
+        return AudioMessageBubble(
+          message: widget.message,
+          maxWidth: maxWidth,
+          isSentByUser: widget.isSentByMe,
+          isRead: isRead,
+        );
       default:
         return messageLayout(maxWidth, widget.isSentByMe, isRead);
     }
@@ -245,6 +244,52 @@ class _MessageBubbleState extends State<MessageBubble> {
     );
   }
 
+  Widget messageStatusIcon(MessageModel message) {
+    if (message.isRead) {
+      return Icon(Icons.done_all, color: Colors.blue, size: 12);
+    } else if (message.isDelivered) {
+      return Icon(Icons.done_all, color: Colors.grey, size: 12);
+    } else {
+      return Icon(Icons.done, color: Colors.grey, size: 12);
+    }
+  }
+
+  Widget deletedMessageBubble(
+      {required bool isDeletedForEveryone, required bool isSentByUser}) {
+    String text =
+        isSentByUser ? "You deleted this message" : "This message was deleted";
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: isSentByUser
+            ? const Color.fromARGB(255, 169, 230, 174)
+            : Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(10),
+          topRight: const Radius.circular(10),
+          bottomLeft:
+              widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
+          bottomRight:
+              widget.isSentByMe ? Radius.zero : const Radius.circular(10),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontStyle: FontStyle.italic,
+          fontSize: 14,
+          color: Colors.black54,
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
   // Widget audioMessageBubble(
   //   MessageModel message,
   //   double maxWidth,
@@ -384,45 +429,3 @@ class _MessageBubbleState extends State<MessageBubble> {
   // }
 
   
-  Widget messageStatusIcon(MessageModel message) {
-    if (message.isRead) {
-      return Icon(Icons.done_all, color: Colors.blue, size: 12);
-    } else if (message.isDelivered) {
-      return Icon(Icons.done_all, color: Colors.grey, size: 12);
-    } else {
-      return Icon(Icons.done, color: Colors.grey, size: 12);
-    }
-  }
-
-  Widget deletedMessageBubble(
-      {required bool isDeletedForEveryone, required bool isSentByUser}) {
-    String text =
-        isSentByUser ? "You deleted this message" : "This message was deleted";
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: isSentByUser
-            ? const Color.fromARGB(255, 169, 230, 174)
-            : Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(10),
-          topRight: const Radius.circular(10),
-          bottomLeft:
-              widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
-          bottomRight:
-              widget.isSentByMe ? Radius.zero : const Radius.circular(10),
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontStyle: FontStyle.italic,
-          fontSize: 14,
-          color: Colors.black54,
-        ),
-      ),
-    );
-  }
-}

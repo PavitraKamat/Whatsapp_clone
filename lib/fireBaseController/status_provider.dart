@@ -25,6 +25,7 @@ class StatusProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     _userId = _auth.currentUser?.uid;
+    await cleanupExpiredStatuses();
     await fetchStatuses();
   }
 
@@ -36,6 +37,8 @@ class StatusProvider extends ChangeNotifier {
       notifyListeners();
 
       try {
+        await cleanupExpiredStatuses();
+
         final File imageFile = File(pickedFile.path);
         final imageUrl = await _uploadImageToStorage(imageFile);
 
@@ -58,7 +61,6 @@ class StatusProvider extends ChangeNotifier {
               .collection('statuses')
               .doc(statusId)
               .set(status.toMap());
-          _statuses.insert(statuses.length+1, status); 
           await fetchStatuses();
         }
       } catch (e) {
@@ -86,44 +88,49 @@ class StatusProvider extends ChangeNotifier {
   Future<void> fetchStatuses() async {
     _isLoading = true;
     notifyListeners();
+
     try {
+      // Clean up expired statuses when fetching
+      await cleanupExpiredStatuses();
+
       final currentUser = _auth.currentUser;
       if (currentUser == null) return;
 
       final timestampLimit = DateTime.now().subtract(const Duration(hours: 24));
 
-      // Fetch statuses from Firestore
+      // Create a map to store unique statuses by user
+      Map<String, List<StatusModel>> userStatuses = {};
+
+      // Fetch all statuses from Firestore
       final snapshot = await _firestore
           .collection('statuses')
-          .where('timestamp',
-              isGreaterThan: timestampLimit) // Only fetch recent statuses
+          .where('timestamp', isGreaterThan: Timestamp.fromDate(timestampLimit))
           .orderBy('timestamp', descending: true)
           .get();
 
-      // Map Firestore data to StatusModel and filter out the current user's own statuses
-      _statuses = snapshot.docs
-          .map((doc) => StatusModel.fromMap(doc.data()))
-          .where((status) =>
-              status.userId !=
-              currentUser
-                  .uid) // Exclude current user's statuses from recent updates
-          .toList();
+      // Group statuses by user
+      for (var doc in snapshot.docs) {
+        final status = StatusModel.fromMap(doc.data());
+        if (!userStatuses.containsKey(status.userId)) {
+          userStatuses[status.userId] = [];
+        }
+        userStatuses[status.userId]!.add(status);
+      }
 
-      // Optionally, you can fetch the current user's own statuses separately for "My Status" if needed
-      final myStatusesSnapshot = await _firestore
-          .collection('statuses')
-          .where('userId', isEqualTo: currentUser.uid)
-          .where('timestamp', isGreaterThan: timestampLimit)
-          .orderBy('timestamp', descending: true)
-          .get();
+      // Clear existing statuses
+      _statuses = [];
 
-      // Add current user's statuses to the beginning of the list (to show as "My Status")
-      final myStatuses = myStatusesSnapshot.docs
-          .map((doc) => StatusModel.fromMap(doc.data()))
-          .toList();
+      // Add current user's statuses first if they exist
+      if (userStatuses.containsKey(currentUser.uid)) {
+        _statuses.addAll(userStatuses[currentUser.uid]!);
+        // Remove current user from the map so we don't add them again
+        userStatuses.remove(currentUser.uid);
+      }
 
-      _statuses.insertAll(
-          0, myStatuses); // Insert "My Status" at the top of the list
+      // Add all other users' statuses
+      for (var userStatusList in userStatuses.values) {
+        _statuses.addAll(userStatusList);
+      }
     } catch (e) {
       debugPrint("Error fetching statuses: $e");
     } finally {
@@ -140,6 +147,7 @@ class StatusProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      await cleanupExpiredStatuses();
       // Convert color to string if it's not already
       String colorStr;
       if (color is Color) {
@@ -161,7 +169,6 @@ class StatusProvider extends ChangeNotifier {
       );
 
       await _firestore.collection('statuses').doc(statusId).set(status.toMap());
-      _statuses.insert(statuses.length+1, status); 
       await fetchStatuses();
     } catch (e) {
       debugPrint("Error adding text status: $e");
@@ -209,6 +216,77 @@ class StatusProvider extends ChangeNotifier {
         status.timestamp != null &&
         status.timestamp!
             .isAfter(DateTime.now().subtract(Duration(hours: 24))));
+  }
+
+  Future<void> cleanupExpiredStatuses() async {
+    try {
+      final currentTime = DateTime.now();
+      final cutoffTime = currentTime.subtract(const Duration(hours: 24));
+
+      // Get all expired statuses
+      final expiredStatusesSnapshot = await _firestore
+          .collection('statuses')
+          .where('timestamp', isLessThan: Timestamp.fromDate(cutoffTime))
+          .get();
+
+      if (expiredStatusesSnapshot.docs.isEmpty) {
+        debugPrint("No expired statuses found");
+        return;
+      }
+
+      debugPrint(
+          "Found ${expiredStatusesSnapshot.docs.length} expired statuses to delete");
+
+      // Batch delete for efficiency
+      final batch = _firestore.batch();
+
+      // Track image URLs that need to be deleted from storage
+      List<String> imageUrlsToDelete = [];
+
+      for (var doc in expiredStatusesSnapshot.docs) {
+        final statusData = doc.data();
+        if (statusData['statusType'] == 'image' &&
+            statusData['mediaUrl'] != null) {
+          final String mediaUrl = statusData['mediaUrl'];
+          if (mediaUrl.isNotEmpty) {
+            imageUrlsToDelete.add(mediaUrl);
+          }
+        }
+        batch.delete(doc.reference);
+      }
+
+      // Execute the batch delete
+      await batch.commit();
+
+      // Delete images from Firebase Storage
+      for (var url in imageUrlsToDelete) {
+        try {
+          // Extract the path from the URL
+          final uri = Uri.parse(url);
+          final path = Uri.decodeFull(uri.path);
+          final startIndex = path.indexOf('/o/') + 3; // +3 to skip '/o/'
+          final endIndex = path.indexOf('?', startIndex);
+          final storagePath = endIndex != -1
+              ? path.substring(startIndex, endIndex)
+              : path.substring(startIndex);
+
+          // Create a reference to the file and delete it
+          final ref = _storage.ref().child(storagePath);
+          await ref.delete();
+          debugPrint("Deleted image: $storagePath");
+        } catch (e) {
+          debugPrint("Error deleting image from storage: $e");
+        }
+      }
+
+      debugPrint(
+          "Successfully cleaned up ${expiredStatusesSnapshot.docs.length} expired statuses");
+
+      // Refresh the statuses list
+      await fetchStatuses();
+    } catch (e) {
+      debugPrint("Error cleaning up expired statuses: $e");
+    }
   }
 }
 
