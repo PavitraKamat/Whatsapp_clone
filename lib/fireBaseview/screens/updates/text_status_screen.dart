@@ -4,7 +4,6 @@ class TextStatusScreen extends StatefulWidget {
   @override
   _TextStatusScreenState createState() => _TextStatusScreenState();
 }
-
 class _TextStatusScreenState extends State<TextStatusScreen> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -18,28 +17,23 @@ class _TextStatusScreenState extends State<TextStatusScreen> {
     Colors.purple,
     Colors.brown[300]!,
   ];
-
   double _keyboardHeight = 0;
-
   @override
   void initState() {
     super.initState();
-
-    _focusNode.addListener(() {
+    _focusNode.addListener(() { 
       setState(() {
         _keyboardHeight =
             _focusNode.hasFocus ? MediaQuery.of(context).viewInsets.bottom : 0;
       });
     });
   }
-
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,8 +88,6 @@ class _TextStatusScreenState extends State<TextStatusScreen> {
               ],
             ),
           ),
-
-          //Snackbar-style floating Send button above the keyboard
           Positioned(
             bottom: _keyboardHeight,
             left: 0,

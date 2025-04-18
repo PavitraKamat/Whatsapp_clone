@@ -21,7 +21,7 @@ class _TextStatusScreenState extends State<TextStatusScreen> {
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() {
+    _focusNode.addListener(() { 
       setState(() {
         _keyboardHeight =
             _focusNode.hasFocus ? MediaQuery.of(context).viewInsets.bottom : 0;

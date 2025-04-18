@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/status_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/status_model.dart';
+import 'package:wtsp_clone/fireBaseview/components/floating_actions.dart';
 import 'package:wtsp_clone/fireBaseview/components/profileAvatar.dart';
 import 'package:wtsp_clone/fireBaseview/components/status_tile.dart';
 import 'package:wtsp_clone/fireBaseview/screens/updates/status_viewer_screen.dart';
-import 'package:wtsp_clone/view/screens/updates/text_status_screen.dart';
-import 'package:wtsp_clone/view/components/floating_actions.dart';
+import 'package:wtsp_clone/fireBaseview/screens/updates/text_status_screen.dart';
 
 class FireBaseUpdatesScreen extends StatelessWidget {
   const FireBaseUpdatesScreen({Key? key}) : super(key: key);
@@ -15,9 +15,6 @@ class FireBaseUpdatesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusProvider = Provider.of<StatusProvider>(context);
-    // if (statusProvider.statuses.isEmpty && !statusProvider.isLoading) {
-    //   statusProvider.fetchStatuses();
-    // }
     final hasMyStatus = statusProvider.hasStatus();
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
@@ -26,9 +23,11 @@ class FireBaseUpdatesScreen extends StatelessWidget {
     for (var status in statusProvider.statuses) {
       if (status.userId != currentUserId) {
         // Only keep the most recent status per user
-        if (!userStatuses.containsKey(status.userId) || 
-            (status.timestamp != null && userStatuses[status.userId]!.timestamp != null && 
-             status.timestamp!.isAfter(userStatuses[status.userId]!.timestamp!))) {
+        if (!userStatuses.containsKey(status.userId) ||
+            (status.timestamp != null &&
+                userStatuses[status.userId]!.timestamp != null &&
+                status.timestamp!
+                    .isAfter(userStatuses[status.userId]!.timestamp!))) {
           userStatuses[status.userId] = status;
         }
       }
@@ -37,7 +36,7 @@ class FireBaseUpdatesScreen extends StatelessWidget {
     final unviewedStatuses = userStatuses.values
         .where((s) => !s.viewedBy.contains(currentUserId))
         .toList();
-    
+
     final viewedStatuses = userStatuses.values
         .where((s) => s.viewedBy.contains(currentUserId))
         .toList();
@@ -57,7 +56,7 @@ class FireBaseUpdatesScreen extends StatelessWidget {
                     ),
                     title: const Text("My Status",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: hasMyStatus 
+                    subtitle: hasMyStatus
                         ? const Text("Tap to view status")
                         : const Text("Tap to add status"),
                     onTap: () {
@@ -73,7 +72,6 @@ class FireBaseUpdatesScreen extends StatelessWidget {
                       }
                     },
                   ),
-                  
                   if (unviewedStatuses.isNotEmpty) ...[
                     _sectionTitle("Recent Updates"),
                     ...unviewedStatuses.map((status) => StatusTile(
@@ -94,7 +92,6 @@ class FireBaseUpdatesScreen extends StatelessWidget {
                           },
                         ))
                   ],
-                  
                   if (viewedStatuses.isNotEmpty) ...[
                     _sectionTitle("Viewed Updates"),
                     ...viewedStatuses.map((status) => StatusTile(
@@ -149,41 +146,40 @@ class FireBaseUpdatesScreen extends StatelessWidget {
 }
 
 AppBar updateScreenAppBar() {
-    return AppBar(
-      title: const Text(
-        "Updates",
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 22,
-          color: Color.fromARGB(255, 108, 193, 149),
-        ),
+  return AppBar(
+    title: const Text(
+      "Updates",
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 22,
+        color: Color.fromARGB(255, 108, 193, 149),
       ),
-      backgroundColor: Colors.white,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search, color: Colors.black),
-          onPressed: () {},
-        ),
-        PopupMenuButton<String>(
-          icon: const Icon(Icons.more_vert, color: Colors.black),
-          itemBuilder: (BuildContext context) {
-            return [
-              const PopupMenuItem<String>(
-                value: "Settings",
-                child: Text("Settings"),
-              ),
-            ];
-          },
-        ),
-      ],
-    );
-  }
+    ),
+    backgroundColor: Colors.white,
+    actions: [
+      IconButton(
+        icon: const Icon(Icons.search, color: Colors.black),
+        onPressed: () {},
+      ),
+      PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert, color: Colors.black),
+        itemBuilder: (BuildContext context) {
+          return [
+            const PopupMenuItem<String>(
+              value: "Settings",
+              child: Text("Settings"),
+            ),
+          ];
+        },
+      ),
+    ],
+  );
+}
 
-  String timeAgo(DateTime timestamp) {
-    final now = DateTime.now();
-    final diff = now.difference(timestamp);
-    if (diff.inMinutes < 60) return "${diff.inMinutes} minutes ago";
-    if (diff.inHours < 24) return "${diff.inHours} hours ago";
-    return "${diff.inDays} days ago";
-  }
-
+String timeAgo(DateTime timestamp) {
+  final now = DateTime.now();
+  final diff = now.difference(timestamp);
+  if (diff.inMinutes < 60) return "${diff.inMinutes} minutes ago";
+  if (diff.inHours < 24) return "${diff.inHours} hours ago";
+  return "${diff.inDays} days ago";
+}

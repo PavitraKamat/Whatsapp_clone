@@ -59,7 +59,10 @@ class ProfileAvatar extends StatelessWidget {
                         );
                       },
                     )
-                  : Icon(Icons.person, size: radius, color: Colors.grey[700]),
+                  : Image.asset(
+                      ProfileImageHelper.getProfileImage(provider.phoneNumber),
+                      fit: BoxFit.cover,
+                    ),
             ),
           ),
         ),
