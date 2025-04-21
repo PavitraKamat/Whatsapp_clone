@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
+import 'package:wtsp_clone/fireBaseview/screens/calls/call_screen.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/chats_screen.dart';
+import 'package:wtsp_clone/fireBaseview/screens/communities/comunities_screen.dart';
 import 'package:wtsp_clone/fireBaseview/screens/updates/updates_screen.dart';
 import 'package:wtsp_clone/view/components/bottom_navBar.dart';
 import 'package:wtsp_clone/view/components/pop_up_menu.dart';
@@ -18,9 +20,8 @@ class HomeScreen extends StatelessWidget {
         final List<Widget> _pages = [
           homeProvider.isFirebaseView ? FirebaseChatsScreen() : ChatsScreen(),
           homeProvider.isFirebaseView ? FireBaseUpdatesScreen(): UpdatesScreen(),
-          //UpdatesScreen(),
-          CommunitiesScreen(),
-          CallsScreen(),
+          homeProvider.isFirebaseView ? FireBaseCommunitiesScreen() : CommunitiesScreen(),
+          homeProvider.isFirebaseView ? FireBaseCallsScreen() : CallsScreen(),
         ];
         return Scaffold(
           appBar: homeProvider.selectedIndex == 0

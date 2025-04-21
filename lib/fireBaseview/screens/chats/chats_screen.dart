@@ -89,11 +89,6 @@ class FirebaseChatsScreen extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      // leading: CircleAvatar(
-      //   backgroundImage: user.photoURL.isNotEmpty
-      //       ? NetworkImage(user.photoURL)
-      //       : AssetImage(ProfileImageHelper.getProfileImage(user.phone)),
-      // ),
       leading: CircleAvatar(
         backgroundColor: Colors.grey[200],
         child: ClipOval(

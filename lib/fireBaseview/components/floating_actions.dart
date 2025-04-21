@@ -25,7 +25,7 @@ class FloatingActions extends StatelessWidget {
         FloatingActionButton(
           heroTag: "imageStatus",
           onPressed: onImageStatus,
-          backgroundColor: Colors.teal,
+          backgroundColor: Color.fromARGB(255, 108, 193, 149),
           child: const Icon(Icons.camera_alt, color: Colors.white),
         ),
       ],

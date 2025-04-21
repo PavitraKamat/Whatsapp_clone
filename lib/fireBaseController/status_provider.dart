@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wtsp_clone/fireBasemodel/models/status_model.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class StatusProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,10 +13,12 @@ class StatusProvider extends ChangeNotifier {
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
   List<StatusModel> _statuses = [];
+  Map<String, UserModel> _userProfiles = {};
   bool _isLoading = false;
   String? _userId;
 
   List<StatusModel> get statuses => _statuses;
+  Map<String, UserModel> get userProfiles => _userProfiles;
   bool get isLoading => _isLoading;
   String? get userId => _userId;
 
@@ -85,6 +88,18 @@ class StatusProvider extends ChangeNotifier {
     return await snapshot.ref.getDownloadURL();
   }
 
+  Future<void> fetchUserProfile(String userId) async {
+  if (_userProfiles.containsKey(userId)) return;
+
+  final doc = await _firestore.collection('users').doc(userId).get();
+  if (doc.exists) {
+    _userProfiles[userId] = UserModel.fromMap(doc.data()!);
+    notifyListeners();
+  }
+  }
+
+  UserModel? getUser(String userId) => _userProfiles[userId];
+
   Future<void> fetchStatuses() async {
     _isLoading = true;
     notifyListeners();
@@ -119,7 +134,7 @@ class StatusProvider extends ChangeNotifier {
 
       // Clear existing statuses
       _statuses = [];
-
+      await Future.wait(userStatuses.keys.map(fetchUserProfile));
       // Add current user's statuses first if they exist
       if (userStatuses.containsKey(currentUser.uid)) {
         _statuses.addAll(userStatuses[currentUser.uid]!);
@@ -131,6 +146,7 @@ class StatusProvider extends ChangeNotifier {
       for (var userStatusList in userStatuses.values) {
         _statuses.addAll(userStatusList);
       }
+      
     } catch (e) {
       debugPrint("Error fetching statuses: $e");
     } finally {

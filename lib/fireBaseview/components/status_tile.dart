@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/status_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class StatusTile extends StatelessWidget {
-  final String imageUrl;
+  final UserModel user;
   final String name;
   final String subtitle;
   final VoidCallback onTap;
@@ -12,7 +13,7 @@ class StatusTile extends StatelessWidget {
 
   const StatusTile({
     Key? key,
-    required this.imageUrl,
+    required this.user,
     required this.name,
     required this.subtitle,
     required this.onTap,
@@ -36,7 +37,7 @@ class StatusTile extends StatelessWidget {
           child: CircleAvatar(
             radius: 24,
             backgroundColor: Colors.grey.shade300,
-            backgroundImage: _getProfileImage(imageUrl, provider),
+            backgroundImage: _getProfileImage(user, provider),
           ),
         ),
       ),
@@ -46,12 +47,12 @@ class StatusTile extends StatelessWidget {
     );
   }
 
-  ImageProvider _getProfileImage(String imageUrl, StatusProvider provider) {
-    if (imageUrl.isNotEmpty) {
-      return NetworkImage(imageUrl);
+  ImageProvider _getProfileImage(UserModel user, StatusProvider provider) {
+    if (user.photoURL.isNotEmpty) {
+      return NetworkImage(user.photoURL);
     } else {
       // Make sure ProfileImageHelper.getProfileImage returns a valid asset path
-      return AssetImage(ProfileImageHelper.getProfileImage(provider.userId ?? ""));
+      return AssetImage(ProfileImageHelper.getProfileImage(user.phone));
     }
   }
 }

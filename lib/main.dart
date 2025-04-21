@@ -43,7 +43,7 @@ class WhatsAppClone extends StatelessWidget {
                     email: '',
                     photoURL: '',
                     phone: '');
-            print('userdetails ${userModel.firstName}');
+            //print('userdetails ${userModel.firstName}');
             return FireBaseOnetoonechatProvider(user: userModel);
           },
         ),

@@ -74,42 +74,48 @@ class FireBaseUpdatesScreen extends StatelessWidget {
                   ),
                   if (unviewedStatuses.isNotEmpty) ...[
                     _sectionTitle("Recent Updates"),
-                    ...unviewedStatuses.map((status) => StatusTile(
-                          imageUrl: status.mediaUrl ?? '',
-                          name: status.username,
-                          subtitle: status.timestamp != null
-                              ? timeAgo(status.timestamp!)
-                              : 'Unknown time',
-                          isViewed: false,
-                          onTap: () {
-                            statusProvider.markStatusAsViewed(status.statusId);
-                            _viewStatuses(
-                              context,
-                              statusProvider.statuses
-                                  .where((s) => s.userId == status.userId)
-                                  .toList(),
-                            );
-                          },
-                        ))
+                    ...unviewedStatuses.map((status) {
+                      final user = statusProvider.getUser(status.userId);
+                      return user != null
+                          ? StatusTile(
+                              user: user,
+                              name: status.username,
+                              subtitle: timeAgo(status.timestamp!),
+                              isViewed: false,
+                              onTap: () {
+                                statusProvider.markStatusAsViewed(status.statusId);
+                                _viewStatuses(
+                                  context,
+                                  statusProvider.statuses
+                                      .where((s) => s.userId == status.userId)
+                                      .toList(),
+                                );
+                              },
+                            )
+                          : const SizedBox.shrink();
+                    }),
                   ],
                   if (viewedStatuses.isNotEmpty) ...[
                     _sectionTitle("Viewed Updates"),
-                    ...viewedStatuses.map((status) => StatusTile(
-                          imageUrl: status.mediaUrl ?? '',
-                          name: status.username,
-                          subtitle: status.timestamp != null
-                              ? timeAgo(status.timestamp!)
-                              : 'Unknown time',
-                          isViewed: true,
-                          onTap: () {
-                            _viewStatuses(
-                              context,
-                              statusProvider.statuses
-                                  .where((s) => s.userId == status.userId)
-                                  .toList(),
-                            );
-                          },
-                        ))
+                    ...viewedStatuses.map((status) {
+                      final user = statusProvider.getUser(status.userId);
+                      return user != null
+                          ? StatusTile(
+                              user: user,
+                              name: status.username,
+                              subtitle: timeAgo(status.timestamp!),
+                              isViewed: true,
+                              onTap: () {
+                                _viewStatuses(
+                                  context,
+                                  statusProvider.statuses
+                                      .where((s) => s.userId == status.userId)
+                                      .toList(),
+                                );
+                              },
+                            )
+                          : const SizedBox.shrink();
+                    }),
                   ],
                 ],
               ),

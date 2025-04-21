@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-class CallsScreen extends StatefulWidget {
+
+class FireBaseCallsScreen extends StatefulWidget {
   @override
   _CallScreenState createState() => _CallScreenState();
 }
 
-class _CallScreenState extends State<CallsScreen> {
+class _CallScreenState extends State<FireBaseCallsScreen> {
   final List<Map<String, dynamic>> callHistory = [
     {
       "name": "John Doe",
@@ -41,7 +42,7 @@ class _CallScreenState extends State<CallsScreen> {
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
-            color:Color.fromARGB(255, 108, 193, 149),
+            color: Color.fromARGB(255, 108, 193, 149),
           ),
         ),
         backgroundColor: Colors.white,
@@ -90,7 +91,7 @@ class _CallScreenState extends State<CallsScreen> {
               },
             ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal,
+        backgroundColor: Color.fromARGB(255, 108, 193, 149),
         child: Icon(Icons.add_call),
         onPressed: () {},
       ),

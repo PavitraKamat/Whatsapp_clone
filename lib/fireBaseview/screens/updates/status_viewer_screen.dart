@@ -490,7 +490,6 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
       ),
     );
   }
-
   Widget _buildStatusContent(StatusModel status) {
     switch (status.statusType) {
       case StatusType.image:
@@ -511,30 +510,6 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
                 )
               : null,
         );
-      // case StatusType.video:
-      //   // Video placeholder - in a real app, use a video player
-      //   return Stack(
-      //     fit: StackFit.expand,
-      //     children: [
-      //       status.mediaUrl != null && status.mediaUrl!.isNotEmpty
-      //           ? Image.network(
-      //               status.mediaUrl!,
-      //               fit: BoxFit.cover,
-      //               errorBuilder: (context, error, stackTrace) => Container(
-      //                 color: Colors.black,
-      //                 child: const Center(
-      //                   child: Icon(Icons.video_file, color: Colors.white54, size: 64),
-      //                 ),
-      //               ),
-      //             )
-      //           : Container(
-      //               color: Colors.black,
-      //               child: const Center(
-      //                 child: Icon(Icons.video_file, color: Colors.white54, size: 64),
-      //               ),
-      //             ),
-      //     ],
-      //   );
       case StatusType.text:
         return Container(
           decoration: BoxDecoration(
@@ -607,3 +582,30 @@ Color _parseColor(String colorStr) {
     return const Color(0xFF075E54); // Default WhatsApp green as fallback
   }
 }
+
+
+
+      // case StatusType.video:
+      //   // Video placeholder - in a real app, use a video player
+      //   return Stack(
+      //     fit: StackFit.expand,
+      //     children: [
+      //       status.mediaUrl != null && status.mediaUrl!.isNotEmpty
+      //           ? Image.network(
+      //               status.mediaUrl!,
+      //               fit: BoxFit.cover,
+      //               errorBuilder: (context, error, stackTrace) => Container(
+      //                 color: Colors.black,
+      //                 child: const Center(
+      //                   child: Icon(Icons.video_file, color: Colors.white54, size: 64),
+      //                 ),
+      //               ),
+      //             )
+      //           : Container(
+      //               color: Colors.black,
+      //               child: const Center(
+      //                 child: Icon(Icons.video_file, color: Colors.white54, size: 64),
+      //               ),
+      //             ),
+      //     ],
+      //   );

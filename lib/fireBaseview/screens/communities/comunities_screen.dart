@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CommunitiesScreen extends StatelessWidget {
+class FireBaseCommunitiesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +40,7 @@ class CommunitiesScreen extends StatelessWidget {
       // Floating Action Button for adding a new community
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: Colors.green,
+        backgroundColor: Color.fromARGB(255, 108, 193, 149),
         child: Icon(Icons.add, color: Colors.white),
       ),
     );
@@ -53,7 +53,7 @@ class CommunitiesScreen extends StatelessWidget {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 22,
-          color:Color.fromARGB(255, 108, 193, 149),
+          color: Color.fromARGB(255, 108, 193, 149),
         ),
       ),
       backgroundColor: Colors.white,
