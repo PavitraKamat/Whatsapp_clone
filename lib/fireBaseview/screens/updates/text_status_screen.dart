@@ -127,10 +127,12 @@ class _TextStatusScreenState extends State<TextStatusScreen> {
                       child: Icon(Icons.send, color: Colors.white),
                       onPressed: () {
                         if (_controller.text.trim().isNotEmpty) {
-                          Navigator.pop(context, {
+                          Navigator.pop(context, 
+                          {
                             'text': _controller.text.trim(),
                             'color': backgroundColor,
-                          });
+                          }
+                          );
                         }
                       }),
                 ],

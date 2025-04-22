@@ -108,6 +108,7 @@ class FirebaseChatsScreen extends StatelessWidget {
                           width: 18,
                           height: 18,
                           child: CircularProgressIndicator(
+                            color:const Color.fromARGB(255, 150, 229, 152),
                             strokeWidth: 2.0,
                           ),
                         ),

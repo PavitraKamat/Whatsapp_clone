@@ -28,6 +28,10 @@ class StatusProvider extends ChangeNotifier {
 
   Future<void> _init() async {
     _userId = _auth.currentUser?.uid;
+
+    if (_userId != null) {
+    await fetchUserProfile(_userId!); 
+  }
     await cleanupExpiredStatuses();
     await fetchStatuses();
   }
@@ -210,12 +214,11 @@ class StatusProvider extends ChangeNotifier {
           viewedBy.add(currentUser.uid);
           await docRef.update({'viewedBy': viewedBy});
 
-          //int index = _statuses.indexWhere((s) => s.statusId == statusId);
-          // if (index != -1) {
-          //   _statuses[index].viewedBy.add(currentUser.uid);
-          //   notifyListeners();
-          // }
-          await fetchStatuses();
+          int index = _statuses.indexWhere((s) => s.statusId == statusId);
+          if (index != -1) {
+            _statuses[index].viewedBy.add(currentUser.uid);
+            notifyListeners();
+          }
         }
       }
     } catch (e) {

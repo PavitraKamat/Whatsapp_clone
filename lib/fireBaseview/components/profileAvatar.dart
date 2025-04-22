@@ -3,21 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class ProfileAvataar extends StatelessWidget {
+  final UserModel user;
   final VoidCallback onSelectImage;
   final bool hasStatus;
 
   const ProfileAvataar({
     Key? key,
+    required this.user,
     required this.onSelectImage,
     required this.hasStatus,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final currentUser = FirebaseAuth.instance.currentUser;
+    final isCurrentUser = FirebaseAuth.instance.currentUser?.uid == user.uid;
     final provider = Provider.of<ProfileProvider>(context);
+
     return Stack(
       children: [
         Container(
@@ -37,9 +41,9 @@ class ProfileAvataar extends StatelessWidget {
                 child: SizedBox(
                   width: 24 * 2,
                   height: 24 * 2,
-                  child: currentUser?.photoURL != null
+                  child: user.photoURL != null
                       ? Image.network(
-                          currentUser!.photoURL!,
+                          user.photoURL,
                           fit: BoxFit.cover,
                           width: 24 * 2,
                           height: 24 * 2,
@@ -82,6 +86,7 @@ class ProfileAvataar extends StatelessWidget {
             ),
           ),
         ),
+        if(isCurrentUser && onSelectImage !=null)
         Positioned(
           bottom: 0,
           right: 0,

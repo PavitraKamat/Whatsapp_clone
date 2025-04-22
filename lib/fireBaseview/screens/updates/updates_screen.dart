@@ -17,6 +17,7 @@ class FireBaseUpdatesScreen extends StatelessWidget {
     final statusProvider = Provider.of<StatusProvider>(context);
     final hasMyStatus = statusProvider.hasStatus();
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    final user = statusProvider.getUser(currentUserId ?? "");
 
     // Group statuses by user
     Map<String, StatusModel> userStatuses = {};
@@ -49,29 +50,31 @@ class FireBaseUpdatesScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    leading: ProfileAvataar(
-                      onSelectImage: () => statusProvider.selectImage(),
-                      hasStatus: hasMyStatus,
-                    ),
-                    title: const Text("My Status",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: hasMyStatus
-                        ? const Text("Tap to view status")
-                        : const Text("Tap to add status"),
-                    onTap: () {
-                      if (hasMyStatus) {
-                        final myStatuses = statusProvider.statuses
-                            .where((s) => s.userId == currentUserId)
-                            .toList();
-                        if (myStatuses.isNotEmpty) {
-                          _viewStatuses(context, myStatuses);
+                  if (user != null)
+                    ListTile(
+                      leading: ProfileAvataar(
+                        user: user,
+                        onSelectImage: () => statusProvider.selectImage(),
+                        hasStatus: hasMyStatus,
+                      ),
+                      title: const Text("My Status",
+                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: hasMyStatus
+                          ? const Text("Tap to view status")
+                          : const Text("Tap to add status"),
+                      onTap: () {
+                        if (hasMyStatus) {
+                          final myStatuses = statusProvider.statuses
+                              .where((s) => s.userId == currentUserId)
+                              .toList();
+                          if (myStatuses.isNotEmpty) {
+                            _viewStatuses(context, myStatuses);
+                          }
+                        } else {
+                          statusProvider.selectImage();
                         }
-                      } else {
-                        statusProvider.selectImage();
-                      }
-                    },
-                  ),
+                      },
+                    ),
                   if (unviewedStatuses.isNotEmpty) ...[
                     _sectionTitle("Recent Updates"),
                     ...unviewedStatuses.map((status) {
@@ -83,7 +86,8 @@ class FireBaseUpdatesScreen extends StatelessWidget {
                               subtitle: timeAgo(status.timestamp!),
                               isViewed: false,
                               onTap: () {
-                                statusProvider.markStatusAsViewed(status.statusId);
+                                statusProvider
+                                    .markStatusAsViewed(status.statusId);
                                 _viewStatuses(
                                   context,
                                   statusProvider.statuses

@@ -47,7 +47,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       if (currentlyTyping != _isTyping) {
         _isTyping = currentlyTyping;
         String senderId = FirebaseAuth.instance.currentUser!.uid;
-        String chatId = await getOrCreateChatId(senderId, user.uid);
+        String chatId = _generateChatId(senderId, user.uid);
         updateTypingStatus(chatId, senderId, _isTyping);
       }
       notifyListeners();
@@ -91,40 +91,33 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<String> getOrCreateChatId(String senderId, String receiverId) async {
-    try {
-      String chatId = (senderId.hashCode <= receiverId.hashCode)
-          ? "$senderId\_$receiverId"
-          : "$receiverId\_$senderId";
+String _generateChatId(String senderId, String receiverId) {
+  return (senderId.hashCode <= receiverId.hashCode)
+      ? "$senderId\_$receiverId"
+      : "$receiverId\_$senderId";
+}
 
-      DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
-      DocumentSnapshot chatDoc = await chatRef.get();
+  Future<void> createChatIfNotExists(String senderId, String receiverId) async {
+  String chatId = _generateChatId(senderId, receiverId);
+  DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
+  DocumentSnapshot chatDoc = await chatRef.get();
 
-      if (!chatDoc.exists) {
-        await chatRef.set({
-          "chatId": chatId,
-          "isGroup": false,
-          //"users": List<String>.from([senderId, receiverId]),
-          "users": [senderId, receiverId],
-          "lastMessage": "",
-          "lastMessageTime": DateTime.now(),
-          "seenBy": [],
-          "typingUsers": [],
-          "createdAt": DateTime.now(),
-        }, SetOptions(merge: true));
-      }
-
-      return chatId;
-    } catch (e, stacktrace) {
-      print("Error in getOrCreateChatId: $e");
-      print(stacktrace);
-      return "";
-    }
+  if (!chatDoc.exists) {
+    await chatRef.set({
+      "chatId": chatId,
+      "isGroup": false,
+      "users": [senderId, receiverId],
+      "lastMessage": "",
+      "lastMessageTime": DateTime.now(),
+      "seenBy": [],
+      "typingUsers": [],
+      "createdAt": DateTime.now(),
+    });
   }
-
+}
   void openChat(String senderId, String receiverId) async {
     if (!_isActive) return;
-    String chatId = await getOrCreateChatId(senderId, receiverId);
+    String chatId = await _generateChatId(senderId, receiverId);
     if (chatId.isEmpty) {
       print("Error: chatId is empty");
       return;
@@ -241,11 +234,12 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     int audioDuration = 0,
   }) async {
     try {
-      String chatId = await getOrCreateChatId(senderId, receiverId);
+      String chatId = _generateChatId(senderId, receiverId);
       if (chatId.isEmpty) {
         print("Error: chatId is empty");
         return;
       }
+      await createChatIfNotExists(senderId, receiverId);
       String messageId = _firestore
           .collection('chats')
           .doc(chatId)
@@ -273,7 +267,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           deletedFor: [],
           isDeletedForEveryone: false,
           audioDuration: audioDuration,
-          //audioDuration: 0,
           isPlayed: false);
       await _firestore
           .collection('chats')
@@ -554,3 +547,36 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     super.dispose();
   }
 }
+
+
+
+  // Future<String> getOrCreateChatId(String senderId, String receiverId) async {
+  //   try {
+  //     String chatId = (senderId.hashCode <= receiverId.hashCode)
+  //         ? "$senderId\_$receiverId"
+  //         : "$receiverId\_$senderId";
+
+  //     DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
+  //     DocumentSnapshot chatDoc = await chatRef.get();
+
+  //     if (!chatDoc.exists) {
+  //       await chatRef.set({
+  //         "chatId": chatId,
+  //         "isGroup": false,
+  //         //"users": List<String>.from([senderId, receiverId]),
+  //         "users": [senderId, receiverId],
+  //         "lastMessage": "",
+  //         "lastMessageTime": DateTime.now(),
+  //         "seenBy": [],
+  //         "typingUsers": [],
+  //         "createdAt": DateTime.now(),
+  //       }, SetOptions(merge: true));
+  //     }
+
+  //     return chatId;
+  //   } catch (e, stacktrace) {
+  //     print("Error in getOrCreateChatId: $e");
+  //     print(stacktrace);
+  //     return "";
+  //   }
+  // }

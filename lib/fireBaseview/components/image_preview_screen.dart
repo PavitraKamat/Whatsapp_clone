@@ -91,14 +91,8 @@ class ImagePreviewScreen extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     Navigator.pop(context);
-                    Future.delayed(const Duration(milliseconds: 100), () async {
-                      await chatProvider.sendImageMessage(
-                        senderId,
-                        receiverId,
-                        imagePath,
-                        // caption: textController.text.trim(),
-                      );
-                    });
+                    
+                    chatProvider.sendImageMessage(senderId,receiverId,imagePath);
                   },
                   child: CircleAvatar(
                     radius: 24,

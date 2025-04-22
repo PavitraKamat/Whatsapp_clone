@@ -241,6 +241,7 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
     final status = widget.statuses[_currentIndex];
     final screenWidth = MediaQuery.of(context).size.width;
     final statusProvider = Provider.of<StatusProvider>(context);
+    final user = statusProvider.getUser(status.userId);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -355,20 +356,22 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
                         ),
 
                         const SizedBox(width: 10),
-                        SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: ProfileAvataar(
-                            onSelectImage: () {
-                              // Only allow editing if viewing your own status
-                              if (status.userId ==
-                                  FirebaseAuth.instance.currentUser?.uid) {
-                                statusProvider.selectImage();
-                              }
-                            },
-                            hasStatus: true,
+                        if (user != null)
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: ProfileAvataar(
+                              user: user,
+                              onSelectImage: () {
+                                // Only allow editing if viewing your own status
+                                if (status.userId ==
+                                    FirebaseAuth.instance.currentUser?.uid) {
+                                  statusProvider.selectImage();
+                                }
+                              },
+                              hasStatus: true,
+                            ),
                           ),
-                        ),
 
                         const SizedBox(width: 10),
 
@@ -490,6 +493,7 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
       ),
     );
   }
+
   Widget _buildStatusContent(StatusModel status) {
     switch (status.statusType) {
       case StatusType.image:

@@ -9,25 +9,27 @@ class AttachmentBottomSheet extends StatelessWidget {
   final String receiverId;
   final ImagePicker _picker = ImagePicker();
 
+  AttachmentBottomSheet(
+      {super.key, required this.senderId, required this.receiverId});
 
-AttachmentBottomSheet({super.key, required this.senderId, required this.receiverId});
-
-  // Function to pick an image from gallery or camera
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
 
     if (pickedFile != null) {
-      final chatProvider = Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
-      //print("Picked image: ${pickedFile.path}");
+      final chatProvider =
+          Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);
+          Navigator.pop(context);
       Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImagePreviewScreen(senderId: senderId,
-          receiverId: receiverId,
-          imagePath: pickedFile.path,
-          chatProvider: chatProvider, ),
-      ),
-    );
+        context,
+        MaterialPageRoute(
+          builder: (context) => ImagePreviewScreen(
+            senderId: senderId,
+            receiverId: receiverId,
+            imagePath: pickedFile.path,
+            chatProvider: chatProvider,
+          ),
+        ),
+      );
     }
   }
 
@@ -46,22 +48,28 @@ AttachmentBottomSheet({super.key, required this.senderId, required this.receiver
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  iconCreation(Icons.insert_drive_file, Colors.indigo, "Document",context,ImageSource.gallery),
+                  iconCreation(Icons.insert_drive_file, Colors.indigo,
+                      "Document", context, ImageSource.gallery),
                   SizedBox(width: 40),
-                  iconCreation(Icons.camera_alt, Colors.pink, "Camera", context, ImageSource.camera),
+                  iconCreation(Icons.camera_alt, Colors.pink, "Camera", context,
+                      ImageSource.camera),
                   SizedBox(width: 40),
-                  iconCreation(Icons.insert_photo, Colors.purple, "Gallery", context, ImageSource.gallery),
+                  iconCreation(Icons.insert_photo, Colors.purple, "Gallery",
+                      context, ImageSource.gallery),
                 ],
               ),
               SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  iconCreation(Icons.headset, Colors.orange, "Audio", context, null), // Modify as needed
+                  iconCreation(Icons.headset, Colors.orange, "Audio", context,
+                      null), // Modify as needed
                   SizedBox(width: 40),
-                  iconCreation(Icons.location_pin, Colors.teal, "Location", context, null), // Modify as needed
+                  iconCreation(Icons.location_pin, Colors.teal, "Location",
+                      context, null), // Modify as needed
                   SizedBox(width: 40),
-                  iconCreation(Icons.person, Colors.blue, "Contact", context, null), // Modify as needed
+                  iconCreation(Icons.person, Colors.blue, "Contact", context,
+                      null), // Modify as needed
                 ],
               ),
             ],
@@ -71,12 +79,13 @@ AttachmentBottomSheet({super.key, required this.senderId, required this.receiver
     );
   }
 
-  Widget iconCreation(
-      IconData icons, Color color, String text, BuildContext context, ImageSource? source) {
+  Widget iconCreation(IconData icons, Color color, String text,
+      BuildContext context, ImageSource? source) {
     return InkWell(
       onTap: () {
         // If the source is provided, pick the image
         if (source != null) {
+          //Navigator.pop(context);
           _pickImage(context, source);
         }
       },

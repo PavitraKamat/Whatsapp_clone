@@ -139,7 +139,7 @@ class ProfileEditScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final nameController = TextEditingController(text: profileProvider.name);
-    final statusController = TextEditingController(text: profileProvider.about);
+    final aboutController = TextEditingController(text: profileProvider.about);
 
     return Scaffold(
       appBar: profileEditingAppBar(),
@@ -163,7 +163,7 @@ class ProfileEditScreen extends StatelessWidget {
             icon: CupertinoIcons.info,
             title: "About",
             subTitle: profileProvider.about,
-            controller: statusController,
+            controller: aboutController,
             onSave: profileProvider.updateStatus,
           ),
           _editableListTile(

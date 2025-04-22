@@ -11,7 +11,6 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final homeProvider = Provider.of<HomeProvider>(context);
-    //print("profileProvider ${profileProvider.name}");
 
     return Scaffold(
       appBar: settingsAppBar(),
@@ -36,8 +35,7 @@ class SettingsScreen extends StatelessWidget {
           _buildSettingsOption(CupertinoIcons.question_circle, "Help", () {}),
           _buildSettingsOption(CupertinoIcons.info, "About", () {}),
           SwitchListTile(
-            title: Text("Toggle View"),
-            subtitle: Text(homeProvider.isFirebaseView
+            title: Text(homeProvider.isFirebaseView
                 ? "Using Firebase"
                 : "Using Local Database"),
             secondary: Icon(Icons.storage),
