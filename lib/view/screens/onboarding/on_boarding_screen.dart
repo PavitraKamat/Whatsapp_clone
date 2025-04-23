@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:wtsp_clone/view/components/uihelper.dart';
 import 'package:wtsp_clone/view/screens/login/login_screen.dart';
 
-
 class OnBoardingScreen extends StatelessWidget {
+  const OnBoardingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

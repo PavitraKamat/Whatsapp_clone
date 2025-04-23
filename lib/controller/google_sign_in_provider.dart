@@ -24,19 +24,16 @@ class GoogleSignInProvider extends ChangeNotifier {
         password: password,
       );
       User? user = userCredential.user;
-      // if (user != null) {
-      //   await chatProvider.updateLastSeen(user.uid, isOnline: true);
-      //   await profileProvider.loadProfileData();
-      //   await contactsProvider.fetchChatHistoryUsers();
-      // }
       if (user != null) {
         await _postAuthSetup(
             user.uid, profileProvider, contactsProvider, chatProvider);
       }
       notifyListeners();
       return user;
-    } catch (e) {
-      throw Exception(e.toString());
+    } on FirebaseAuthException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (_) {
+      throw Exception('Login failed. Please try again.');
     }
   }
 
@@ -68,16 +65,16 @@ class GoogleSignInProvider extends ChangeNotifier {
           createdAt: DateTime.now(),
         );
         await _firestore.collection('users').doc(user.uid).set(newUser.toMap());
-        // await chatProvider.updateLastSeen(user.uid, isOnline: true);
-        // await profileProvider.loadProfileData();
-        // await contactsProvider.fetchChatHistoryUsers();
+
         await _postAuthSetup(
             user.uid, profileProvider, contactsProvider, chatProvider);
       }
       notifyListeners();
       return user;
-    } catch (e) {
-      throw Exception(e.toString());
+    } on FirebaseAuthException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (_) {
+      throw Exception('Registration failed. Please try again.');
     }
   }
 
@@ -116,16 +113,15 @@ class GoogleSignInProvider extends ChangeNotifier {
           );
           await userDoc.set(newUser.toMap());
         }
-        // await chatProvider.updateLastSeen(user.uid, isOnline: true);
-        // await profileProvider.loadProfileData();
-        // await contactsProvider.fetchChatHistoryUsers();
         await _postAuthSetup(
             user.uid, profileProvider, contactsProvider, chatProvider);
       }
       notifyListeners();
       return user;
-    } catch (e) {
-      throw Exception(e.toString());
+    } on FirebaseAuthException catch (e) {
+      throw Exception(_getErrorMessage(e));
+    } catch (_) {
+      throw Exception('Google Sign-In failed. Please try again.');
     }
   }
 
@@ -144,5 +140,27 @@ class GoogleSignInProvider extends ChangeNotifier {
     await chatProvider.updateLastSeen(uid, isOnline: true);
     await profileProvider.loadProfileData();
     await contactsProvider.fetchChatHistoryUsers();
+  }
+
+  String _getErrorMessage(FirebaseAuthException e) {
+    //print('Firebase error code: ${e.code}');
+    switch (e.code) {
+      case 'user-not-found':
+        return 'No user found with this email.';
+      case 'invalid-credential':
+        return 'Invalid creds';
+      case 'wrong-password':
+        return 'Incorrect password.';
+      case 'email-already-in-use':
+        return 'Email is already registered.';
+      case 'invalid-email':
+        return 'The email address is invalid.';
+      case 'weak-password':
+        return 'The password is too weak.';
+      case 'network-request-failed':
+        return 'Network error. Please check your connection.';
+      default:
+        return 'Something went wrong. Please try again.';
+    }
   }
 }

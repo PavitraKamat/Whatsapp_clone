@@ -12,6 +12,7 @@ class SelectContactPage extends StatefulWidget {
   @override
   _SelectContactPageState createState() => _SelectContactPageState();
 }
+
 class _SelectContactPageState extends State<SelectContactPage> {
   bool _isSearching = false;
   TextEditingController _searchController = TextEditingController();
@@ -21,19 +22,23 @@ class _SelectContactPageState extends State<SelectContactPage> {
     final contactsProvider = Provider.of<SelectContactProvider>(context);
 
     return Scaffold(
-      appBar: _isSearching ? _buildSearchAppBar() : _buildDefaultAppBar(contactsProvider),
+      appBar: _isSearching
+          ? _buildSearchAppBar()
+          : _buildDefaultAppBar(contactsProvider),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: Column(
               children: [
                 buildOption(Icons.group, "New group"),
-                buildOption(Icons.person_add, "New contact", trailingIcon: Icons.qr_code),
+                buildOption(Icons.person_add, "New contact",
+                    trailingIcon: Icons.qr_code),
                 buildOption(Icons.groups, "New community"),
                 buildOption(Icons.smart_toy, "Chat with AIs"),
                 const Divider(),
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -46,9 +51,13 @@ class _SelectContactPageState extends State<SelectContactPage> {
             ),
           ),
           contactsProvider.isLoading
-              ? SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+              ? SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()))
               : contactsProvider.filteredContacts.isEmpty
-                  ? SliverFillRemaining(child: Center(child: Text("No users found", style: TextStyle(fontSize: 16))))
+                  ? SliverFillRemaining(
+                      child: Center(
+                          child: Text("No users found",
+                              style: TextStyle(fontSize: 16))))
                   : SliverList(
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
@@ -123,19 +132,21 @@ class _SelectContactPageState extends State<SelectContactPage> {
           hintText: "Search contacts...",
           border: InputBorder.none,
           suffixIcon: _searchController.text.isNotEmpty
-                ? IconButton(
-                    icon: Icon(Icons.close, color: Colors.black, size: 18),
-                    onPressed: () {
-                      _searchController.clear();
-                      Provider.of<SelectContactProvider>(context, listen: false).filterContacts('');
-                      FocusScope.of(context).unfocus();
-                    },
-                  )
-                : null,
+              ? IconButton(
+                  icon: Icon(Icons.close, color: Colors.black, size: 18),
+                  onPressed: () {
+                    _searchController.clear();
+                    Provider.of<SelectContactProvider>(context, listen: false)
+                        .filterContacts('');
+                    FocusScope.of(context).unfocus();
+                  },
+                )
+              : null,
         ),
         onChanged: (query) {
           // Implement search functionality
-          Provider.of<SelectContactProvider>(context, listen: false).filterContacts(query);
+          Provider.of<SelectContactProvider>(context, listen: false)
+              .filterContacts(query);
         },
       ),
     );
@@ -144,13 +155,55 @@ class _SelectContactPageState extends State<SelectContactPage> {
   Widget _buildUserTile(UserModel user, BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        radius: 20,
-        backgroundImage: user.photoURL.isNotEmpty
-            ? NetworkImage(user.photoURL)
-            : AssetImage(ProfileImageHelper.getProfileImage(user.phone)) as ImageProvider,
+        backgroundColor: Colors.grey[200],
+        child: ClipOval(
+          child: user.photoURL.isNotEmpty
+              ? Image.network(
+                  user.photoURL,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            color: const Color.fromARGB(255, 150, 229, 152),
+                            strokeWidth: 2.0,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      ProfileImageHelper.getProfileImage(user.phone),
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                )
+              : Image.asset(
+                  ProfileImageHelper.getProfileImage(user.phone),
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+        ),
       ),
-      title: Text(user.uid == FirebaseAuth.instance.currentUser?.uid ? '${user.firstName} (You)' : user.firstName),
-      subtitle: Text(user.aboutInfo, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.grey)),
+      title: Text(user.uid == FirebaseAuth.instance.currentUser?.uid
+          ? '${user.firstName} (You)'
+          : user.firstName),
+      subtitle: Text(user.aboutInfo,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(color: Colors.grey)),
       onTap: () {
         Navigator.pushReplacement(
           context,
@@ -169,7 +222,8 @@ class _SelectContactPageState extends State<SelectContactPage> {
         child: Icon(icon, color: Colors.white),
       ),
       title: Text(title, style: const TextStyle(fontSize: 16)),
-      trailing: trailingIcon != null ? Icon(trailingIcon, color: Colors.grey) : null,
+      trailing:
+          trailingIcon != null ? Icon(trailingIcon, color: Colors.grey) : null,
     );
   }
 }

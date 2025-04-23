@@ -50,12 +50,12 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
                 chatProvider.clearSelection();
               },
             ),
-            body: messageTiles(chatProvider, currentUserId)),
+            body: _buildChatBody(chatProvider, currentUserId)),
       ],
     );
   }
 
-  Column messageTiles(
+  Column _buildChatBody(
       FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (chatProvider.scrollController.hasClients) {
@@ -119,10 +119,6 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
               chatProvider.scrollToBottom();
             }
           },
-          // onVoiceMsgSend: (path) async {
-          //   await chatProvider.sendVoiceMessage(currentUserId, user.uid, path);
-          //   chatProvider.scrollToBottom();
-          // },
         ),
       ],
     );

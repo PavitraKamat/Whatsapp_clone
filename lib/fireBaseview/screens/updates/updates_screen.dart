@@ -44,9 +44,7 @@ class FireBaseUpdatesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: updateScreenAppBar(),
-      body: statusProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
+      body: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -193,3 +191,4 @@ String timeAgo(DateTime timestamp) {
   if (diff.inHours < 24) return "${diff.inHours} hours ago";
   return "${diff.inDays} days ago";
 }
+

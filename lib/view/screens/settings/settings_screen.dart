@@ -77,26 +77,70 @@ AppBar settingsAppBar() {
 
 Widget _buildProfileSection(ProfileProvider provider) {
   return Container(
-    padding: EdgeInsets.all(10),
+    padding: const EdgeInsets.all(10),
     child: Row(
       children: [
-        CircleAvatar(
-          radius: 40,
-          backgroundImage:
-              provider.imageUrl != null && provider.imageUrl!.isNotEmpty
-                  ? NetworkImage(provider.imageUrl!)
-                  : AssetImage(
-                      ProfileImageHelper.getProfileImage(provider.phoneNumber)),
-          //child: provider.imageUrl == null ? Icon(Icons.person, size: 40) : null,
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.grey[300],
+              child: Icon(Icons.person, size: 40, color: Colors.white),
+            ),
+            provider.imageUrl != null && provider.imageUrl!.isNotEmpty
+                ? ClipOval(
+                    child: Image.network(
+                      provider.imageUrl!,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.teal),
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      (loadingProgress.expectedTotalBytes!)
+                                  : null,
+                            ),
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) => Icon(
+                        Icons.error,
+                        size: 40,
+                        color: Colors.red,
+                      ),
+                    ),
+                  )
+                : CircleAvatar(
+                    radius: 40,
+                    backgroundImage: AssetImage(
+                      ProfileImageHelper.getProfileImage(provider.phoneNumber),
+                    ),
+                  ),
+          ],
         ),
-        SizedBox(width: 20),
+        const SizedBox(width: 20),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(provider.name,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            Text(provider.about, style: TextStyle(color: Colors.grey[600])),
+            Text(
+              provider.name,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              provider.about,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
           ],
         ),
       ],
@@ -112,49 +156,3 @@ Widget _buildSettingsOption(IconData icon, String title, VoidCallback onTap) {
     onTap: onTap,
   );
 }
-
-
-
-      // body: FutureBuilder(
-      //   future:
-      //       profileProvider.loadProfileData(), // Load user data asynchronously
-      //   builder: (context, snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.waiting) {
-      //       return Center(
-      //           child: CircularProgressIndicator()); // Show loading indicator
-      //     } else if (snapshot.hasError) {
-      //       return Center(child: Text("Error loading profile"));
-      //     } else {
-      //       final profileProvider = Provider.of<ProfileProvider>(context);
-      //       return ListView(
-      //         children: [
-      //           GestureDetector(
-      //             onTap: () {
-      //               Navigator.push(
-      //                 context,
-      //                 MaterialPageRoute(
-      //                   builder: (context) => ProfileEditScreen(),
-      //                 ),
-      //               );
-      //             },
-      //             child: _buildProfileSection(profileProvider),
-      //           ),
-      //           Divider(thickness: 1, color: Colors.grey[300]),
-      //           _buildSettingsOption(Icons.lock, "Privacy", () {}),
-      //           _buildSettingsOption(
-      //               Icons.notifications, "Notifications", () {}),
-      //           _buildSettingsOption(Icons.storage, "Storage and Data", () {}),
-      //           _buildSettingsOption(Icons.help_outline, "Help", () {}),
-      //           _buildSettingsOption(Icons.info_outline, "About", () {}),
-      //           _buildSettingsOption(
-      //             Icons.logout,
-      //             "Logout",
-      //             () => profileProvider.logout(context),
-      //           ),
-      //           SizedBox(height: 20),
-      //         ],
-      //       );
-      //     }
-      //   },
-      // ),
-    

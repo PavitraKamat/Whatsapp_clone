@@ -10,6 +10,8 @@ import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/view/screens/home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -54,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute(builder: (context) => HomeScreen()),
       );
     } catch (e) {
-      _showErrorDialog(e.toString());
+      _showErrorDialog(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
@@ -153,7 +155,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 25),
                   if (!isLogin)
-                    _buildTextField("Full Name", nameController, CupertinoIcons.person,
+                    _buildTextField(
+                        "Full Name", nameController, CupertinoIcons.person,
                         validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Full Name is required";
@@ -182,7 +185,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     return null;
                   }),
-                  _buildTextField("Password", passwordController, CupertinoIcons.lock,
+                  _buildTextField(
+                      "Password", passwordController, CupertinoIcons.lock,
                       isObscure: !isPasswordVisible,
                       isPassword: true, validator: (value) {
                     if (value == null || value.isEmpty) {

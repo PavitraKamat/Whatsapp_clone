@@ -113,7 +113,6 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
         }
       }
     } catch (e) {
-      //debugPrint("Waveform initialization failed: $e");
       // We'll use fallback UI, so no need to handle this error
     }
   }
@@ -174,6 +173,14 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
         ? _position.inMilliseconds / _duration.inMilliseconds
         : 0.0;
 
+    final isDeletedForEveryone = widget.message.isDeletedForEveryone;
+    if (isDeletedForEveryone) {
+      return deletedMessageBubble(
+        isDeletedForEveryone: true,
+        isSentByUser: widget.isSentByUser,
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
@@ -201,8 +208,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
               height: 40,
               decoration: BoxDecoration(
                 color: widget.isSentByUser
-                    ? Colors.white.withOpacity(0.3)
-                    : Colors.grey.withOpacity(0.2),
+                    ? Colors.white.withValues(alpha: 0.3)
+                    : Colors.grey.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -230,8 +237,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
                           waveformType: WaveformType.fitWidth,
                           playerWaveStyle: PlayerWaveStyle(
                             fixedWaveColor: widget.isSentByUser
-                                ? Colors.white.withOpacity(0.5)
-                                : Colors.grey.withOpacity(0.7),
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : Colors.grey.withValues(alpha: 0.7),
                             liveWaveColor: widget.isSentByUser
                                 ? Colors.white
                                 : Colors.blue,
@@ -248,8 +255,8 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
                             LinearProgressIndicator(
                               value: progressPercent,
                               backgroundColor: widget.isSentByUser
-                                  ? Colors.white.withOpacity(0.3)
-                                  : Colors.grey.withOpacity(0.3),
+                                  ? Colors.white.withValues(alpha: 0.3)
+                                  : Colors.grey.withValues(alpha: 0.3),
                               color: widget.isSentByUser
                                   ? Colors.white
                                   : Colors.blue,
@@ -302,5 +309,37 @@ class _AudioMessageBubbleState extends State<AudioMessageBubble> {
     } else {
       return Icon(Icons.done, color: Colors.grey, size: 12);
     }
+  }
+
+  Widget deletedMessageBubble(
+      {required bool isDeletedForEveryone, required bool isSentByUser}) {
+    String text =
+        isSentByUser ? "You deleted this message" : "This message was deleted";
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: isSentByUser
+            ? const Color.fromARGB(255, 169, 230, 174)
+            : Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(10),
+          topRight: const Radius.circular(10),
+          bottomLeft:
+              widget.isSentByUser ? const Radius.circular(10) : Radius.zero,
+          bottomRight:
+              widget.isSentByUser ? Radius.zero : const Radius.circular(10),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontStyle: FontStyle.italic,
+          fontSize: 14,
+          color: Colors.black54,
+        ),
+      ),
+    );
   }
 }

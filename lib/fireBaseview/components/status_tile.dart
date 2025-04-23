@@ -28,7 +28,7 @@ class StatusTile extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: isViewed ? Colors.grey : Colors.teal,
+            color: isViewed ? Colors.grey : Colors.green,
             width: 2,
           ),
         ),

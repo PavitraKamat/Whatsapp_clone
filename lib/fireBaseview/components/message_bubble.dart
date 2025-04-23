@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -40,15 +41,11 @@ class _MessageBubbleState extends State<MessageBubble> {
       },
       child: Container(
         color: isSelected
-            ? const Color.fromARGB(255, 169, 230, 174).withOpacity(0.5)
+            ? const Color.fromARGB(255, 169, 230, 174).withValues(alpha: 0.5)
             : Colors.transparent,
         child: Align(
           alignment:
               widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-          // child: widget.message.messageType == MessageType.image
-          //     ? imageMessageBubble(
-          //         widget.message, maxWidth, widget.isSentByMe, isRead)
-          //     : messageLayout(maxWidth, widget.isSentByMe, isRead),
           child: _buildMessageContent(maxWidth, isRead),
         ),
       ),
@@ -61,8 +58,6 @@ class _MessageBubbleState extends State<MessageBubble> {
         return imageMessageBubble(
             widget.message, maxWidth, widget.isSentByMe, isRead);
       case MessageType.audio:
-        // return audioMessageBubble(
-        //     widget.message, maxWidth, widget.isSentByMe, isRead);
         return AudioMessageBubble(
           message: widget.message,
           maxWidth: maxWidth,
@@ -70,13 +65,11 @@ class _MessageBubbleState extends State<MessageBubble> {
           isRead: isRead,
         );
       default:
-        return messageLayout(maxWidth, widget.isSentByMe, isRead);
+        return textMessageBubble(maxWidth, widget.isSentByMe, isRead);
     }
   }
 
-  Widget messageLayout(double maxWidth, bool isSentByUser, bool isRead) {
-    //final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
+  Widget textMessageBubble(double maxWidth, bool isSentByUser, bool isRead) {
     final isDeletedForEveryone = widget.message.isDeletedForEveryone;
     if (isDeletedForEveryone) {
       return deletedMessageBubble(
@@ -103,7 +96,7 @@ class _MessageBubbleState extends State<MessageBubble> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             spreadRadius: 1,
             blurRadius: 3,
           ),
@@ -160,14 +153,13 @@ class _MessageBubbleState extends State<MessageBubble> {
         ),
       );
     }
+
+    bool isLocalFile = message.mediaUrl!.startsWith('/');
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
       constraints: BoxConstraints(maxWidth: maxWidth),
       decoration: BoxDecoration(
-        // color: isSentByUser
-        //     ? const Color.fromARGB(255, 169, 230, 174) // Sent (Greenish)
-        //     : Colors.white, // Received (White)
         borderRadius: BorderRadius.circular(10),
       ),
       child: Stack(
@@ -182,32 +174,45 @@ class _MessageBubbleState extends State<MessageBubble> {
                   width: 250,
                   height: 250,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                Image.network(
-                  message.mediaUrl!,
-                  width: 250,
-                  height: 250,
-                  fit: BoxFit.fill,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded /
-                                (loadingProgress.expectedTotalBytes ?? 1)
-                            : null,
-                        color: Colors.white,
+                isLocalFile
+                    ? Image.file(
+                        File(message.mediaUrl!),
+                        width: 250,
+                        height: 250,
+                        fit: BoxFit.fill,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                          child: Icon(Icons.broken_image,
+                              size: 50, color: Colors.red),
+                        ),
+                      )
+                    : Image.network(
+                        message.mediaUrl!,
+                        width: 250,
+                        height: 250,
+                        fit: BoxFit.fill,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                      (loadingProgress.expectedTotalBytes ?? 1)
+                                  : null,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                          child: Icon(Icons.broken_image,
+                              size: 50, color: Colors.red),
+                        ),
                       ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) => const Center(
-                    child:
-                        Icon(Icons.broken_image, size: 50, color: Colors.red),
-                  ),
-                ),
               ],
             ),
           ),
@@ -217,8 +222,7 @@ class _MessageBubbleState extends State<MessageBubble> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                color:
-                    Colors.black.withOpacity(0.5), // Semi-transparent overlay
+                color:Colors.black.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -236,6 +240,17 @@ class _MessageBubbleState extends State<MessageBubble> {
                     messageStatusIcon(message),
                   ],
                 ],
+              ),
+            ),
+          ),
+          if (message.isUploading)
+          Positioned.fill(
+            child: Container(
+              color: Colors.black26,
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

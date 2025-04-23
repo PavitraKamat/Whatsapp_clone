@@ -267,7 +267,8 @@ String _generateChatId(String senderId, String receiverId) {
           deletedFor: [],
           isDeletedForEveryone: false,
           audioDuration: audioDuration,
-          isPlayed: false);
+          isPlayed: false,
+          isUploading: false);
       await _firestore
           .collection('chats')
           .doc(chatId)
@@ -291,29 +292,117 @@ String _generateChatId(String senderId, String receiverId) {
     }
   }
 
+  // Future<void> sendImageMessage(
+  //     String senderId, String receiverId, String imagePath) async {
+  //   if (!_isActive) return;
+  //   try {
+  //     File imageFile = File(imagePath);
+  //     String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
+
+  //     UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
+  //     TaskSnapshot snapshot = await uploadTask;
+  //     String downloadUrl = await snapshot.ref.getDownloadURL();
+
+  //     await sendMessage(
+  //       senderId: senderId,
+  //       receiverId: receiverId,
+  //       text: "📷 Photo",
+  //       mediaUrl: downloadUrl,
+  //       messageType: MessageType.image,
+  //     );
+  //     await updateLastSeen(senderId, isOnline: true);
+  //   } catch (e) {
+  //     print("Error sending image: $e");
+  //   }
+  // }
+
   Future<void> sendImageMessage(
-      String senderId, String receiverId, String imagePath) async {
-    if (!_isActive) return;
-    try {
-      File imageFile = File(imagePath);
-      String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
+    String senderId, String receiverId, String imagePath) async {
+  if (!_isActive) return;
 
-      UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
+  try {
+    File imageFile = File(imagePath);
+    String chatId = _generateChatId(senderId, receiverId);
+    String messageId = _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc()
+        .id;
 
-      await sendMessage(
-        senderId: senderId,
-        receiverId: receiverId,
-        text: "📷 Photo",
-        mediaUrl: downloadUrl,
-        messageType: MessageType.image,
-      );
-      await updateLastSeen(senderId, isOnline: true);
-    } catch (e) {
-      print("Error sending image: $e");
-    }
+    //temporary message model with local image path
+    MessageModel tempMessage = MessageModel(
+      messageId: messageId,
+      chatId: chatId,
+      senderId: senderId,
+      receiverId: receiverId,
+      messageType: MessageType.image,
+      messageContent: "📷 Photo",
+      mediaUrl: imagePath, 
+      timestamp: DateTime.now(),
+      isRead: false,
+      isDelivered: false,
+      seenBy: [],
+      deletedFor: [],
+      isDeletedForEveryone: false,
+      audioDuration: 0,
+      isPlayed: false,
+      isUploading: true, 
+    );
+
+    //Add to local message list to show immediately
+    _messages.add(tempMessage);
+    notifyListeners();
+
+    await createChatIfNotExists(senderId, receiverId);
+
+    //Write the temp message to Firestore
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId)
+        .set(tempMessage.toMap());
+
+    //Upload image to Firebase Storage
+    String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
+    UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
+
+    //Update the same Firestore message with the actual download URL
+    await _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .doc(messageId)
+        .update({
+      "mediaUrl": downloadUrl,
+      "isUploading": false,
+    });
+
+    //update chatlist
+    await _firestore.collection('chats').doc(chatId).update({
+      'lastMessage': "📷 Photo",
+      'lastMessageType': MessageType.image.name,
+      'lastMessageTime': Timestamp.now(),
+      'seenBy': [senderId, receiverId],
+    });
+
+    // 8. Update local message object with the final URL
+    // int index = _messages.indexWhere((m) => m.messageId == messageId);
+    // if (index != -1) {
+    //   _messages[index] = _messages[index].copyWith(
+    //     mediaUrl: downloadUrl,
+    //     isUploading: false,
+    //   );
+    //   notifyListeners();
+    // }
+  } catch (e) {
+    print("Error sending image: $e");
   }
+}
+
 
   Future<void> sendVoiceMessage(
       String senderId, String receiverId, String path) async {

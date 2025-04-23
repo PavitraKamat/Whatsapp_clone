@@ -14,7 +14,7 @@ class AttachmentBottomSheet extends StatelessWidget {
 
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final XFile? pickedFile = await _picker.pickImage(source: source);
-
+    if (!context.mounted) return;
     if (pickedFile != null) {
       final chatProvider =
           Provider.of<FireBaseOnetoonechatProvider>(context, listen: false);

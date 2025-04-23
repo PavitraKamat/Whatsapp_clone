@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wtsp_clone/view/components/uihelper.dart';
 import 'package:wtsp_clone/view/screens/home/home_screen.dart';
 import 'package:wtsp_clone/view/screens/login/login_screen.dart';
-import 'package:wtsp_clone/view/screens/onboarding/onBoarding_screen.dart';
+import 'package:wtsp_clone/view/screens/onboarding/on_boarding_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -17,12 +17,13 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     _navigateToNextScreen();
   }
+
   void _navigateToNextScreen() async {
     await Future.delayed(Duration(seconds: 2));
 
     final prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
-
+    if (!mounted) return;
     if (isFirstTime) {
       prefs.setBool('isFirstTime', false);
       Navigator.pushReplacement(
@@ -32,6 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       await FirebaseAuth.instance.currentUser?.reload();
       User? user = FirebaseAuth.instance.currentUser;
+      if (!mounted) return;
       if (user != null) {
         //print("userdetails  ${user!.displayName}");
         Navigator.pushReplacement(
@@ -46,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
       }
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

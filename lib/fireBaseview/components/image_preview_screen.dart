@@ -69,7 +69,8 @@ class ImagePreviewScreen extends StatelessWidget {
             margin: const EdgeInsets.all(10),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 122, 122, 122).withOpacity(0.4),
+              //color: const Color.fromARGB(255, 122, 122, 122).withOpacity(0.4),
+              color: const Color.fromARGB(255, 122, 122, 122).withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(30),
             ),
             child: Row(

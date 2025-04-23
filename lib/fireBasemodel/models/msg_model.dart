@@ -1,43 +1,4 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class MessageModel {
-//   final String id;
-//   final String content;
-//   final String userId; // Sender's user ID
-//   final DateTime timestamp;
-//   final bool isRead;
-
-//   MessageModel({
-//     required this.id,
-//     required this.content,
-//     required this.userId,
-//     required this.timestamp,
-//     this.isRead = false,
-//   });
-
-//   factory MessageModel.fromMap(String id, Map<String, dynamic> map) {
-//     return MessageModel(
-//       id: id,
-//       content: map['content'] ?? '',
-//       userId: map['userId'] ?? '',
-//       timestamp: (map['timestamp'] as Timestamp).toDate(),
-//       isRead: map['isRead'] ?? false,
-//     );
-//   }
-
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'id': id,
-//       'content': content,
-//       'userId': userId,
-//       'timestamp': Timestamp.fromDate(timestamp),
-//       'isRead': isRead,
-//     };
-//   }
-// }
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 class MessageModel {
   String messageId;
   String chatId;
@@ -54,6 +15,7 @@ class MessageModel {
   bool isDeletedForEveryone;
   int? audioDuration; // in seconds
   bool isPlayed;
+  bool isUploading;
 
   MessageModel({
     required this.messageId,
@@ -71,6 +33,7 @@ class MessageModel {
     required this.isDeletedForEveryone,
     required this.audioDuration,
     required this.isPlayed,
+    required this.isUploading,
   });
 
   /// Convert `MessageModel` to a `Map<String, dynamic>` for Firestore
@@ -91,8 +54,9 @@ class MessageModel {
       "seenBy": seenBy,
       "deletedFor": deletedFor,
       "isDeletedForEveryone": isDeletedForEveryone,
-      "audioDuration":audioDuration,
-      "isPlayed":isPlayed,
+      "audioDuration": audioDuration,
+      "isPlayed": isPlayed,
+      "isUploading":isUploading,
     };
   }
 
@@ -114,8 +78,9 @@ class MessageModel {
       seenBy: List<String>.from(map["seenBy"] ?? []),
       deletedFor: List<String>.from(map['deletedFor'] ?? []),
       isDeletedForEveryone: map["isDeletedForEveryone"] ?? false,
-      audioDuration: map["audioDuration"]?? 0,
-      isPlayed: map["isPlayed"]?? false,
+      audioDuration: map["audioDuration"] ?? 0,
+      isPlayed: map["isPlayed"] ?? false,
+      isUploading : map["isUploading"] ?? false,
     );
   }
 }
