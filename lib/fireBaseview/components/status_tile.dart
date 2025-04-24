@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/status_provider.dart';
+import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import 'package:wtsp_clone/model/models/profile_image_helper.dart';
 
 class ProfileAvataar extends StatelessWidget {
   //final String? image;

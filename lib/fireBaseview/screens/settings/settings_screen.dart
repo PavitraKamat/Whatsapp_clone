@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import '../../../fireBaseHelper/profile_image_helper.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {

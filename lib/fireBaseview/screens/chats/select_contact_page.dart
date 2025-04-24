@@ -3,27 +3,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/select_contact_provider.dart';
-import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/components/pop_up_menu.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
 
-class SelectContactPage extends StatefulWidget {
-  @override
-  _SelectContactPageState createState() => _SelectContactPageState();
-}
-
-class _SelectContactPageState extends State<SelectContactPage> {
-  bool _isSearching = false;
-  TextEditingController _searchController = TextEditingController();
+class SelectContactPage extends StatelessWidget {
+  const SelectContactPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final contactsProvider = Provider.of<SelectContactProvider>(context);
 
     return Scaffold(
-      appBar: _isSearching
-          ? _buildSearchAppBar()
+      appBar: contactsProvider.isSearching
+          ? _buildSearchAppBar(context,contactsProvider)
           : _buildDefaultAppBar(contactsProvider),
       body: CustomScrollView(
         slivers: [
@@ -71,8 +65,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
       ),
     );
   }
-
-  //Default AppBar
+  //Default Apppbar
   AppBar _buildDefaultAppBar(SelectContactProvider contactsProvider) {
     return AppBar(
       title: Align(
@@ -99,11 +92,7 @@ class _SelectContactPageState extends State<SelectContactPage> {
       actions: [
         IconButton(
           icon: Icon(CupertinoIcons.search),
-          onPressed: () {
-            setState(() {
-              _isSearching = true;
-            });
-          },
+          onPressed: contactsProvider.toggleSearch
         ),
         PopupMenu(),
       ],
@@ -111,42 +100,34 @@ class _SelectContactPageState extends State<SelectContactPage> {
   }
 
   //Search AppBar
-  AppBar _buildSearchAppBar() {
+  AppBar _buildSearchAppBar(BuildContext context,SelectContactProvider contactsProvider) {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
       foregroundColor: Colors.black,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back),
-        onPressed: () {
-          setState(() {
-            _isSearching = false;
-            _searchController.clear();
-          });
-        },
+        icon: const Icon(Icons.arrow_back),
+        onPressed: contactsProvider.toggleSearch,
       ),
       title: TextField(
-        controller: _searchController,
+        controller: contactsProvider.searchController,
         autofocus: true,
         decoration: InputDecoration(
           hintText: "Search contacts...",
           border: InputBorder.none,
-          suffixIcon: _searchController.text.isNotEmpty
+          suffixIcon: contactsProvider.searchController.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.close, color: Colors.black, size: 18),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
-                    _searchController.clear();
-                    Provider.of<SelectContactProvider>(context, listen: false)
-                        .filterContacts('');
+                    contactsProvider.searchController.clear();
+                    contactsProvider.updateSearchQuery('');
                     FocusScope.of(context).unfocus();
                   },
                 )
               : null,
         ),
         onChanged: (query) {
-          // Implement search functionality
-          Provider.of<SelectContactProvider>(context, listen: false)
-              .filterContacts(query);
+          contactsProvider.filterContacts(query);
         },
       ),
     );
@@ -227,3 +208,13 @@ class _SelectContactPageState extends State<SelectContactPage> {
     );
   }
 }
+
+
+
+//   @override
+//   _SelectContactPageState createState() => _SelectContactPageState();
+// }
+
+//class _SelectContactPageState extends State<SelectContactPage> {
+  // bool _isSearching = false;
+  // TextEditingController _searchController = TextEditingController();

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
-import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/contact_profile_screen.dart';
 
@@ -25,89 +25,105 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         final selectionActive = provider.isSelectionMode;
         String chatId = chatProvider.getChatId(user.uid);
         return AppBar(
+          backgroundColor: Colors.white,
           titleSpacing: 0,
           scrolledUnderElevation: 0,
           leadingWidth: 40,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: selectionActive
-                ? onCancelSelection
-                : () => Navigator.pop(context),
-          ),
+          leading: _buildBackButton(selectionActive, context),
           title: selectionActive
-              ? Text(
-                  "${provider.selectedMessageIds.length} selected",
-                  style: TextStyle(color: Colors.black),
-                )
-              : Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ContactProfileScreen(user: user),
-                          ),
-                        );
-                      },
-                      child: CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.blueGrey,
-                        backgroundImage: user.photoURL.isNotEmpty
-                            ? NetworkImage(user.photoURL)
-                            : AssetImage(ProfileImageHelper.getProfileImage(
-                                user.phone)) as ImageProvider,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user.uid == FirebaseAuth.instance.currentUser?.uid
-                              ? '${user.firstName} (You)'
-                              : user.firstName,
-                          style: TextStyle(
-                              fontSize: 18.5, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          provider.lastSeen,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              ? _buildSelectionTitle(provider)
+              : _buildChatTitle(context, provider),
           actions: selectionActive
-              ? [
-                  IconButton(
-                      icon: Icon(Icons.star_border, color: Colors.black),
-                      onPressed: () {}),
-                  IconButton(
-                      icon: Icon(Icons.reply_outlined, color: Colors.black),
-                      onPressed: () {}),
-                  IconButton(
-                      icon: Icon(Icons.forward, color: Colors.black),
-                      onPressed: () {}),
-                  deleteIconButton(
-                      context,
-                      Provider.of<FireBaseOnetoonechatProvider>(context,
-                          listen: false),
-                      chatId),
-                ]
+              ? _buildSelectionActions(context,provider,chatId)
               : [
                   IconButton(onPressed: () {}, icon: Icon(Icons.video_call)),
                   IconButton(onPressed: () {}, icon: Icon(Icons.call)),
                   popUpMenu(),
                 ],
-          backgroundColor: Colors.white,
+          
         );
       },
     );
   }
+
+  List<Widget> _buildSelectionActions(BuildContext context, FireBaseOnetoonechatProvider provider,String chatId) {
+    return [
+                IconButton(
+                    icon: Icon(Icons.star_border, color: Colors.black),
+                    onPressed: () {}),
+                IconButton(
+                    icon: Icon(Icons.reply_outlined, color: Colors.black),
+                    onPressed: () {}),
+                IconButton(
+                    icon: Icon(Icons.forward, color: Colors.black),
+                    onPressed: () {}),
+                deleteIconButton(
+                    context,provider,chatId),
+              ];
+  }
+
+  IconButton _buildBackButton(bool selectionActive, BuildContext context) {
+    return IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: selectionActive
+              ? onCancelSelection
+              : () => Navigator.pop(context),
+        );
+  }
+
+  Row _buildChatTitle(BuildContext context, FireBaseOnetoonechatProvider provider) {
+    return Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ContactProfileScreen(user: user),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.blueGrey,
+                      backgroundImage: user.photoURL.isNotEmpty
+                          ? NetworkImage(user.photoURL)
+                          : AssetImage(ProfileImageHelper.getProfileImage(
+                              user.phone)) as ImageProvider,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.uid == FirebaseAuth.instance.currentUser?.uid
+                            ? '${user.firstName} (You)'
+                            : user.firstName,
+                        style: TextStyle(
+                            fontSize: 18.5, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        provider.lastSeen,
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+  }
+
+  Text _buildSelectionTitle(FireBaseOnetoonechatProvider provider) {
+    return Text(
+                "${provider.selectedMessageIds.length} selected",
+                style: TextStyle(color: Colors.black),
+              );
+  }
+
+  
 
   IconButton deleteIconButton(BuildContext context,
       FireBaseOnetoonechatProvider provider, String chatId) {
@@ -177,3 +193,4 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
+

@@ -8,6 +8,7 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:wtsp_clone/fireBaseHelper/chat_id_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
@@ -47,7 +48,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       if (currentlyTyping != _isTyping) {
         _isTyping = currentlyTyping;
         String senderId = FirebaseAuth.instance.currentUser!.uid;
-        String chatId = _generateChatId(senderId, user.uid);
+        String chatId = ChatIdHelper.generateChatId(senderId, user.uid);
         updateTypingStatus(chatId, senderId, _isTyping);
       }
       notifyListeners();
@@ -91,14 +92,8 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-String _generateChatId(String senderId, String receiverId) {
-  return (senderId.hashCode <= receiverId.hashCode)
-      ? "$senderId\_$receiverId"
-      : "$receiverId\_$senderId";
-}
-
   Future<void> createChatIfNotExists(String senderId, String receiverId) async {
-  String chatId = _generateChatId(senderId, receiverId);
+  String chatId = ChatIdHelper.generateChatId(senderId, receiverId);
   DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
   DocumentSnapshot chatDoc = await chatRef.get();
 
@@ -117,7 +112,7 @@ String _generateChatId(String senderId, String receiverId) {
 }
   void openChat(String senderId, String receiverId) async {
     if (!_isActive) return;
-    String chatId = await _generateChatId(senderId, receiverId);
+    String chatId = await ChatIdHelper.generateChatId(senderId, receiverId);
     if (chatId.isEmpty) {
       print("Error: chatId is empty");
       return;
@@ -234,7 +229,7 @@ String _generateChatId(String senderId, String receiverId) {
     int audioDuration = 0,
   }) async {
     try {
-      String chatId = _generateChatId(senderId, receiverId);
+      String chatId = ChatIdHelper.generateChatId(senderId, receiverId);
       if (chatId.isEmpty) {
         print("Error: chatId is empty");
         return;
@@ -291,38 +286,13 @@ String _generateChatId(String senderId, String receiverId) {
       print("Error sending message: $e");
     }
   }
-
-  // Future<void> sendImageMessage(
-  //     String senderId, String receiverId, String imagePath) async {
-  //   if (!_isActive) return;
-  //   try {
-  //     File imageFile = File(imagePath);
-  //     String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
-
-  //     UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
-  //     TaskSnapshot snapshot = await uploadTask;
-  //     String downloadUrl = await snapshot.ref.getDownloadURL();
-
-  //     await sendMessage(
-  //       senderId: senderId,
-  //       receiverId: receiverId,
-  //       text: "📷 Photo",
-  //       mediaUrl: downloadUrl,
-  //       messageType: MessageType.image,
-  //     );
-  //     await updateLastSeen(senderId, isOnline: true);
-  //   } catch (e) {
-  //     print("Error sending image: $e");
-  //   }
-  // }
-
   Future<void> sendImageMessage(
     String senderId, String receiverId, String imagePath) async {
   if (!_isActive) return;
 
   try {
     File imageFile = File(imagePath);
-    String chatId = _generateChatId(senderId, receiverId);
+    String chatId = ChatIdHelper.generateChatId(senderId, receiverId);
     String messageId = _firestore
         .collection('chats')
         .doc(chatId)
@@ -668,4 +638,35 @@ String _generateChatId(String senderId, String receiverId) {
   //     print(stacktrace);
   //     return "";
   //   }
+  // }
+
+  // Future<void> sendImageMessage(
+  //     String senderId, String receiverId, String imagePath) async {
+  //   if (!_isActive) return;
+  //   try {
+  //     File imageFile = File(imagePath);
+  //     String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
+
+  //     UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
+  //     TaskSnapshot snapshot = await uploadTask;
+  //     String downloadUrl = await snapshot.ref.getDownloadURL();
+
+  //     await sendMessage(
+  //       senderId: senderId,
+  //       receiverId: receiverId,
+  //       text: "📷 Photo",
+  //       mediaUrl: downloadUrl,
+  //       messageType: MessageType.image,
+  //     );
+  //     await updateLastSeen(senderId, isOnline: true);
+  //   } catch (e) {
+  //     print("Error sending image: $e");
+  //   }
+  // }
+
+
+  // String _generateChatId(String senderId, String receiverId) {
+  //   return (senderId.hashCode <= receiverId.hashCode)
+  //       ? "$senderId\_$receiverId"
+  //       : "$receiverId\_$senderId";
   // }

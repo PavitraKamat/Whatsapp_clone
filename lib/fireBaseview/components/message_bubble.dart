@@ -1,310 +1,311 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/fireBaseview/components/audio_message_bubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/deleted_message_ubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/image_message_bubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/text_message_bubble.dart';
 import '../../fireBasemodel/models/msg_model.dart';
 
-class MessageBubble extends StatefulWidget {
-  final MessageModel message;
-  final bool isSentByMe;
+// class MessageBubble extends StatefulWidget {
+//   final MessageModel message;
+//   final bool isSentByMe;
 
-  const MessageBubble({
-    Key? key,
-    required this.message,
-    required this.isSentByMe,
-  }) : super(key: key);
+//   const MessageBubble({
+//     Key? key,
+//     required this.message,
+//     required this.isSentByMe,
+//   }) : super(key: key);
 
-  @override
-  State<MessageBubble> createState() => _MessageBubbleState();
-}
+//   @override
+//   State<MessageBubble> createState() => _MessageBubbleState();
+// }
 
-class _MessageBubbleState extends State<MessageBubble> {
-  @override
-  Widget build(BuildContext context) {
-    bool isRead = widget.message.isRead;
-    double maxWidth = MediaQuery.of(context).size.width * 0.75;
-    final provider = Provider.of<FireBaseOnetoonechatProvider>(context);
-    final isSelected =
-        provider.selectedMessageIds.contains(widget.message.messageId);
+// class _MessageBubbleState extends State<MessageBubble> {
+//   @override
+//   Widget build(BuildContext context) {
+//     bool isRead = widget.message.isRead;
+//     double maxWidth = MediaQuery.of(context).size.width * 0.75;
+//     final provider = Provider.of<FireBaseOnetoonechatProvider>(context);
+//     final isSelected =
+//         provider.selectedMessageIds.contains(widget.message.messageId);
 
-    return GestureDetector(
-      onLongPress: () {
-        provider.toggleSelectionMode(true);
-        provider.toggleMessageSelection(widget.message.messageId);
-      },
-      onTap: () {
-        if (provider.isSelectionMode) {
-          provider.toggleMessageSelection(widget.message.messageId);
-        }
-      },
-      child: Container(
-        color: isSelected
-            ? const Color.fromARGB(255, 169, 230, 174).withValues(alpha: 0.5)
-            : Colors.transparent,
-        child: Align(
-          alignment:
-              widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-          child: _buildMessageContent(maxWidth, isRead),
-        ),
-      ),
-    );
-  }
+//     return GestureDetector(
+//       onLongPress: () {
+//         provider.toggleSelectionMode(true);
+//         provider.toggleMessageSelection(widget.message.messageId);
+//       },
+//       onTap: () {
+//         if (provider.isSelectionMode) {
+//           provider.toggleMessageSelection(widget.message.messageId);
+//         }
+//       },
+//       child: Container(
+//         color: isSelected
+//             ? const Color.fromARGB(255, 169, 230, 174).withValues(alpha: 0.5)
+//             : Colors.transparent,
+//         child: Align(
+//           alignment:
+//               widget.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+//           child: _buildMessageContent(maxWidth, isRead),
+//         ),
+//       ),
+//     );
+//   }
 
-  Widget _buildMessageContent(double maxWidth, bool isRead) {
-    switch (widget.message.messageType) {
-      case MessageType.image:
-        return imageMessageBubble(
-            widget.message, maxWidth, widget.isSentByMe, isRead);
-      case MessageType.audio:
-        return AudioMessageBubble(
-          message: widget.message,
-          maxWidth: maxWidth,
-          isSentByUser: widget.isSentByMe,
-          isRead: isRead,
-        );
-      default:
-        return textMessageBubble(maxWidth, widget.isSentByMe, isRead);
-    }
-  }
+//   Widget _buildMessageContent(double maxWidth, bool isRead) {
+//     switch (widget.message.messageType) {
+//       case MessageType.image:
+//         return imageMessageBubble(
+//             widget.message, maxWidth, widget.isSentByMe, isRead);
+//       case MessageType.audio:
+//         return AudioMessageBubble(
+//           message: widget.message,
+//           maxWidth: maxWidth,
+//           isSentByUser: widget.isSentByMe,
+//           isRead: isRead,
+//         );
+//       default:
+//         return textMessageBubble(maxWidth, widget.isSentByMe, isRead);
+//     }
+//   }
 
-  Widget textMessageBubble(double maxWidth, bool isSentByUser, bool isRead) {
-    final isDeletedForEveryone = widget.message.isDeletedForEveryone;
-    if (isDeletedForEveryone) {
-      return deletedMessageBubble(
-        isDeletedForEveryone: true,
-        isSentByUser: widget.isSentByMe,
-      );
-    }
+//   Widget textMessageBubble(double maxWidth, bool isSentByUser, bool isRead) {
+//     final isDeletedForEveryone = widget.message.isDeletedForEveryone;
+//     if (isDeletedForEveryone) {
+//       return deletedMessageBubble(
+//         isDeletedForEveryone: true,
+//         isSentByUser: widget.isSentByMe,
+//       );
+//     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      decoration: BoxDecoration(
-        color: isSentByUser
-            ? const Color.fromARGB(255, 169, 230, 174)
-            : Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(10),
-          topRight: const Radius.circular(10),
-          bottomLeft:
-              widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
-          bottomRight:
-              widget.isSentByMe ? Radius.zero : const Radius.circular(10),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            spreadRadius: 1,
-            blurRadius: 3,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Flexible(
-            child: Text(
-              widget.message.messageContent,
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
-          const SizedBox(width: 5),
-          Row(
-            children: [
-              Text(
-                DateFormat.jm().format(widget.message.timestamp),
-                style: const TextStyle(fontSize: 10, color: Colors.black54),
-              ),
-              if (isSentByUser) ...[
-                const SizedBox(width: 5),
-                messageStatusIcon(widget.message),
-              ],
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+//     return Container(
+//       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+//       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+//       constraints: BoxConstraints(maxWidth: maxWidth),
+//       decoration: BoxDecoration(
+//         color: isSentByUser
+//             ? const Color.fromARGB(255, 169, 230, 174)
+//             : Colors.white,
+//         borderRadius: BorderRadius.only(
+//           topLeft: const Radius.circular(10),
+//           topRight: const Radius.circular(10),
+//           bottomLeft:
+//               widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
+//           bottomRight:
+//               widget.isSentByMe ? Radius.zero : const Radius.circular(10),
+//         ),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withValues(alpha: 0.05),
+//             spreadRadius: 1,
+//             blurRadius: 3,
+//           ),
+//         ],
+//       ),
+//       child: Row(
+//         mainAxisSize: MainAxisSize.min,
+//         crossAxisAlignment: CrossAxisAlignment.end,
+//         children: [
+//           Flexible(
+//             child: Text(
+//               widget.message.messageContent,
+//               style: const TextStyle(fontSize: 16),
+//             ),
+//           ),
+//           const SizedBox(width: 5),
+//           Row(
+//             children: [
+//               Text(
+//                 DateFormat.jm().format(widget.message.timestamp),
+//                 style: const TextStyle(fontSize: 10, color: Colors.black54),
+//               ),
+//               if (isSentByUser) ...[
+//                 const SizedBox(width: 5),
+//                 messageStatusIcon(widget.message),
+//               ],
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget imageMessageBubble(
-      MessageModel message, double maxWidth, bool isSentByUser, bool isRead) {
-    final isDeletedForEveryone = widget.message.isDeletedForEveryone;
-    if (isDeletedForEveryone) {
-      return deletedMessageBubble(
-        isDeletedForEveryone: true,
-        isSentByUser: widget.isSentByMe,
-      );
-    }
-    if (message.mediaUrl == null || message.mediaUrl!.isEmpty) {
-      return Container(
-        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: const EdgeInsets.all(5),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          "Image not available",
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    }
+//   Widget imageMessageBubble(
+//       MessageModel message, double maxWidth, bool isSentByUser, bool isRead) {
+//     final isDeletedForEveryone = widget.message.isDeletedForEveryone;
+//     if (isDeletedForEveryone) {
+//       return deletedMessageBubble(
+//         isDeletedForEveryone: true,
+//         isSentByUser: widget.isSentByMe,
+//       );
+//     }
+//     if (message.mediaUrl == null || message.mediaUrl!.isEmpty) {
+//       return Container(
+//         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+//         padding: const EdgeInsets.all(5),
+//         decoration: BoxDecoration(
+//           color: Colors.transparent,
+//           borderRadius: BorderRadius.circular(12),
+//         ),
+//         child: Text(
+//           "Image not available",
+//           style: TextStyle(color: Colors.white),
+//         ),
+//       );
+//     }
 
-    bool isLocalFile = message.mediaUrl!.startsWith('/');
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-      constraints: BoxConstraints(maxWidth: maxWidth),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Stack(
-        alignment: Alignment.bottomRight,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 250,
-                  height: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                isLocalFile
-                    ? Image.file(
-                        File(message.mediaUrl!),
-                        width: 250,
-                        height: 250,
-                        fit: BoxFit.fill,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                          child: Icon(Icons.broken_image,
-                              size: 50, color: Colors.red),
-                        ),
-                      )
-                    : Image.network(
-                        message.mediaUrl!,
-                        width: 250,
-                        height: 250,
-                        fit: BoxFit.fill,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                      (loadingProgress.expectedTotalBytes ?? 1)
-                                  : null,
-                              color: Colors.white,
-                            ),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                          child: Icon(Icons.broken_image,
-                              size: 50, color: Colors.red),
-                        ),
-                      ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 3,
-            right: 4,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-              decoration: BoxDecoration(
-                color:Colors.black.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    DateFormat.jm().format(message.timestamp),
-                    style: const TextStyle(
-                        fontSize: 10,
-                        color: Color.fromARGB(255, 255, 255, 255),
-                        fontWeight: FontWeight.bold),
-                  ),
-                  if (isSentByUser) ...[
-                    const SizedBox(width: 5),
-                    messageStatusIcon(message),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          if (message.isUploading)
-          Positioned.fill(
-            child: Container(
-              color: Colors.black26,
-              child: const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+//     bool isLocalFile = message.mediaUrl!.startsWith('/');
+//     return Container(
+//       margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
+//       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+//       constraints: BoxConstraints(maxWidth: maxWidth),
+//       decoration: BoxDecoration(
+//         borderRadius: BorderRadius.circular(10),
+//       ),
+//       child: Stack(
+//         alignment: Alignment.bottomRight,
+//         children: [
+//           ClipRRect(
+//             borderRadius: BorderRadius.circular(10),
+//             child: Stack(
+//               alignment: Alignment.center,
+//               children: [
+//                 Container(
+//                   width: 250,
+//                   height: 250,
+//                   decoration: BoxDecoration(
+//                     color: Colors.grey.withValues(alpha: 0.3),
+//                     borderRadius: BorderRadius.circular(10),
+//                   ),
+//                 ),
+//                 isLocalFile
+//                     ? Image.file(
+//                         File(message.mediaUrl!),
+//                         width: 250,
+//                         height: 250,
+//                         fit: BoxFit.fill,
+//                         errorBuilder: (context, error, stackTrace) =>
+//                             const Center(
+//                           child: Icon(Icons.broken_image,
+//                               size: 50, color: Colors.red),
+//                         ),
+//                       )
+//                     : Image.network(
+//                         message.mediaUrl!,
+//                         width: 250,
+//                         height: 250,
+//                         fit: BoxFit.fill,
+//                         loadingBuilder: (context, child, loadingProgress) {
+//                           if (loadingProgress == null) return child;
+//                           return Center(
+//                             child: CircularProgressIndicator(
+//                               value: loadingProgress.expectedTotalBytes != null
+//                                   ? loadingProgress.cumulativeBytesLoaded /
+//                                       (loadingProgress.expectedTotalBytes ?? 1)
+//                                   : null,
+//                               color: Colors.white,
+//                             ),
+//                           );
+//                         },
+//                         errorBuilder: (context, error, stackTrace) =>
+//                             const Center(
+//                           child: Icon(Icons.broken_image,
+//                               size: 50, color: Colors.red),
+//                         ),
+//                       ),
+//               ],
+//             ),
+//           ),
+//           Positioned(
+//             bottom: 3,
+//             right: 4,
+//             child: Container(
+//               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+//               decoration: BoxDecoration(
+//                 color:Colors.black.withValues(alpha: 0.5),
+//                 borderRadius: BorderRadius.circular(6),
+//               ),
+//               child: Row(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Text(
+//                     DateFormat.jm().format(message.timestamp),
+//                     style: const TextStyle(
+//                         fontSize: 10,
+//                         color: Color.fromARGB(255, 255, 255, 255),
+//                         fontWeight: FontWeight.bold),
+//                   ),
+//                   if (isSentByUser) ...[
+//                     const SizedBox(width: 5),
+//                     messageStatusIcon(message),
+//                   ],
+//                 ],
+//               ),
+//             ),
+//           ),
+//           if (message.isUploading)
+//           Positioned.fill(
+//             child: Container(
+//               color: Colors.black26,
+//               child: const Center(
+//                 child: CircularProgressIndicator(
+//                   color: Colors.white,
+//                 ),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  Widget messageStatusIcon(MessageModel message) {
-    if (message.isRead) {
-      return Icon(Icons.done_all, color: Colors.blue, size: 12);
-    } else if (message.isDelivered) {
-      return Icon(Icons.done_all, color: Colors.grey, size: 12);
-    } else {
-      return Icon(Icons.done, color: Colors.grey, size: 12);
-    }
-  }
+//   Widget messageStatusIcon(MessageModel message) {
+//     if (message.isRead) {
+//       return Icon(Icons.done_all, color: Colors.blue, size: 12);
+//     } else if (message.isDelivered) {
+//       return Icon(Icons.done_all, color: Colors.grey, size: 12);
+//     } else {
+//       return Icon(Icons.done, color: Colors.grey, size: 12);
+//     }
+//   }
 
-  Widget deletedMessageBubble(
-      {required bool isDeletedForEveryone, required bool isSentByUser}) {
-    String text =
-        isSentByUser ? "You deleted this message" : "This message was deleted";
+//   Widget deletedMessageBubble(
+//       {required bool isDeletedForEveryone, required bool isSentByUser}) {
+//     String text =
+//         isSentByUser ? "You deleted this message" : "This message was deleted";
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: isSentByUser
-            ? const Color.fromARGB(255, 169, 230, 174)
-            : Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(10),
-          topRight: const Radius.circular(10),
-          bottomLeft:
-              widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
-          bottomRight:
-              widget.isSentByMe ? Radius.zero : const Radius.circular(10),
-        ),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontStyle: FontStyle.italic,
-          fontSize: 14,
-          color: Colors.black54,
-        ),
-      ),
-    );
-  }
-}
-
-
+//     return Container(
+//       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+//       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+//       decoration: BoxDecoration(
+//         color: isSentByUser
+//             ? const Color.fromARGB(255, 169, 230, 174)
+//             : Colors.white,
+//         borderRadius: BorderRadius.only(
+//           topLeft: const Radius.circular(10),
+//           topRight: const Radius.circular(10),
+//           bottomLeft:
+//               widget.isSentByMe ? const Radius.circular(10) : Radius.zero,
+//           bottomRight:
+//               widget.isSentByMe ? Radius.zero : const Radius.circular(10),
+//         ),
+//       ),
+//       child: Text(
+//         text,
+//         style: TextStyle(
+//           fontStyle: FontStyle.italic,
+//           fontSize: 14,
+//           color: Colors.black54,
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 
+
+//------------------------------------------------------
   // Widget audioMessageBubble(
   //   MessageModel message,
   //   double maxWidth,
@@ -442,5 +443,86 @@ class _MessageBubbleState extends State<MessageBubble> {
   //     },
   //   );
   // }
+
+  //-----------------------------------------------------
+
+  class MessageBubble extends StatelessWidget {
+  final MessageModel message;
+  final bool isSentByMe;
+
+  const MessageBubble({
+    Key? key,
+    required this.message,
+    required this.isSentByMe,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<FireBaseOnetoonechatProvider>(context);
+    final isSelected = provider.selectedMessageIds.contains(message.messageId);
+
+    return GestureDetector(
+      onLongPress: () {
+        provider.toggleSelectionMode(true);
+        provider.toggleMessageSelection(message.messageId);
+      },
+      onTap: () {
+        if (provider.isSelectionMode) {
+          provider.toggleMessageSelection(message.messageId);
+        }
+      },
+      child: Container(
+        color: isSelected
+            ? const Color.fromARGB(255, 169, 230, 174).withAlpha(100)
+            : Colors.transparent,
+        child: Align(
+          alignment: isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+          child: _buildMessageType(message),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageType(MessageModel msg) {
+    if (msg.isDeletedForEveryone) {
+      return DeletedMessageBubble(
+        isSentByUser: isSentByMe,
+      );
+    }
+
+    switch (msg.messageType) {
+      case MessageType.text:
+        return TextMessageBubble(
+          message: msg,
+          isSentByUser: isSentByMe,
+        );
+      case MessageType.image:
+        return ImageMessageBubble(
+          message: msg,
+          isSentByUser: isSentByMe,
+        );
+      case MessageType.audio:
+        return AudioMessageBubble(
+          message: msg,
+          isRead: msg.isRead,
+          maxWidth: MediaQueryData.fromView(WidgetsBinding.instance.window).size.width * 0.75,
+          isSentByUser: isSentByMe,
+        );
+        //throw UnimplementedError();
+      case MessageType.voice:
+        // return AudioMessageBubble(
+        //   message: msg,
+        //   isRead: msg.isRead,
+        //   maxWidth: MediaQueryData.fromView(WidgetsBinding.instance.window).size.width * 0.75,
+        //   isSentByUser: isSentByMe,
+        // );
+        //throw UnimplementedError();
+      case MessageType.video:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+    }
+  }
+}
+
 
   

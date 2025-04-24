@@ -2,13 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
-import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/select_contact_page.dart';
 
 class FirebaseChatsScreen extends StatelessWidget {
-  final TextEditingController _searchController = TextEditingController();
+
+  const FirebaseChatsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -151,18 +152,18 @@ class FirebaseChatsScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         child: TextField(
-          controller: _searchController,
+          controller: contactsProvider.searchController,
           decoration: InputDecoration(
             hintText: "Ask Meta AI or Search",
             hintStyle: TextStyle(color: Colors.black54),
             prefixIcon: Icon(Icons.search, color: Colors.black54),
             filled: true,
             fillColor: Color(0xFFF1F4F3),
-            suffixIcon: _searchController.text.isNotEmpty
+            suffixIcon: contactsProvider.searchController.text.isNotEmpty
                 ? IconButton(
                     icon: Icon(Icons.close, color: Colors.black, size: 18),
                     onPressed: () {
-                      _searchController.clear();
+                      contactsProvider.searchController.clear();
                       contactsProvider.filterContacts('');
                       FocusScope.of(context).unfocus();
                     },

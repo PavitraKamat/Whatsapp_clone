@@ -20,8 +20,6 @@ class FireBaseOnetooneChat extends StatelessWidget {
       create: (_) {
         var provider = FireBaseOnetoonechatProvider(user: user);
         provider.openChat(FirebaseAuth.instance.currentUser!.uid, user.uid);
-        WidgetsBinding.instance
-            .addPostFrameCallback((_) => provider.scrollToBottom());
         return provider;
       },
       child: Builder(builder: (context) {
@@ -57,12 +55,13 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
 
   Column _buildChatBody(
       FireBaseOnetoonechatProvider chatProvider, String currentUserId) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (chatProvider.scrollController.hasClients) {
-        chatProvider.scrollController
-            .jumpTo(chatProvider.scrollController.position.maxScrollExtent);
-      }
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   if (chatProvider.scrollController.hasClients) {
+    //     chatProvider.scrollController
+    //         .jumpTo(chatProvider.scrollController.position.maxScrollExtent);
+    //   }
+    // });
+    chatProvider.scrollToBottom();
     return Column(
       children: [
         Expanded(child: KeyboardVisibilityBuilder(
