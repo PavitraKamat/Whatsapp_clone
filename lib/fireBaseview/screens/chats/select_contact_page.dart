@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/select_contact_provider.dart';
-import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/user_profile_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/components/pop_up_menu.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
@@ -135,49 +135,7 @@ class SelectContactPage extends StatelessWidget {
 
   Widget _buildUserTile(UserModel user, BuildContext context) {
     return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey[200],
-        child: ClipOval(
-          child: user.photoURL.isNotEmpty
-              ? Image.network(
-                  user.photoURL,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Center(
-                        child: SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: const Color.fromARGB(255, 150, 229, 152),
-                            strokeWidth: 2.0,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      ProfileImageHelper.getProfileImage(user.phone),
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                )
-              : Image.asset(
-                  ProfileImageHelper.getProfileImage(user.phone),
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
-        ),
-      ),
+      leading: UserProfileHelper(photoUrl:user.photoURL,phone:user.phone),
       title: Text(user.uid == FirebaseAuth.instance.currentUser?.uid
           ? '${user.firstName} (You)'
           : user.firstName),

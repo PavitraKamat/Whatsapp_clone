@@ -9,7 +9,7 @@ class ImageMessageBubble extends StatelessWidget {
   final MessageModel message;
   final bool isSentByUser;
 
-  const ImageMessageBubble({required this.message, required this.isSentByUser});
+  const ImageMessageBubble({super.key, required this.message, required this.isSentByUser});
 
   @override
   Widget build(BuildContext context) {

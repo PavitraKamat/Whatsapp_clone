@@ -29,6 +29,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   FlutterSoundRecorder? _recorder;
   String? recordedFilePath;
   Timer? _timer;
+  Offset _initialDragOffset = Offset.zero;
 
   List<MessageModel> get messages => _messages;
   bool get isTyping => _isTyping;
@@ -36,6 +37,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   String get lastSeen => _lastSeen;
   bool get isSelectionMode => _isSelectionMode;
   List<String> get selectedMessageIds => _selectedMessageIds;
+  Offset get initialDragOffset => _initialDragOffset;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
@@ -457,7 +459,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   Future<void> stopRecordingAndSend(String senderId, String receiverId) async {
     try {
       _timer?.cancel();
-      final path = await _recorder?.stopRecorder();
+      //final path = await _recorder?.stopRecorder();
       await _recorder?.closeRecorder();
       isRecording = false;
       notifyListeners();
@@ -503,6 +505,24 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       print("Error updating typing status: $e");
     }
   }
+
+  void upDateTypingStatus(String text) {
+  _isTyping = text.isNotEmpty;
+  notifyListeners();
+}
+
+void resetTyping() {
+  _isTyping = false;
+  notifyListeners();
+}
+
+void setInitialDragOffset(Offset offset) {
+  _initialDragOffset = offset;
+}
+
+void resetInitialDragOffset() {
+  _initialDragOffset = Offset.zero;
+}
 
   Future<void> deleteMessagesForMe(
     List<String> messageIds,

@@ -101,7 +101,7 @@ class _FireBaseOnetooneChatScreen extends StatelessWidget {
           },
         )),
         MessageInputField(
-          controller: chatProvider.messageController,
+          //controller: chatProvider.messageController,
           senderId: currentUserId,
           receiverId: user.uid,
           onSend: () async {

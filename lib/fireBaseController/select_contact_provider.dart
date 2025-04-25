@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:wtsp_clone/fireBaseHelper/search_contacts_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class SelectContactProvider extends ChangeNotifier {
@@ -48,8 +49,6 @@ class SelectContactProvider extends ChangeNotifier {
         _filteredContacts = List.from(users);
         _isLoading = false;
         notifyListeners();
-
-        //_fetchLastMessages();
       });
     } catch (e) {
       print("Error fetching users: $e");
@@ -59,14 +58,15 @@ class SelectContactProvider extends ChangeNotifier {
   }
 
   void filterContacts(String query) {
-    query = query.toLowerCase();
-    _filteredContacts = _contacts.where((user) {
-      bool matchesName = user.firstName.toLowerCase().contains(query);
-      bool matchesNumber =
-          user.phone.replaceAll(RegExp(r'\D'), '').contains(query);
+    // query = query.toLowerCase();
+    // _filteredContacts = _contacts.where((user) {
+    //   bool matchesName = user.firstName.toLowerCase().contains(query);
+    //   bool matchesNumber =
+    //       user.phone.replaceAll(RegExp(r'\D'), '').contains(query);
 
-      return matchesName || matchesNumber;
-    }).toList();
+    //   return matchesName || matchesNumber;
+    // }).toList();
+    _filteredContacts = filterContactsHelper(_contacts, query);
     notifyListeners();
   }
 
@@ -86,53 +86,3 @@ class SelectContactProvider extends ChangeNotifier {
     searchController.dispose();
   }
 }
-
-
-
-  // String _getChatId(String otherUserId) {
-  //   String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-  //   if (currentUserId == null) return "";
-  //   return (currentUserId.hashCode <= otherUserId.hashCode)
-  //       ? "$currentUserId\_$otherUserId"
-  //       : "$otherUserId\_$currentUserId";
-  // }
-
-
-  // void _fetchLastMessages() {
-  //   for (var contact in _contacts) {
-  //     String chatId = _getChatId(contact.uid);
-
-  //     FirebaseFirestore.instance
-  //         .collection("chats")
-  //         .doc(chatId)
-  //         .snapshots()
-  //         .listen((chatDoc) {
-  //       if (chatDoc.exists && chatDoc.data() != null) {
-  //         var data = chatDoc.data();
-  //         if (data != null &&
-  //             data.containsKey('lastMessage') &&
-  //             data.containsKey('lastMessageTime')) {
-  //           String lastMsg = data['lastMessage'];
-  //           Timestamp lastMsgTime = data['lastMessageTime'];
-  //           String formattedTime =
-  //               DateFormat('hh:mm a').format(lastMsgTime.toDate());
-
-  //           updateLastMessage(contact.uid, lastMsg, formattedTime);
-  //         }
-  //       }
-  //     });
-  //   }
-  // }
-
-  // String _getChatId(String otherUserId) {
-  //   String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-  //   if (currentUserId == null) return "";
-
-  //   return generateChatId(currentUserId, otherUserId);
-  // }
-
-  // void updateLastMessage(String userId, String message, String time) {
-  //   _lastMessages[userId] = {"message": message, "time": time};
-  //   notifyListeners();
-  // }
-

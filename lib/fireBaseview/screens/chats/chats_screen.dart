@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
-import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/user_profile_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/oneToOne_chat.dart';
 import 'package:wtsp_clone/fireBaseview/screens/chats/select_contact_page.dart';
@@ -16,7 +16,7 @@ class FirebaseChatsScreen extends StatelessWidget {
     final contactsProvider = Provider.of<FireBaseContactsProvider>(context);
 
     return Scaffold(
-      body: Column(
+      body: Column( 
         children: [
           _buildSearchBar(contactsProvider, context),
           _buildContactsList(contactsProvider),
@@ -90,50 +90,7 @@ class FirebaseChatsScreen extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      leading: CircleAvatar(
-        backgroundColor: Colors.grey[200],
-        child: ClipOval(
-          child: user.photoURL.isNotEmpty
-              ? Image.network(
-                  user.photoURL,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Center(
-                        child: SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color:const Color.fromARGB(255, 150, 229, 152),
-                            strokeWidth: 2.0,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      ProfileImageHelper.getProfileImage(user.phone),
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                )
-              : Image.asset(
-                  ProfileImageHelper.getProfileImage(user.phone),
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
-        ),
-      ),
-
+      leading:UserProfileHelper(photoUrl: user.photoURL, phone: user.phone),
       onTap: () {
         Navigator.push(
           context,

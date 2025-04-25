@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
-import 'package:wtsp_clone/fireBasemodel/models/profile_image_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class ContactProfileScreen extends StatelessWidget {
   final UserModel user;
 
-  ContactProfileScreen({Key? key, required this.user}) : super(key: key);
+  const ContactProfileScreen({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +28,49 @@ class ContactProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.blueGrey,
-                backgroundImage: AssetImage(
-                    ProfileImageHelper.getProfileImage(user.phone)),
-              ),
+        CircleAvatar(
+        backgroundColor: Colors.grey[200],
+        child: ClipOval(
+          child: user.photoURL.isNotEmpty
+              ? Image.network(
+                  user.photoURL,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            color:const Color.fromARGB(255, 150, 229, 152),
+                            strokeWidth: 2.0,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      ProfileImageHelper.getProfileImage(user.phone),
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
+                    );
+                  },
+                )
+              : Image.asset(
+                  ProfileImageHelper.getProfileImage(user.phone),
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+        ),
+      ),
             SizedBox(height: 10),
             Text(
               user.firstName,
@@ -100,18 +136,6 @@ class ContactProfileScreen extends StatelessWidget {
       ],
     );
   }
-
-  // Widget _iconButton(IconData icon, String label) {
-  //   return Column(
-  //     children: [
-  //       IconButton(
-  //         icon: Icon(icon, size: 30, color: Colors.green),
-  //         onPressed: () {},
-  //       ),
-  //       Text(label, style: TextStyle(fontSize: 12)),
-  //     ],
-  //   );
-  // }
 
   Widget _mediaPreview() {
     return Padding(

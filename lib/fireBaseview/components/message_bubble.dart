@@ -451,10 +451,10 @@ import '../../fireBasemodel/models/msg_model.dart';
   final bool isSentByMe;
 
   const MessageBubble({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSentByMe,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -504,8 +504,6 @@ import '../../fireBasemodel/models/msg_model.dart';
       case MessageType.audio:
         return AudioMessageBubble(
           message: msg,
-          isRead: msg.isRead,
-          maxWidth: MediaQueryData.fromView(WidgetsBinding.instance.window).size.width * 0.75,
           isSentByUser: isSentByMe,
         );
         //throw UnimplementedError();
@@ -518,7 +516,6 @@ import '../../fireBasemodel/models/msg_model.dart';
         // );
         //throw UnimplementedError();
       case MessageType.video:
-        // TODO: Handle this case.
         throw UnimplementedError();
     }
   }
