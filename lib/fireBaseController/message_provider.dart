@@ -15,10 +15,13 @@ class MessageProvider extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   List<MessageModel> _messages = [];
+  bool _isSelectionMode = false;
+  final List<String> _selectedMessageIds = [];
   
   List<MessageModel> get messages => _messages;
+  bool get isSelectionMode => _isSelectionMode;
+  List<String> get selectedMessageIds => _selectedMessageIds;
   
-  // Audio recording related properties and methods
   bool isRecording = false;
   bool isCancelled = false;
   int recordDuration = 0;
@@ -72,6 +75,27 @@ class MessageProvider extends ChangeNotifier {
       }
       notifyListeners();
     });
+  }
+
+  void toggleSelectionMode(bool value) {
+    _isSelectionMode = value;
+    if (!value) _selectedMessageIds.clear();
+    notifyListeners();
+  }
+
+  void toggleMessageSelection(String messageId) {
+    if (_selectedMessageIds.contains(messageId)) {
+      _selectedMessageIds.remove(messageId);
+    } else {
+      _selectedMessageIds.add(messageId);
+    }
+    notifyListeners();
+  }
+
+  void clearSelection() {
+    _selectedMessageIds.clear();
+    _isSelectionMode = false;
+    notifyListeners();
   }
   
   // Send text message

@@ -1,24 +1,25 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart' as just;
-import 'package:path_provider/path_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
-import 'package:http/http.dart' as http;
 
 class AudioMessageProvider extends ChangeNotifier {
   final MessageModel message;
   final bool isSentByUser;
 
-  final just.AudioPlayer _player = just.AudioPlayer();
+  late just.AudioPlayer _player;
   PlayerController? _waveController;
   StreamSubscription<just.PlayerState>? _playerStateSub;
+  StreamSubscription<Duration>? _positionStreamSub;
+  StreamSubscription<Duration?>? _durationStreamSub;
 
   bool isPlaying = false;
   bool isWaveformReady = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
+
+  bool _isDisposed = false; // Flag to prevent updates after dispose
 
   AudioMessageProvider({
     required this.message,
@@ -33,11 +34,15 @@ class AudioMessageProvider extends ChangeNotifier {
 
   Future<void> _initAudioPlayer() async {
     try {
+      _player = just.AudioPlayer();
       final url = message.mediaUrl;
+
       if (url == null) return;
       await _player.setUrl(url);
 
       _playerStateSub = _player.playerStateStream.listen((state) {
+        if (_isDisposed) return; // Prevent notifying listeners if disposed
+
         if (state.processingState == just.ProcessingState.completed) {
           _player.seek(Duration.zero);
           _player.stop();
@@ -51,15 +56,16 @@ class AudioMessageProvider extends ChangeNotifier {
         }
       });
 
-      _player.positionStream.listen((pos) {
+      _positionStreamSub = _player.positionStream.listen((pos) {
+        if (_isDisposed) return; // Prevent notifying listeners if disposed
         position = pos;
         notifyListeners();
       });
 
-      _player.durationStream.listen((dur) {
+      _durationStreamSub = _player.durationStream.listen((dur) {
+        if (_isDisposed) return; // Prevent notifying listeners if disposed
         if (dur != null) {
           duration = dur;
-          notifyListeners();
         }
       });
     } catch (_) {}
@@ -92,6 +98,8 @@ class AudioMessageProvider extends ChangeNotifier {
 
   Future<void> togglePlayback() async {
     try {
+      if (_isDisposed) return; // Prevent playback toggle if disposed
+
       if (isPlaying) {
         await _player.pause();
         if (_waveController != null && isWaveformReady) {
@@ -110,9 +118,19 @@ class AudioMessageProvider extends ChangeNotifier {
   }
 
   void disposePlayer() {
+    _player.setUrl('');
     _playerStateSub?.cancel();
+    _positionStreamSub?.cancel();
+    _durationStreamSub?.cancel();
     _player.dispose();
     _waveController?.dispose();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    disposePlayer();
+    super.dispose();
   }
 
   double get progressPercent {

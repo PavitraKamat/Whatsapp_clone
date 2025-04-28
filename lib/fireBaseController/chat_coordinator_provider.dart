@@ -13,6 +13,7 @@ class ChatCoordinator extends ChangeNotifier {
   final ChatUIProvider chatUIProvider;
   final UserModel receiver;
   String? _chatId;
+  bool _isInitialized = false;
   
   ChatCoordinator({
     required this.messageProvider,
@@ -24,10 +25,11 @@ class ChatCoordinator extends ChangeNotifier {
   }
   
   void _initialize() async {
+     if (_isInitialized) return;
+    _isInitialized = true;
     String currentUserId = FirebaseAuth.instance.currentUser!.uid;
     _chatId = ChatIdHelper.generateChatId(currentUserId, receiver.uid);
     
-    // Initialize chat
     await messageProvider.createChatIfNotExists(currentUserId, receiver.uid);
     
     // Load messages
@@ -65,6 +67,9 @@ class ChatCoordinator extends ChangeNotifier {
     
     // Update last seen
     await userStatusProvider.updateLastSeen(currentUserId, isOnline: true);
+    await userStatusProvider.updateReceiverLastSeen(receiver.uid);
+
+    chatUIProvider.scrollToBottom();
   }
   
   // Send image
@@ -75,6 +80,10 @@ class ChatCoordinator extends ChangeNotifier {
       receiver.uid, 
       imagePath
     );
+    await userStatusProvider.updateLastSeen(currentUserId, isOnline: true);
+    await userStatusProvider.updateReceiverLastSeen(receiver.uid);
+
+    chatUIProvider.scrollToBottom();
   }
   
   // Voice message methods
@@ -88,6 +97,10 @@ class ChatCoordinator extends ChangeNotifier {
       currentUserId, 
       receiver.uid
     );
+    await userStatusProvider.updateLastSeen(currentUserId, isOnline: true);
+    await userStatusProvider.updateReceiverLastSeen(receiver.uid);
+
+    chatUIProvider.scrollToBottom();
   }
   
   Future<void> cancelRecording() async {

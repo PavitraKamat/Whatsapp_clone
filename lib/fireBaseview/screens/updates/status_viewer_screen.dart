@@ -402,7 +402,7 @@ Color _parseColor(String colorStr) {
     if (colorStr.startsWith('#')) {
       String hexColor = colorStr.replaceAll("#", "");
       if (hexColor.length == 6) {
-        hexColor = "FF" + hexColor; 
+        hexColor = "FF$hexColor"; 
       }
       return Color(int.parse("0x$hexColor"));
     } else if (colorStr.startsWith('Color(')) {

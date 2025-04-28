@@ -46,12 +46,12 @@ class FireBaseContactsProvider extends ChangeNotifier {
             }
           }
           _contacts = allUsers;
-          _filteredContacts = List.from(_contacts);  
+          _filteredContacts = List.from(_contacts);
           _isLoading = false;
-          sortContacts(); 
+          sortContacts();
           notifyListeners();
 
-          _fetchLastMessages();  
+          _fetchLastMessages();
         });
       });
     } catch (e) {
@@ -62,13 +62,6 @@ class FireBaseContactsProvider extends ChangeNotifier {
   }
 
   void filterContacts(String query) {
-    // query = query.toLowerCase().trim();
-    // _filteredContacts = _contacts.where((user) {
-    //   bool matchesName = user.firstName.toLowerCase().contains(query);
-    //   bool matchesNumber =
-    //       user.phone.replaceAll(RegExp(r'\D'), '').contains(query);
-    //   return matchesName || matchesNumber;
-    // }).toList();
     _filteredContacts = filterContactsHelper(_contacts, query);
     notifyListeners();
   }
@@ -83,7 +76,9 @@ class FireBaseContactsProvider extends ChangeNotifier {
           .listen((chatDoc) {
         if (chatDoc.exists && chatDoc.data() != null) {
           var data = chatDoc.data();
-          if (data != null && data.containsKey('lastMessage') && data.containsKey('lastMessageTime')) {
+          if (data != null &&
+              data.containsKey('lastMessage') &&
+              data.containsKey('lastMessageTime')) {
             String lastMsg = data['lastMessage'];
             Timestamp lastMsgTime = data['lastMessageTime'];
             String formattedTime = formatTimestamp(lastMsgTime);
@@ -94,12 +89,12 @@ class FireBaseContactsProvider extends ChangeNotifier {
     }
   }
 
-String getChatId(String otherUserId) {
-  String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
-  if (currentUserId == null) return "";
+  String getChatId(String otherUserId) {
+    String? currentUserId = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUserId == null) return "";
 
-  return ChatIdHelper.generateChatId(currentUserId, otherUserId);
-}
+    return ChatIdHelper.generateChatId(currentUserId, otherUserId);
+  }
 
   void updateLastMessage(
       String userId, String message, String time, Timestamp timestamp) {
@@ -108,7 +103,7 @@ String getChatId(String otherUserId) {
       "time": time,
       "timestamp": timestamp,
     };
-    sortContacts();  
+    sortContacts();
     notifyListeners();
   }
 

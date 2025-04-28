@@ -9,6 +9,7 @@ import 'package:wtsp_clone/controller/login_provider.dart';
 import 'package:wtsp_clone/controller/navigation_service.dart';
 import 'package:wtsp_clone/controller/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
+import 'package:wtsp_clone/fireBaseController/audio_message_provider.dart';
 import 'package:wtsp_clone/fireBaseController/contact_provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
 import 'package:wtsp_clone/fireBaseController/select_contact_provider.dart';
@@ -51,7 +52,7 @@ class WhatsAppClone extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => GoogleSignInProvider()),
         ChangeNotifierProvider(create: (context) => SelectContactProvider()),
         ChangeNotifierProvider(create: (context) => StatusProvider()),
-        ChangeNotifierProvider(create: (context) => LoginProvider())
+        ChangeNotifierProvider(create: (context) => LoginProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

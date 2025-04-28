@@ -10,7 +10,7 @@ import 'package:wtsp_clone/fireBaseview/screens/updates/status_viewer_screen.dar
 import 'package:wtsp_clone/fireBaseview/screens/updates/text_status_screen.dart';
 
 class FireBaseUpdatesScreen extends StatelessWidget {
-  const FireBaseUpdatesScreen({Key? key}) : super(key: key);
+  const FireBaseUpdatesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
