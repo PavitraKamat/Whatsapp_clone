@@ -1,3 +1,4 @@
+// Message Provider - Handles message sending, deleting, and media operations
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,95 +6,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
-import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:wtsp_clone/fireBaseHelper/chat_id_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
-import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
-class FireBaseOnetoonechatProvider extends ChangeNotifier {
-  final UserModel user;
+class MessageProvider extends ChangeNotifier {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
   List<MessageModel> _messages = [];
-  bool _isTyping = false;
-  bool _isReceiverTyping = false;
-  String _lastSeen = "";
-  TextEditingController messageController = TextEditingController();
-  ScrollController scrollController = ScrollController();
-  bool _isActive = true;
-  bool _isSelectionMode = false;
-  final List<String> _selectedMessageIds = [];
+  
+  List<MessageModel> get messages => _messages;
+  
+  // Audio recording related properties and methods
   bool isRecording = false;
   bool isCancelled = false;
   int recordDuration = 0;
   FlutterSoundRecorder? _recorder;
   String? recordedFilePath;
   Timer? _timer;
-  Offset _initialDragOffset = Offset.zero;
-
-  List<MessageModel> get messages => _messages;
-  bool get isTyping => _isTyping;
-  bool get isReceiverTyping => _isReceiverTyping;
-  String get lastSeen => _lastSeen;
-  bool get isSelectionMode => _isSelectionMode;
-  List<String> get selectedMessageIds => _selectedMessageIds;
-  Offset get initialDragOffset => _initialDragOffset;
-
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
-
-  FireBaseOnetoonechatProvider({required this.user}) {
-    messageController.addListener(() async {
-      if (!_isActive) return;
-
-      bool currentlyTyping = messageController.text.isNotEmpty;
-      if (currentlyTyping != _isTyping) {
-        _isTyping = currentlyTyping;
-        String senderId = FirebaseAuth.instance.currentUser!.uid;
-        String chatId = ChatIdHelper.generateChatId(senderId, user.uid);
-        updateTypingStatus(chatId, senderId, _isTyping);
-      }
-      notifyListeners();
-    });
-  }
-
-  void scrollToBottom() {
-    if (!_isActive) return;
-
-    if (scrollController.hasClients) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (_isActive && scrollController.hasClients) {
-          scrollController.animateTo(
-            scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    }
-  }
-
-  void toggleSelectionMode(bool value) {
-    _isSelectionMode = value;
-    if (!value) _selectedMessageIds.clear();
-    notifyListeners();
-  }
-
-  void toggleMessageSelection(String messageId) {
-    if (_selectedMessageIds.contains(messageId)) {
-      _selectedMessageIds.remove(messageId);
-    } else {
-      _selectedMessageIds.add(messageId);
-    }
-    notifyListeners();
-  }
-
-  void clearSelection() {
-    _selectedMessageIds.clear();
-    _isSelectionMode = false;
-    notifyListeners();
-  }
-
+  
+  // Create chat document if it doesn't exist
   Future<void> createChatIfNotExists(String senderId, String receiverId) async {
     String chatId = ChatIdHelper.generateChatId(senderId, receiverId);
     DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
@@ -112,23 +45,9 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       });
     }
   }
-
-  void openChat(String senderId, String receiverId) async {
-    if (!_isActive) return;
-    String chatId = await ChatIdHelper.generateChatId(senderId, receiverId);
-    if (chatId.isEmpty) {
-      print("Error: chatId is empty");
-      return;
-    }
-    _firestore.collection("chats").doc(chatId).snapshots().listen((snapshot) {
-      if (!_isActive) return;
-
-      if (snapshot.exists) {
-        List<dynamic> typingUsers = snapshot.data()?['typingUsers'] ?? [];
-        _isReceiverTyping = typingUsers.contains(receiverId);
-        notifyListeners();
-      }
-    });
+  
+  // Load messages for a chat
+  Future<void> loadMessages(String chatId, String currentUserId) async {
     _firestore
         .collection("chats")
         .doc(chatId)
@@ -136,15 +55,13 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         .orderBy('timestamp', descending: false)
         .snapshots()
         .listen((snapshot) async {
-      if (!_isActive) return;
-      String currentUserId = FirebaseAuth.instance.currentUser!.uid;
       _messages = snapshot.docs
           .map((doc) => MessageModel.fromMap(doc.id, doc.data()))
           .where((message) => !(message.deletedFor.contains(currentUserId)))
           .toList();
 
       for (var message in _messages) {
-        if (message.receiverId == senderId && !message.isRead) {
+        if (message.receiverId == currentUserId && !message.isRead) {
           await _firestore
               .collection('chats')
               .doc(chatId)
@@ -154,75 +71,10 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         }
       }
       notifyListeners();
-      scrollToBottom();
     });
-    await _updateReceiverLastSeen(receiverId);
   }
-
-  Future<void> updateLastSeen(String userId, {bool isOnline = false}) async {
-    if (!_isActive) return;
-    try {
-      await _firestore.collection('users').doc(userId).update({
-        'isOnline': isOnline,
-        'lastSeen': isOnline ? 'online' : Timestamp.now(),
-      });
-      notifyListeners();
-    } catch (e) {
-      print("Error updating online status: $e");
-    }
-  }
-
-  Future<void> _updateReceiverLastSeen(String receiverId) async {
-    if (!_isActive) return;
-    try {
-      DocumentSnapshot receiverDoc =
-          await _firestore.collection('users').doc(receiverId).get();
-
-      if (!receiverDoc.exists) {
-        _lastSeen = "Last seen recently";
-      } else {
-        var data = receiverDoc.data() as Map<String, dynamic>;
-
-        // Check online status
-        if (data.containsKey('isOnline') && data['isOnline'] == true) {
-          _lastSeen = "Online";
-        } else if (data.containsKey('lastSeen') &&
-            data['lastSeen'] is Timestamp) {
-          Timestamp lastSeenTimestamp = data['lastSeen'];
-          DateTime lastSeenDateTime = lastSeenTimestamp.toDate();
-          DateTime now = DateTime.now();
-
-          // Extracting only date components
-          DateTime lastSeenDate = DateTime(
-            lastSeenDateTime.year,
-            lastSeenDateTime.month,
-            lastSeenDateTime.day,
-          );
-
-          DateTime todayDate = DateTime(now.year, now.month, now.day);
-          DateTime yesterdayDate = todayDate.subtract(Duration(days: 1));
-
-          if (lastSeenDate == todayDate) {
-            _lastSeen =
-                "Last seen today at ${DateFormat('hh:mm a').format(lastSeenDateTime)}";
-          } else if (lastSeenDate == yesterdayDate) {
-            _lastSeen =
-                "Last seen yesterday at ${DateFormat('hh:mm a').format(lastSeenDateTime)}";
-          } else {
-            _lastSeen =
-                "Last seen on ${DateFormat('dd/MM/yyyy').format(lastSeenDateTime)}";
-          }
-        } else {
-          _lastSeen = "Last seen recently";
-        }
-      }
-      notifyListeners();
-    } catch (e, stacktrace) {
-      _lastSeen = "Last seen recently";
-      print(stacktrace);
-    }
-  }
-
+  
+  // Send text message
   Future<void> sendMessage({
     required String senderId,
     required String receiverId,
@@ -244,7 +96,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           .collection('messages')
           .doc()
           .id;
-
+          
       DocumentSnapshot receiverDoc =
           await _firestore.collection('users').doc(receiverId).get();
       bool isReceiverOnline = receiverDoc.exists &&
@@ -267,16 +119,14 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
           audioDuration: audioDuration,
           isPlayed: false,
           isUploading: false);
+          
       await _firestore
           .collection('chats')
           .doc(chatId)
           .collection('messages')
           .doc(messageId)
           .set(newMessage.toMap());
-      print("Message sent successfully!");
-      await updateLastSeen(senderId, isOnline: true);
-      await _updateReceiverLastSeen(receiverId);
-
+          
       // Update chat list with last message details
       await _firestore.collection('chats').doc(chatId).update({
         'lastMessage': text,
@@ -284,16 +134,16 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         'lastMessageTime': Timestamp.now(),
         'seenBy': [senderId, receiverId],
       });
+      
       notifyListeners();
     } catch (e) {
       print("Error sending message: $e");
     }
   }
-
+  
+  // Send image message
   Future<void> sendImageMessage(
       String senderId, String receiverId, String imagePath) async {
-    if (!_isActive) return;
-
     try {
       File imageFile = File(imagePath);
       String chatId = ChatIdHelper.generateChatId(senderId, receiverId);
@@ -312,7 +162,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         receiverId: receiverId,
         messageType: MessageType.image,
         messageContent: "📷 Photo",
-        mediaUrl: imagePath,
+        mediaUrl: imagePath, 
         timestamp: DateTime.now(),
         isRead: false,
         isDelivered: false,
@@ -321,7 +171,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         isDeletedForEveryone: false,
         audioDuration: 0,
         isPlayed: false,
-        isUploading: true,
+        isUploading: true, 
       );
 
       //Add to local message list to show immediately
@@ -362,25 +212,14 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         'lastMessageTime': Timestamp.now(),
         'seenBy': [senderId, receiverId],
       });
-
-      // 8. Update local message object with the final URL
-      // int index = _messages.indexWhere((m) => m.messageId == messageId);
-      // if (index != -1) {
-      //   _messages[index] = _messages[index].copyWith(
-      //     mediaUrl: downloadUrl,
-      //     isUploading: false,
-      //   );
-      //   notifyListeners();
-      // }
     } catch (e) {
       print("Error sending image: $e");
     }
   }
-
+  
+  // Voice message methods
   Future<void> sendVoiceMessage(
       String senderId, String receiverId, String path) async {
-    if (!_isActive) return;
-
     try {
       final file = File(path);
       final fileName = "${DateTime.now().millisecondsSinceEpoch}.m4a";
@@ -406,9 +245,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
         messageType: MessageType.audio,
         audioDuration: audioDuration,
       );
-
-      // Optionally update last seen
-      await updateLastSeen(senderId, isOnline: true);
 
       print("Voice message sent: $audioUrl, duration: $audioDuration sec");
     } catch (e) {
@@ -460,7 +296,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
   Future<void> stopRecordingAndSend(String senderId, String receiverId) async {
     try {
       _timer?.cancel();
-      //final path = await _recorder?.stopRecorder();
       await _recorder?.closeRecorder();
       isRecording = false;
       notifyListeners();
@@ -489,42 +324,8 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       print("Error canceling recorder: $e");
     }
   }
-
-  void updateTypingStatus(String chatId, String userId, bool isTyping) async {
-    if (!_isActive) return;
-    try {
-      _isTyping = isTyping;
-      notifyListeners();
-
-      await FirebaseFirestore.instance.collection('chats').doc(chatId).update({
-        'typingUsers': isTyping
-            ? FieldValue.arrayUnion([userId])
-            : FieldValue.arrayRemove([userId])
-      });
-      print("Typing status updated: $_isTyping for chatId: $chatId");
-    } catch (e) {
-      print("Error updating typing status: $e");
-    }
-  }
-
-  void upDateTypingStatus(String text) {
-    _isTyping = text.isNotEmpty;
-    notifyListeners();
-  }
-
-  void resetTyping() {
-    _isTyping = false;
-    notifyListeners();
-  }
-
-  void setInitialDragOffset(Offset offset) {
-    _initialDragOffset = offset;
-  }
-
-  void resetInitialDragOffset() {
-    _initialDragOffset = Offset.zero;
-  }
-
+  
+  // Delete messages
   Future<void> deleteMessagesForMe(
     List<String> messageIds,
     String chatId,
@@ -549,8 +350,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
       if (chatDoc.exists) {
         var data = chatDoc.data() as Map<String, dynamic>;
-        String? lastMessage = data['lastMessage'];
-        Timestamp? lastMessageTime = data['lastMessageTime'];
 
         // Fetch the last visible (non-deleted) message for this user
         QuerySnapshot newLastMessagesSnapshot = await _firestore
@@ -591,7 +390,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       }
 
       _messages.removeWhere((msg) => messageIds.contains(msg.messageId));
-      clearSelection();
       notifyListeners();
     } catch (e) {
       print("Error in deleteMessagesForMe: $e");
@@ -609,7 +407,6 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
             .doc(messageId)
             .update({
           'isDeletedForEveryone': true,
-          //'messageContent': '', // Optional: clear message
           'mediaUrl': null // Optional: remove image if any
         });
       }
@@ -618,76 +415,11 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
       print("Error in deleteMessagesForEveryone: $e");
     }
   }
-
+  
   @override
   void dispose() {
-    _isActive = false;
-    messageController.dispose();
-    scrollController.dispose();
+    _timer?.cancel();
+    _recorder?.closeRecorder();
     super.dispose();
   }
 }
-
-
-
-  // Future<String> getOrCreateChatId(String senderId, String receiverId) async {
-  //   try {
-  //     String chatId = (senderId.hashCode <= receiverId.hashCode)
-  //         ? "$senderId\_$receiverId"
-  //         : "$receiverId\_$senderId";
-
-  //     DocumentReference chatRef = _firestore.collection("chats").doc(chatId);
-  //     DocumentSnapshot chatDoc = await chatRef.get();
-
-  //     if (!chatDoc.exists) {
-  //       await chatRef.set({
-  //         "chatId": chatId,
-  //         "isGroup": false,
-  //         //"users": List<String>.from([senderId, receiverId]),
-  //         "users": [senderId, receiverId],
-  //         "lastMessage": "",
-  //         "lastMessageTime": DateTime.now(),
-  //         "seenBy": [],
-  //         "typingUsers": [],
-  //         "createdAt": DateTime.now(),
-  //       }, SetOptions(merge: true));
-  //     }
-
-  //     return chatId;
-  //   } catch (e, stacktrace) {
-  //     print("Error in getOrCreateChatId: $e");
-  //     print(stacktrace);
-  //     return "";
-  //   }
-  // }
-
-  // Future<void> sendImageMessage(
-  //     String senderId, String receiverId, String imagePath) async {
-  //   if (!_isActive) return;
-  //   try {
-  //     File imageFile = File(imagePath);
-  //     String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
-
-  //     UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
-  //     TaskSnapshot snapshot = await uploadTask;
-  //     String downloadUrl = await snapshot.ref.getDownloadURL();
-
-  //     await sendMessage(
-  //       senderId: senderId,
-  //       receiverId: receiverId,
-  //       text: "📷 Photo",
-  //       mediaUrl: downloadUrl,
-  //       messageType: MessageType.image,
-  //     );
-  //     await updateLastSeen(senderId, isOnline: true);
-  //   } catch (e) {
-  //     print("Error sending image: $e");
-  //   }
-  // }
-
-
-  // String _generateChatId(String senderId, String receiverId) {
-  //   return (senderId.hashCode <= receiverId.hashCode)
-  //       ? "$senderId\_$receiverId"
-  //       : "$receiverId\_$senderId";
-  // }

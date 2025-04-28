@@ -7,11 +7,13 @@ import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
 import 'profile_edit_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context);
     final homeProvider = Provider.of<HomeProvider>(context);
-
+    //print('${profileProvider.name}');
     return Scaffold(
       appBar: settingsAppBar(),
       body: ListView(

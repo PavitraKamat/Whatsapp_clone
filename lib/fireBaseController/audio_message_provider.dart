@@ -25,7 +25,7 @@ class AudioMessageProvider extends ChangeNotifier {
     required this.isSentByUser,
   }) {
     _initAudioPlayer();
-    _tryInitWaveform();
+    //_tryInitWaveform();
   }
 
   PlayerController? get waveController => _waveController;
@@ -65,30 +65,30 @@ class AudioMessageProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
-  Future<void> _tryInitWaveform() async {
-    try {
-      final url = message.mediaUrl;
-      if (url == null || !url.startsWith("http")) return;
+  // Future<void> _tryInitWaveform() async {
+  //   try {
+  //     final url = message.mediaUrl;
+  //     if (url == null || !url.startsWith("http")) return;
 
-      _waveController = PlayerController();
-      final response = await http.get(Uri.parse(url));
+  //     _waveController = PlayerController();
+  //     final response = await http.get(Uri.parse(url));
 
-      if (response.statusCode == 200) {
-        final tempDir = await getTemporaryDirectory();
-        final tempFile =
-            File('${tempDir.path}/temp_audio_${message.messageId}.aac');
-        await tempFile.writeAsBytes(response.bodyBytes);
+  //     if (response.statusCode == 200) {
+  //       final tempDir = await getTemporaryDirectory();
+  //       final tempFile =
+  //           File('${tempDir.path}/temp_audio_${message.messageId}.aac');
+  //       await tempFile.writeAsBytes(response.bodyBytes);
 
-        await _waveController!.preparePlayer(
-          path: tempFile.path,
-          noOfSamples: 50,
-        );
+  //       await _waveController!.preparePlayer(
+  //         path: tempFile.path,
+  //         noOfSamples: 50,
+  //       );
 
-        isWaveformReady = true;
-        notifyListeners();
-      }
-    } catch (_) {}
-  }
+  //       isWaveformReady = true;
+  //       notifyListeners();
+  //     }
+  //   } catch (_) {}
+  // }
 
   Future<void> togglePlayback() async {
     try {

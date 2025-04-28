@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/audio_message_provider.dart';
 import 'package:wtsp_clone/fireBasemodel/models/msg_model.dart';
-import 'package:wtsp_clone/fireBaseview/components/message_status_icon.dart';
+import 'package:wtsp_clone/fireBaseview/components/messageBubble_component/message_status_icon.dart';
 
 class AudioMessageBubble extends StatelessWidget {
   final MessageModel message;

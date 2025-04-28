@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/onetoone_chat_provider.dart';
-import 'package:wtsp_clone/fireBaseview/components/audio_message_bubble.dart';
-import 'package:wtsp_clone/fireBaseview/components/deleted_message_ubble.dart';
-import 'package:wtsp_clone/fireBaseview/components/image_message_bubble.dart';
-import 'package:wtsp_clone/fireBaseview/components/text_message_bubble.dart';
-import '../../fireBasemodel/models/msg_model.dart';
+import 'package:wtsp_clone/fireBaseview/components/messageBubble_component/audio_message_bubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/messageBubble_component/deleted_message_ubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/messageBubble_component/image_message_bubble.dart';
+import 'package:wtsp_clone/fireBaseview/components/messageBubble_component/text_message_bubble.dart';
+import '../../../fireBasemodel/models/msg_model.dart';
 
 // class MessageBubble extends StatefulWidget {
 //   final MessageModel message;
