@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wtsp_clone/view/components/uihelper.dart';
 import 'package:wtsp_clone/view/screens/home/home_screen.dart';
@@ -19,7 +20,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNextScreen() async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 3));
 
     final prefs = await SharedPreferences.getInstance();
     bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
@@ -56,10 +57,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset("assets/images/whatsapp 1.png"),
+            //Image.asset("assets/images/whatsapp 1.png"),
+            Lottie.asset("assets/lottie/Animation - 1745908610021.json"),
             SizedBox(height: 10),
             UiHelper.CustomText(
-                text: "Whatsapp", height: 18, fontweight: FontWeight.bold)
+                text: "Chatapp", height: 18, fontweight: FontWeight.bold)
           ],
         ),
       ),

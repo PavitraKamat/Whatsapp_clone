@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/status_provider.dart';
+import 'package:wtsp_clone/fireBaseHelper/status_time_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/status_model.dart';
 import 'package:wtsp_clone/fireBaseview/components/floating_actions.dart';
 import 'package:wtsp_clone/fireBaseview/components/profileAvatar.dart';
@@ -184,11 +185,11 @@ AppBar updateScreenAppBar() {
   );
 }
 
-String timeAgo(DateTime timestamp) {
-  final now = DateTime.now();
-  final diff = now.difference(timestamp);
-  if (diff.inMinutes < 60) return "${diff.inMinutes} minutes ago";
-  if (diff.inHours < 24) return "${diff.inHours} hours ago";
-  return "${diff.inDays} days ago";
-}
+// String timeAgo(DateTime timestamp) {
+//   final now = DateTime.now();
+//   final diff = now.difference(timestamp);
+//   if (diff.inMinutes < 60) return "${diff.inMinutes} minutes ago";
+//   if (diff.inHours < 24) return "${diff.inHours} hours ago";
+//   return "${diff.inDays} days ago";
+// }
 

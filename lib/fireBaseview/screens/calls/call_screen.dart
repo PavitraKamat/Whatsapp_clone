@@ -92,7 +92,7 @@ class _CallScreenState extends State<FireBaseCallsScreen> {
             ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color.fromARGB(255, 108, 193, 149),
-        child: Icon(Icons.add_call),
+        child: Icon(Icons.add_call,color: Colors.white,),
         onPressed: () {},
       ),
     );

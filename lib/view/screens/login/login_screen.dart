@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/google_sign_in_provider.dart';
 import 'package:wtsp_clone/controller/login_provider.dart';
@@ -330,7 +331,11 @@ class LoginScreen extends StatelessWidget {
               key: loginProvider.formKey,
               child: Column(
                 children: [
+                  //const Icon(Icons.lock_outline, size: 80, color: Color(0xFF00A884)),
+                  //if (!loginProvider.isLogin)
                   const Icon(Icons.lock_outline, size: 80, color: Color(0xFF00A884)),
+                  //if(loginProvider.isLogin)
+                  //Lottie.asset("assets/lottie/Animation - 1745919570673.json",height: 200),
                   const SizedBox(height: 15),
                   Text(
                     loginProvider.isLogin ? "Welcome Back" : "Create an Account",

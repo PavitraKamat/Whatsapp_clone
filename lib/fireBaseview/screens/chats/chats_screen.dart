@@ -102,12 +102,12 @@ class FirebaseChatsScreen extends StatelessWidget {
     );
   }
 
-  Container _buildSearchBar(
+  Padding _buildSearchBar(
       FireBaseContactsProvider contactsProvider, BuildContext context) {
-    return Container(
-      height: 60.0,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+    return Padding(
+      //height: 60.0,
+      //child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 0),
         child: TextField(
           controller: contactsProvider.searchController,
           decoration: InputDecoration(
@@ -136,7 +136,7 @@ class FirebaseChatsScreen extends StatelessWidget {
             contactsProvider.filterContacts(value);
           },
         ),
-      ),
+      //),
     );
   }
 

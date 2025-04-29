@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/status_provider.dart';
+import 'package:wtsp_clone/fireBaseHelper/status_time_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/status_model.dart';
 import 'package:wtsp_clone/fireBaseview/components/profileAvatar.dart';
 
@@ -35,7 +36,9 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
       vsync: this,
       duration: const Duration(seconds: 5),
     )..addListener(() {
+      if(mounted) {
         setState(() {});
+      }
       });
 
     _progressController.addStatusListener((status) {
@@ -89,6 +92,7 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
 
   @override
   void dispose() {
+    _progressController.stop();
     _progressController.dispose();
     super.dispose();
   }
@@ -197,7 +201,6 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
                             size: 24,
                           ),
                         ),
-
                         const SizedBox(width: 10),
                         if (user != null)
                           SizedBox(
@@ -214,7 +217,6 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
                               hasStatus: true,
                             ),
                           ),
-
                         const SizedBox(width: 10),
                         Expanded(
                           child: Column(
@@ -238,7 +240,6 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
                             ],
                           ),
                         ),
-
                         PopupMenuButton<String>(
                           icon:
                               const Icon(Icons.more_vert, color: Colors.white),
@@ -336,36 +337,38 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
   Widget _buildStatusContent(StatusModel status) {
     switch (status.statusType) {
       case StatusType.image:
-      final image = Image.network(status.mediaUrl ?? '', fit: BoxFit.contain);
-      
-    image.image.resolve(const ImageConfiguration()).addListener(
-    ImageStreamListener(
-      (info, _) {
-        if (_isImageLoading) {
-          setState(() {
-            _isImageLoading = false;
-          });
-          _resumeProgress();
-        }
-      },
-      onError: (error, stackTrace) {
-        setState(() {
-          _isImageLoading = false;
-        });
-        _resumeProgress();
-      },
-    ),
-  );
-  return Stack(
-    fit: StackFit.expand,
-    children: [
-      Center(child: image),
-      if (_isImageLoading)
-        const Center(
-          child: CircularProgressIndicator(color: Colors.white),
-        ),
-    ],
-  );
+        final image = Image.network(status.mediaUrl ?? '', fit: BoxFit.contain);
+
+        image.image.resolve(const ImageConfiguration()).addListener(
+              ImageStreamListener(
+                (info, _) {
+                  if (_isImageLoading && mounted) {
+                    setState(() {
+                      _isImageLoading = false;
+                    });
+                    _resumeProgress();
+                  }
+                },
+                onError: (error, stackTrace) {
+                  if(mounted){
+                    setState(() {
+                    _isImageLoading = false;
+                  });
+                  }
+                  _resumeProgress();
+                },
+              ),
+            );
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Center(child: image),
+            if (_isImageLoading)
+              const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+          ],
+        );
       case StatusType.text:
         return Container(
           decoration: BoxDecoration(
@@ -389,20 +392,20 @@ class _StatusViewerScreenState extends State<StatusViewerScreen>
   }
 }
 
-String timeAgo(DateTime timestamp) {
-  final now = DateTime.now();
-  final diff = now.difference(timestamp);
-  if (diff.inMinutes < 60) return "${diff.inMinutes} minutes ago";
-  if (diff.inHours < 24) return "${diff.inHours} hours ago";
-  return "${diff.inDays} days ago";
-}
+// String timeAgo(DateTime timestamp) {
+//   final now = DateTime.now();
+//   final diff = now.difference(timestamp);
+//   if (diff.inMinutes < 60) return "${diff.inMinutes} minutes ago";
+//   if (diff.inHours < 24) return "${diff.inHours} hours ago";
+//   return "${diff.inDays} days ago";
+// }
 
 Color _parseColor(String colorStr) {
   try {
     if (colorStr.startsWith('#')) {
       String hexColor = colorStr.replaceAll("#", "");
       if (hexColor.length == 6) {
-        hexColor = "FF$hexColor"; 
+        hexColor = "FF$hexColor";
       }
       return Color(int.parse("0x$hexColor"));
     } else if (colorStr.startsWith('Color(')) {
@@ -424,11 +427,11 @@ Color _parseColor(String colorStr) {
         case 'purple':
           return const Color(0xFF8A2BE2);
         default:
-          return const Color(0xFF075E54); 
+          return const Color(0xFF075E54);
       }
     }
   } catch (e) {
-    return const Color(0xFF075E54); 
+    return const Color(0xFF075E54);
   }
 }
 

@@ -28,8 +28,9 @@ class UiHelper {
             Text(
               buttonname,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 15,
                 color: textColor ?? Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],

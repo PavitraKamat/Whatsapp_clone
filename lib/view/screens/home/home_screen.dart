@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
   AppBar _appBar(BuildContext context, HomeProvider homeProvider) {
     return AppBar(
       title: Text(
-        "WhatsApp",
+        "ChatApp",
         style: TextStyle(
           color: Color.fromARGB(255, 108, 193, 149),
           fontWeight: FontWeight.bold,
