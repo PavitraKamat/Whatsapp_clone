@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/user_profile_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class ContactProfileScreen extends StatelessWidget {
@@ -28,49 +28,7 @@ class ContactProfileScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-        CircleAvatar(
-        backgroundColor: Colors.grey[200],
-        child: ClipOval(
-          child: user.photoURL.isNotEmpty
-              ? Image.network(
-                  user.photoURL,
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return SizedBox(
-                      width: 40,
-                      height: 40,
-                      child: Center(
-                        child: SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color:const Color.fromARGB(255, 150, 229, 152),
-                            strokeWidth: 2.0,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      ProfileImageHelper.getProfileImage(user.phone),
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    );
-                  },
-                )
-              : Image.asset(
-                  ProfileImageHelper.getProfileImage(user.phone),
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
-        ),
-      ),
+            UserProfileHelper(photoUrl: user.photoURL, phone: user.phone,radius: 60,),
             SizedBox(height: 10),
             Text(
               user.firstName,

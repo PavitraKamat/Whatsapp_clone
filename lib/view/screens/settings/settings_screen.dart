@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/controller/home_provider.dart';
 import 'package:wtsp_clone/controller/profile_provider.dart';
+import 'package:wtsp_clone/fireBaseHelper/user_profile_helper.dart';
 import 'profile_edit_screen.dart';
 
 // class SettingsScreen extends StatelessWidget {
@@ -213,7 +214,9 @@ class SettingsScreen extends StatelessWidget {
           color: Color.fromARGB(255, 108, 193, 149),
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF2F2F7),
+      //elevation: 1,
+      scrolledUnderElevation: 0,
       actions: [
         IconButton(
           icon: const Icon(Icons.search, color: Colors.black),
@@ -231,31 +234,7 @@ class SettingsScreen extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
     ),
     child: ListTile(
-      leading: ClipOval(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CircleAvatar(
-              radius: 30, 
-              backgroundColor: Colors.blue.shade100,
-              child: const Icon(Icons.person, color: Colors.blue, size: 30),
-            ),
-            if (provider.imageUrl != null && provider.imageUrl!.isNotEmpty)
-              Image.network(
-                provider.imageUrl!,
-                width: 60,  
-                height: 60,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const SizedBox(); // keep default avatar while loading
-                },
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.error, size: 30, color: Colors.red),
-              ),
-          ],
-        ),
-      ),
+      leading: UserProfileHelper(photoUrl: provider.imageUrl ?? "", phone: provider.phoneNumber,radius: 30,),
       title: Text(
         provider.name,
         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -291,7 +270,7 @@ class SettingsScreen extends StatelessWidget {
           leading: Container(
             padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.2),
+              color: iconColor.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: iconColor),

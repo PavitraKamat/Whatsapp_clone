@@ -135,7 +135,7 @@ class SelectContactPage extends StatelessWidget {
 
   Widget _buildUserTile(UserModel user, BuildContext context) {
     return ListTile(
-      leading: UserProfileHelper(photoUrl:user.photoURL,phone:user.phone),
+      leading: UserProfileHelper(photoUrl:user.photoURL,phone:user.phone,radius: 25,),
       title: Text(user.uid == FirebaseAuth.instance.currentUser?.uid
           ? '${user.firstName} (You)'
           : user.firstName),

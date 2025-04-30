@@ -140,7 +140,7 @@ class FireBaseCommunitiesScreen extends StatelessWidget {
         ),
       ),
       backgroundColor: Colors.white,
-      elevation: 1,
+      scrolledUnderElevation: 0,
       actions: [
         IconButton(
           icon: const Icon(Icons.search, color: Colors.black),

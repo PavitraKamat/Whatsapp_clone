@@ -296,6 +296,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
     try {
       File imageFile = File(imagePath);
+      print('$imageFile');
       String chatId = ChatIdHelper.generateChatId(senderId, receiverId);
       String messageId = _firestore
           .collection('chats')
@@ -326,6 +327,7 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
       //Add to local message list to show immediately
       _messages.add(tempMessage);
+      //print('$tempMessage');
       notifyListeners();
 
       await createChatIfNotExists(senderId, receiverId);
@@ -340,9 +342,11 @@ class FireBaseOnetoonechatProvider extends ChangeNotifier {
 
       //Upload image to Firebase Storage
       String fileName = "images/${DateTime.now().millisecondsSinceEpoch}.jpg";
+      print('$fileName');
       UploadTask uploadTask = _storage.ref(fileName).putFile(imageFile);
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
+      print('$downloadUrl');
 
       //Update the same Firestore message with the actual download URL
       await _firestore

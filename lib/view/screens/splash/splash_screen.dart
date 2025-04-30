@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
       User? user = FirebaseAuth.instance.currentUser;
       if (!mounted) return;
       if (user != null) {
-        //print("userdetails  ${user!.displayName}");
+        print("userdetails  ${user.displayName}");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomeScreen()),

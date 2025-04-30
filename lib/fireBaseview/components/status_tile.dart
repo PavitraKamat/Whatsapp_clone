@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wtsp_clone/fireBaseController/status_provider.dart';
 import 'package:wtsp_clone/fireBaseHelper/profile_image_helper.dart';
+import 'package:wtsp_clone/fireBaseHelper/user_profile_helper.dart';
 import 'package:wtsp_clone/fireBasemodel/models/user_model.dart';
 
 class StatusTile extends StatelessWidget {
@@ -34,11 +35,12 @@ class StatusTile extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.all(2.0),
-          child: CircleAvatar(
-            radius: 24,
-            backgroundColor: Colors.grey.shade300,
-            backgroundImage: _getProfileImage(user, provider),
-          ),
+          // child: CircleAvatar(
+          //   radius: 24,
+          //   backgroundColor: Colors.grey.shade300,
+          //   backgroundImage: _getProfileImage(user, provider),
+          // ),
+          child: UserProfileHelper(photoUrl: user.photoURL, phone: user.phone,radius: 24,),
         ),
       ),
       title: Text(name),
@@ -47,12 +49,12 @@ class StatusTile extends StatelessWidget {
     );
   }
 
-  ImageProvider _getProfileImage(UserModel user, StatusProvider provider) {
-    if (user.photoURL.isNotEmpty) {
-      return NetworkImage(user.photoURL);
-    } else {
-      // Make sure ProfileImageHelper.getProfileImage returns a valid asset path
-      return AssetImage(ProfileImageHelper.getProfileImage(user.phone));
-    }
-  }
+  // ImageProvider _getProfileImage(UserModel user, StatusProvider provider) {
+  //   if (user.photoURL.isNotEmpty) {
+  //     return NetworkImage(user.photoURL);
+  //   } else {
+  //     // Make sure ProfileImageHelper.getProfileImage returns a valid asset path
+  //     return AssetImage(ProfileImageHelper.getProfileImage(user.phone));
+  //   }
+  // }
 }

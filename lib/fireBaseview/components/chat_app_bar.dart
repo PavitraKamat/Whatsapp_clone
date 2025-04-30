@@ -80,10 +80,10 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             );
           },
-          child: UserProfileHelper(photoUrl: user.photoURL, phone: user.phone),
+          child: UserProfileHelper(photoUrl: user.photoURL, phone: user.phone,radius: 21,),
         ),
         const SizedBox(
-          width: 10,
+          width: 8,
         ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,6 +93,7 @@ class ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
                   ? '${user.firstName} (You)'
                   : user.firstName,
               style: TextStyle(fontSize: 18.5, fontWeight: FontWeight.bold),
+              //overflow: TextOverflow.ellipsis,
             ),
             Text(
               provider.lastSeen,
